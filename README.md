@@ -15,7 +15,7 @@
 
 ## Équipe
 
-<div align="center">
+<div align="left">
 
    **🙋‍♂️ [Hugo CARVALHO FONTES](https://github.com/HugouShare)**
 
