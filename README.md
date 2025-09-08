@@ -52,13 +52,13 @@
 
 timeline
     title 🚀 Évolution du projet
-    section Phase 1 : conception du PCB
+    section Phase 1 - conception du PCB
       2020 : Début du projet 🛠️
       2021 : Première version publiée 📦
-    section Phase 2 : écriture du code C
+    section Phase 2 - écriture du code C
       2022 : Nouvelles fonctionnalités ✨
       2023 : Migration CI/CD ⚙️
-    section Phase 3 : tests et vérification
+    section Phase 3 - tests et vérifications
       2024 : Ouverture à la communauté 🌍
       2025 : Version stable 🎉
 ```
