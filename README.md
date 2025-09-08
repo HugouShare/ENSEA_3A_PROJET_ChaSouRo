@@ -28,10 +28,12 @@
 </div>
 
 ## Introduction
+
 - Nous réalisons ce projet dans le cadre de notre dernière année d'étude en spécialité électronique et systèmes embarqués à l'[ENSEA](https://www.ensea.fr/fr) située à Cergy.
 - Le but du projet est de réaliser deux robots : l'un étant le robot chat et l'autre le robot souris. Les deux robots évoluent ensuite de manière autonome sur une table. Le but du jeu est alors le suivant : le robot chat doit tenter d'attraper le robot souris qui doit donc tenter d'échapper au robot chat. Une fois que le robot chat attrape le robot souris, les rôles s'inversent et la partie continue. 
 
 ## Missions & Objectifs
+
 - Les missions principales sont les suivantes :
    - **Mission 1 : Séparation & Transmission**
       - Blablabla...
@@ -59,6 +61,8 @@ timeline
     section Phase 3
       2024 : Ouverture à la communauté 🌍
       2025 : Version stable 🎉
+```
 
 ## Journal de bord
+
 Pour consulter notre journal de bord [cliquez ici](Documents/Journal-de-bord.txt)
