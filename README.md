@@ -38,15 +38,27 @@
 
 ## Timeline
 
-<h2>Timeline</h2>
+```mermaid
+%%{init: {"theme":"default", "themeVariables": {
+  "primaryColor": "#4F46E5",
+  "primaryTextColor": "#ffffff",
+  "primaryBorderColor": "#312E81",
+  "lineColor": "#6366F1",
+  "secondaryColor": "#E0E7FF",
+  "tertiaryColor": "#A5B4FC"
+}}}%%
 
-<ul>
-  <li><b>2020 :</b> Début du projet 🚀</li>
-  <li><b>2021 :</b> Première version publiée 📦</li>
-  <li><b>2022 :</b> Ajout de nouvelles fonctionnalités ✨</li>
-  <li><b>2023 :</b> Migration vers GitHub Actions ⚙️</li>
-  <li><b>2024 :</b> Ouverture à la communauté 🌍</li>
-</ul>
+timeline
+    title 🚀 Évolution du projet
+    section Phase 1
+      2020 : Début du projet 🛠️
+      2021 : Première version publiée 📦
+    section Phase 2
+      2022 : Nouvelles fonctionnalités ✨
+      2023 : Migration CI/CD ⚙️
+    section Phase 3
+      2024 : Ouverture à la communauté 🌍
+      2025 : Version stable 🎉
 
 ## Journal de bord
-Pour consulter notre journal de bord [cliquez ici](Documents/Journal de bord.txt)
+Pour consulter notre journal de bord [cliquez ici](Documents/Journal-de-bord.txt)
