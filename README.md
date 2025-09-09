@@ -23,7 +23,7 @@
 
    **🙋‍♂️ [Hugo CORDI](https://github.com/Lynxlegrand)**
 
-   **🙋‍♂️ [Arthur Cesar NJITCHOU NKWA]()**
+   **🙋‍♂️ [Arthur Cesar NJITCHOU NKWA](https://github.com/ArthurNjitchou)**
 
 </div>
 
