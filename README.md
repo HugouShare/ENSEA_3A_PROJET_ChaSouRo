@@ -21,7 +21,7 @@
 
    **🙋‍♂️ [Nelven THÉBAULT](https://github.com/NelvTheb)**
 
-   **🙋‍♂️ [Hugo CORDI]()**
+   **🙋‍♂️ [Hugo CORDI](https://github.com/Lynxlegrand)**
 
    **🙋‍♂️ [Arthur Cesar NJITCHOU NKWA]()**
 
