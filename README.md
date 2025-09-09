@@ -34,7 +34,7 @@
 
 ## 🎯 Missions & Objectifs
 
-- Les missions principales sont les suivantes (réparties selon différents niveaux) :
+Les missions principales sont les suivantes (réparties selon différents niveaux) :
   - **Niveau 0 :**
     - Le robot se déplace
     - Il ne tombe pas de la table
