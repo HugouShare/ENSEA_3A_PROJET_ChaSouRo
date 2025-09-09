@@ -34,9 +34,19 @@
 
 ## 🎯 Missions & Objectifs
 
-- Les missions principales sont les suivantes :
-   - **Mission 1 : Séparation & Transmission**
-      - Blablabla...
+- Les missions principales sont les suivantes (réparties selon différents niveaux) :
+  - **Niveau 0 :**
+    - Le robot se déplace
+    - Il ne tombe pas de la table
+  - **Niveau 1 :**
+    - Il détecte et se dirige vers un objet
+    - Ou s’en éloigne s’il n’est pas le chat
+  - **Niveau 2 :**
+    - Il change de comportement (proie/prédateur) après un contact
+    - Il fonctionne avec plusieurs robots sur la table
+  - **Niveau 3 :**
+    - Il n’est pas affecté par les obstacles hors de la table
+    - Il est donc capable de se localiser
 
 ## ⌚ Timeline
 
