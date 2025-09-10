@@ -78,4 +78,4 @@ timeline
 
 ## 📝 Journal de bord
 
-Pour consulter notre journal de bord [cliquez ici](Documents/Journal-de-bord.md)
+Pour consulter notre journal de bord [cliquez ici](Documents/Journal%20de%20bord.md)
