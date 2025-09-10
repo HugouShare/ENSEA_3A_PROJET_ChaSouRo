@@ -78,4 +78,4 @@ timeline
 
 ## 📝 Journal de bord
 
-Pour consulter notre journal de bord [cliquez ici](https://github.com/HugouShare/ENSEA_3AProject_ChaSouRo/blob/main/Documents/Journal%20de%20bord.txt)
+Pour consulter notre journal de bord [cliquez ici](Documents/Journal-de-bord.md)
