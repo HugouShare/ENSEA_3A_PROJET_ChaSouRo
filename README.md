@@ -63,16 +63,19 @@ Les missions principales sont les suivantes (réparties selon différents niveau
 timeline
     title 🚀 Évolution du projet
     section Phase 1 - conception du PCB
-      2020 : Début du projet 🛠️
-      2021 : Première version publiée 📦
+      Séance 1 : Schéma architectural / BOM
+      Séance 2 et 3 : Schéma électronique annoté
+      Séance 4 : Corrections Schéma / BOM Finale
+      Séance 5 : Placement
+      Séance 6 : Placement corrigé
+      Séance 7 et 8 : Routage
+      Séance 9 et 10 : Corrections Routage, export...
     section Phase 2 - écriture du code C
-      2022 : Nouvelles fonctionnalités ✨
-      2023 : Migration CI/CD ⚙️
+      A compléter...
     section Phase 3 - tests et vérifications
-      2024 : Ouverture à la communauté 🌍
-      2025 : Version stable 🎉
+      A compléter...
 ```
 
-## 📋 Journal de bord
+## 📝 Journal de bord
 
 Pour consulter notre journal de bord [cliquez ici](Documents/Journal-debord.txt)
