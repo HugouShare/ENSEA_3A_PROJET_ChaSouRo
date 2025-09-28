@@ -2625,6 +2625,12 @@
 		(uuid "65435507-96a4-4183-a476-7d53243c64b6")
 	)
 	(junction
+		(at 100.33 66.04)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6aef3c14-1ef6-4650-a9a6-9c835c1cf85c")
+	)
+	(junction
 		(at 226.06 54.61)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2689,6 +2695,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "df65df9f-ca61-4c67-9b69-ed42f883d456")
+	)
+	(junction
+		(at 100.33 33.02)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e50f96ac-af06-41f0-9677-276756fab8b0")
 	)
 	(junction
 		(at 41.91 38.1)
@@ -2769,6 +2781,16 @@
 			(type default)
 		)
 		(uuid "1521423d-85b7-4001-a7dc-912c03117f3d")
+	)
+	(wire
+		(pts
+			(xy 100.33 31.75) (xy 100.33 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1742b673-63c3-47dc-ab3d-f0c58291279a")
 	)
 	(wire
 		(pts
@@ -3042,6 +3064,16 @@
 	)
 	(wire
 		(pts
+			(xy 100.33 81.28) (xy 100.33 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6a60de56-f904-4e68-8b0c-6912c3dfe6c1")
+	)
+	(wire
+		(pts
 			(xy 181.61 67.31) (xy 181.61 69.85)
 		)
 		(stroke
@@ -3059,6 +3091,16 @@
 			(type default)
 		)
 		(uuid "73f1b3ac-cbe9-4e9b-ae95-a8dce1a62720")
+	)
+	(wire
+		(pts
+			(xy 100.33 48.26) (xy 100.33 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7e491ec7-20ed-42c0-8530-4bf817697aee")
 	)
 	(wire
 		(pts
@@ -3239,6 +3281,16 @@
 			(type default)
 		)
 		(uuid "e2e2fe47-8d91-4963-aaf7-9d2cb964d2e9")
+	)
+	(wire
+		(pts
+			(xy 100.33 64.77) (xy 100.33 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e484bc4f-18b1-440a-a3f3-2c576ef710c1")
 	)
 	(wire
 		(pts
@@ -3692,6 +3744,75 @@
 	)
 	(symbol
 		(lib_id "Device:C_Small")
+		(at 100.33 50.8 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "00bb8ab2-a612-4d1a-b3d5-b7ccf7a12bf8")
+		(property "Reference" "C32"
+			(at 93.726 49.784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1u"
+			(at 93.726 52.324 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 100.33 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 100.33 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 100.33 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "469f84cd-46cf-4c80-8cd0-cce9b2076ae0")
+		)
+		(pin "2"
+			(uuid "b2e32e76-3bbe-40fc-954a-7d37bf2b9b28")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
+					(reference "C32")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Small")
 		(at 251.46 45.72 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -4052,6 +4173,73 @@
 			(project "ChaSouRo"
 				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
 					(reference "J11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 100.33 53.34 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0b7057c3-6d9c-4cab-ba2b-58ddee0b3ed9")
+		(property "Reference" "#PWR094"
+			(at 100.33 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 100.33 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 100.33 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 100.33 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 100.33 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "021874c5-5489-4331-b29b-07f3fd0e90d1")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
+					(reference "#PWR094")
 					(unit 1)
 				)
 			)
@@ -5274,6 +5462,144 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C_Small")
+		(at 100.33 62.23 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "41e00a26-12e5-43f9-a201-99f8250bf6c0")
+		(property "Reference" "C35"
+			(at 106.934 63.246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1u"
+			(at 106.934 60.706 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 100.33 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 100.33 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 100.33 62.23 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "927d1cf9-8c06-4baf-8630-d406fd04ce15")
+		)
+		(pin "2"
+			(uuid "9f7f0402-ee75-413b-b6f4-b68b825f6a90")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
+					(reference "C35")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Small")
+		(at 100.33 29.21 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "453cd7c5-483b-454c-833c-dd3612b596f3")
+		(property "Reference" "C33"
+			(at 106.934 30.226 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1u"
+			(at 106.934 27.686 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 100.33 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 100.33 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 100.33 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ec465669-73d9-471b-8656-41878ed0fd7c")
+		)
+		(pin "2"
+			(uuid "068481ef-7142-4c65-aa2b-1c920fa48b4b")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
+					(reference "C33")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 29.21 40.64 0)
 		(unit 1)
@@ -5465,7 +5791,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left top)
-				(hide yes)
 			)
 		)
 		(property "Description" "Switching Voltage Regulators 3A, 16V, 500kHz Sync, Stp-Dwn Cnvrtr"
@@ -6547,6 +6872,73 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 100.33 86.36 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "82e1b7fb-1c5c-4aab-a108-1867657c54ff")
+		(property "Reference" "#PWR096"
+			(at 100.33 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 100.33 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 100.33 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 100.33 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 100.33 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "dd0fb8f2-9ab1-45cd-8177-1302ad1eb999")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
+					(reference "#PWR096")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 231.14 81.28 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7151,6 +7543,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 100.33 26.67 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b09232af-f54c-4922-81a1-dfc29096bb4a")
+		(property "Reference" "#PWR095"
+			(at 100.33 20.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 100.33 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 100.33 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 100.33 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 100.33 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5d155dcb-cdc0-400a-9179-55a86e5c25b0")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
+					(reference "#PWR095")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_Small")
 		(at 219.71 45.72 270)
 		(unit 1)
@@ -7557,6 +8016,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 100.33 59.69 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c1b75ef0-3935-4018-aadb-de51544b4a6d")
+		(property "Reference" "#PWR097"
+			(at 100.33 53.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 100.33 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 100.33 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 100.33 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 100.33 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "8ee0411b-c920-4a2d-9d81-9753cf1bc931")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
+					(reference "#PWR097")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+7.5V")
 		(at 41.91 38.1 90)
 		(unit 1)
@@ -7688,6 +8214,75 @@
 			(project "ChaSouRo"
 				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
 					(reference "R8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Small")
+		(at 100.33 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "cfb8b51e-2c67-4df1-b0fc-81a806167f03")
+		(property "Reference" "C34"
+			(at 93.726 82.804 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1u"
+			(at 93.726 85.344 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 100.33 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 100.33 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor, small symbol"
+			(at 100.33 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9d946eb6-67d9-42a7-95a1-e871166ac847")
+		)
+		(pin "2"
+			(uuid "1d35321c-9ffe-45d0-aa44-10ae1e8e3712")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c/835d5b04-801a-4fb7-8876-590de518869e"
+					(reference "C34")
 					(unit 1)
 				)
 			)
