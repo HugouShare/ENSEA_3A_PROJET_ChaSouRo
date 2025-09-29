@@ -1,0 +1,42 @@
+# --- STM32CubeIDE / Eclipse ---
+.settings/
+.metadata/
+*.launch
+*.log
+*.temp
+*.bak
+*.swp
+
+# --- STM32 Build ---
+Debug/
+Release/
+build/
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.list
+
+# --- STM32 Specific ---
+*.ioc
+*.ld
+
+# --- OS / IDE files ---
+*.user
+*.suo
+*.db
+*.opendb
+*.VC.db
+*.pyc
+*.pyo
+*.class
+
+# --- VS Code ---
+.vscode/
+*.code-workspace
+
+# --- Misc ---
+*.DS_Store
+Thumbs.db
