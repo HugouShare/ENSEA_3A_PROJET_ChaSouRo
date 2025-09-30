@@ -2,7 +2,7 @@
 - corriger le code de reconnaissance de clusters
 (- faire le code d'interpolarisation)
 - faire le code de détection des ennemis
-
+- faire le code de l'odométrie
 
 
 

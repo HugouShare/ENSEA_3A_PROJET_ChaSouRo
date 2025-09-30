@@ -54,11 +54,10 @@ void LIDAR_While(void)
 		LID_Flags.send_frame_to_pc = false;
 	}
 	if (buffer_fill_ratio>SATISFYING_BUFFER_FILL_RATIO){ //traiter le buffer et le vider
-		//		LID_Compute_Angular_sections_fill_rate();
-		//		LIDAR_SendBuffer_Frame(&huart2);
-		//		HAL_Delay(3000);
+//		LIDAR_SendBuffer_Frame(&huart2);
+//		HAL_Delay(3000);
 
-		LIDAR_ApplyMedianFilter(LID_list_of_samples, LID_SAMPLE_NUMBER);
+//		LIDAR_ApplyMedianFilter(LID_list_of_samples, LID_SAMPLE_NUMBER);
 		LIDAR_FindClusters();
 		LID_clear_sample_buffer();
 
@@ -200,7 +199,8 @@ void manage_current_frame(LIDAR_Frame current_frame, uint8_t sample_count){
 
 		LIDAR_Sample sample;
 		sample.distance_mm = (uint16_t)distance_mm_f;
-		sample.angle_deg_x10 = (uint16_t)(angle_deg_f * 10);
+		sample.angle_x_deg = (uint16_t)(angle_deg_f * (float) LID_SAMPLE_NUMBER/360);
+//		sample.angle_deg_x10 = (uint16_t)(angle_deg_f * 10);////////////////////////////////
 		sample.quality = (S_i & 0x0001) ? 0 : 1;
 
 		LID_Store_Sample(sample);
@@ -212,7 +212,7 @@ void manage_current_frame(LIDAR_Frame current_frame, uint8_t sample_count){
 // STOCKAGE DES SAMPLES
 ////////////////////////////////////////////////////////////////////////
 void LID_Store_Sample(LIDAR_Sample sample) {
-	uint16_t idx = sample.angle_deg_x10;
+	uint16_t idx = sample.angle_x_deg;
 	if (idx >= LID_SAMPLE_NUMBER) return;
 
 	if (LID_list_of_samples[idx].distance_mm == 0){
@@ -220,7 +220,7 @@ void LID_Store_Sample(LIDAR_Sample sample) {
 	}
 
 	LID_list_of_samples[idx].distance_mm = sample.distance_mm;
-	LID_list_of_samples[idx].angle_deg_x10 = sample.angle_deg_x10;
+	LID_list_of_samples[idx].angle_x_deg = sample.angle_x_deg;
 	LID_list_of_samples[idx].quality = sample.quality;
 
 	// Update buffer fill
@@ -240,13 +240,13 @@ void LIDAR_SendBuffer_Frame(UART_HandleTypeDef *huart) {
 	for (uint16_t i = 0; i < 360; i++) {
 		for(uint16_t j = 0; j < 100; j++){
 			LIDAR_Sample s = LID_list_of_samples[i*10 + j];		//debug
-			if(s.angle_deg_x10 != 0 && s.distance_mm > LIDAR_MIN_DIST && s.distance_mm < LIDAR_MAX_DIST){
+			if(s.angle_x_deg != 0 && s.distance_mm > LIDAR_MIN_DIST && s.distance_mm < LIDAR_MAX_DIST){
 				chosen_s = s;
 				break;
 			}
 		}
 
-		uint16_t angle_x10 = chosen_s.angle_deg_x10;
+		uint16_t angle_x10 = chosen_s.angle_x_deg;
 
 		// Format "angle,distance\n"
 		int len = snprintf(line, sizeof(line), "%u,%u\r\n", angle_x10, chosen_s.distance_mm);
@@ -312,79 +312,86 @@ void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count) {
 ////////////////////////////////////////////////////////////////////////
 
 void LIDAR_FindClusters(void) {
-	cluster_count = 0;
+    cluster_count = 0;
+    LID_clear_cluster_buffer();
+    uint16_t i = 0;
 
-	uint16_t i = 0;
-	LID_clear_cluster_buffer();
-	while (i < LID_SAMPLE_NUMBER) {
-		// ignorer points invalides
-		if (LID_list_of_samples[i].distance_mm == 0 ||
-				LID_list_of_samples[i].distance_mm > (uint16_t)(LIDAR_MAX_DIST)||
-				LID_list_of_samples[i].distance_mm < (uint16_t)(LIDAR_MIN_DIST)) {
-			i++;
-			continue;
-		}
+    while (i < LID_SAMPLE_NUMBER) {
+        // ignorer points invalides
+        if (LID_list_of_samples[i].distance_mm == 0 ||
+            LID_list_of_samples[i].distance_mm > (uint16_t)(LIDAR_MAX_DIST) ||
+            LID_list_of_samples[i].distance_mm < (uint16_t)(LIDAR_MIN_DIST)) {
+            i++;
+            continue;
+        }
 
-		// début de cluster
-		uint16_t start_idx = i;
-		uint16_t end_idx = i;
-		LIDAR_Sample prev_sample = LID_list_of_samples[i];
+        // début de cluster
+        uint16_t start_idx = i;
+        uint16_t end_idx   = i;
+        LIDAR_Sample prev_sample = LID_list_of_samples[i];
 
-		// recherche de la fin du cluster
-		while (i < LID_SAMPLE_NUMBER) {
-			LIDAR_Sample sample = LID_list_of_samples[i];
-			if (find_Cluster_norm(sample, prev_sample) > (MAX_DISTANCE_GAP) && sample.distance_mm !=0) {
-				break; // rupture -> fin de cluster
-			}
-			prev_sample = sample;
-			end_idx = i;
-			i++;
-		}
+        // recherche de la fin du cluster
+        while (++i < LID_SAMPLE_NUMBER) {
+            LIDAR_Sample sample = LID_list_of_samples[i];
+            if (sample.distance_mm == 0) break; // rupture si invalide
+            if (find_Cluster_norm(sample, prev_sample) > MAX_DISTANCE_GAP) {
+                break; // rupture -> fin de cluster
+            }
+            prev_sample = sample;
+            end_idx = i;
+        }
 
-		// nombre de points dans ce cluster
-		uint16_t nPoints = end_idx - start_idx + 1;
+        // nombre de points dans ce cluster
+        uint16_t nPoints = end_idx - start_idx + 1;
 
-		if (nPoints >= MIN_POINTS_CLUSTER && cluster_count < MAX_CLUSTERS) {
-			// calcul centre du cluster
-			float sumX = 0.0f;
-			float sumY = 0.0f;
-			float minD = 9999.0f;
-			float maxD = 0.0f;
-			float closestAngle_deg = 0.0f;
+        if (nPoints >= MIN_POINTS_CLUSTER && cluster_count < MAX_CLUSTERS) {
+            // calcul centre du cluster
+            float sumX = 0.0f;
+            float sumY = 0.0f;
+            float minD = FLT_MAX;
+            float maxD = 0.0f;
+            float closestAngle_deg = 0.0f;
+            uint16_t validPoints = 0;
 
-			for (uint16_t k = start_idx; k <= end_idx; k++) {
-				if (LID_list_of_samples[k].distance_mm == 0){
-					continue;
-				}
-				float dist_m = LID_list_of_samples[k].distance_mm / 1000.0f;
-				float angle_deg = LID_list_of_samples[k].angle_deg_x10 / 10.0f;
-				float angle_rad = angle_deg * (float)M_PI / 180.0f;
+            for (uint16_t k = start_idx; k <= end_idx; k++) {
+                if (LID_list_of_samples[k].distance_mm == 0) continue;
 
-				float x = dist_m * cosf(angle_rad);
-				float y = dist_m * sinf(angle_rad);
+                float dist_m = LID_list_of_samples[k].distance_mm / 1000.0f;
+                float angle_deg = ((float)LID_list_of_samples[k].angle_x_deg) * 360.0f / (float)LID_SAMPLE_NUMBER;
 
-				sumX += x;
-				sumY += y;
+                // normalisation angle [0;360)
+                if (angle_deg >= 360.0f) angle_deg -= 360.0f;
+                if (angle_deg < 0.0f) angle_deg += 360.0f;
 
-				if (dist_m < minD) {
-					minD = dist_m;
-					if (angle_deg!=0) closestAngle_deg = angle_deg;	//on prend l'angle du point le plus proche
-				}
-				if (dist_m > maxD) maxD = dist_m;
-			}
+                float angle_rad = angle_deg * (float)M_PI / 180.0f;
+                float x = dist_m * cosf(angle_rad);
+                float y = dist_m * sinf(angle_rad);
 
-			clusters[cluster_count].x = sumX / nPoints;
-			clusters[cluster_count].y = sumY / nPoints;
-			clusters[cluster_count].angle_deg = closestAngle_deg;
-			clusters[cluster_count].nPoints = nPoints;
-			clusters[cluster_count].minDist = minD;
-			clusters[cluster_count].maxDist = maxD;
+                sumX += x;
+                sumY += y;
+                validPoints++;
 
-			cluster_count++;
-		}
+                if (dist_m < minD) {
+                    minD = dist_m;
+                    closestAngle_deg = angle_deg; // angle du point le plus proche
+                }
+                if (dist_m > maxD) {
+                    maxD = dist_m;
+                }
+            }
 
-		i++;
-	}
+            if (validPoints > 0) {
+                clusters[cluster_count].x        = sumX / validPoints;
+                clusters[cluster_count].y        = sumY / validPoints;
+                clusters[cluster_count].angle_deg = closestAngle_deg;
+                clusters[cluster_count].nPoints  = validPoints;
+                clusters[cluster_count].minDist  = minD;
+                clusters[cluster_count].maxDist  = maxD;
+
+                cluster_count++;
+            }
+        }
+    }
 }
 
 
@@ -393,8 +400,9 @@ float find_Cluster_norm(LIDAR_Sample sample, LIDAR_Sample prev_sample){
 	//	return fabsf((float)sample.distance_mm - (float)prev_sample.distance_mm);
 
 	//Euclidian norm
-	float angle1 = ((float)sample.angle_deg_x10) / 10.0f * (M_PI / 180.0f);
-	float angle2 = ((float)prev_sample.angle_deg_x10) / 10.0f * (M_PI / 180.0f);
+	float angle1 = ((float)sample.angle_x_deg) * 360.0f / (float)LID_SAMPLE_NUMBER * (M_PI / 180.0f);
+	float angle2 = ((float)prev_sample.angle_x_deg) * 360.0f / (float)LID_SAMPLE_NUMBER * (M_PI / 180.0f);
+
 
 	float x1 = sample.distance_mm * cosf(angle1);
 	float y1 = sample.distance_mm * sinf(angle1);
@@ -427,7 +435,7 @@ float LID_FillRate_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_
 			cnt++;
 		}
 	}
-	return((float)cnt/(float)LID_SAMPLE_NUMBER);
+	return (section_len > 0) ? ((float)cnt / (float)section_len) : 0.0f;
 }
 
 

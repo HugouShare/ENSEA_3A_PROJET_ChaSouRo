@@ -15,6 +15,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include <float.h>  // pour FLT_MAX
 
 ////////////////////////////////////////////////////////////////////////PARAMETERS
 //Paramètres généraux
@@ -23,18 +24,18 @@
 #define LID_huartx huart4
 
 //Filtrage et reconnaissance de cluster
-#define LID_SPEED 35		//angular speed in %
-#define SATISFYING_BUFFER_FILL_RATIO 0.3f			//pourcentage de remplissage du buffer non filtré satisfaisant
+#define LID_SPEED 50		//angular speed in %
+#define SATISFYING_BUFFER_FILL_RATIO 0.5f			//pourcentage de remplissage du buffer non filtré satisfaisant
 
-#define LIDAR_MIN_DIST  20    // mm
-#define LIDAR_MAX_DIST  300    // mm
-#define MAX_DISTANCE_GAP  500  // mm gap between consecutive points -> new cluster
-#define MIN_POINTS_CLUSTER  7	//nombre de points minimum pour détecter un cluster
+#define LIDAR_MIN_DIST  1    // mm
+#define LIDAR_MAX_DIST  200    // mm
+#define MAX_DISTANCE_GAP  200  // mm gap between consecutive points -> new cluster
+#define MIN_POINTS_CLUSTER  3	//nombre de points minimum pour détecter un cluster
 #define MAX_CLUSTERS 32
 
 ////////////////////////////////////////////////////////////////////////CONSTANTS
 #define LID_RX_BUF_SIZE   256     // taille du buffer UART DMA (à ajuster)
-#define LID_SAMPLE_NUMBER 3600    // nombre de points par scan
+#define LID_SAMPLE_NUMBER 360    // nombre de points par scan
 #define MAX_FRAME_SIZE    120     // taille max d’une trame LIDAR (bytes)
 #define RAD_TO_DEG        57.29577951308232f
 
@@ -44,7 +45,7 @@
 ////////////////////////////////////////////////////////////////////////STRUCTURES
 typedef struct {
 	uint16_t distance_mm;
-	uint16_t angle_deg_x10;
+	uint16_t angle_x_deg;
 	uint8_t quality;
 } LIDAR_Sample;
 
