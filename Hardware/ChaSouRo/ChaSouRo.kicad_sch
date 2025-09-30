@@ -3394,6 +3394,12 @@
 		(uuid "357c94d4-8940-4ce3-a55b-8a27fff0ed26")
 	)
 	(junction
+		(at 170.18 50.8)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3be9dd54-0045-4d3e-bb35-ab8bf8bd6cf0")
+	)
+	(junction
 		(at 198.12 36.83)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5897,6 +5903,72 @@
 			(project "ChaSouRo"
 				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c"
 					(reference "#PWR010")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 170.18 50.8 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0a975bb6-b272-4f0b-8561-94927e6a8f93")
+		(property "Reference" "#PWR017"
+			(at 170.18 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 170.18 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 170.18 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 170.18 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 170.18 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e69053cc-e404-4817-92bd-3545330b448b")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c"
+					(reference "#PWR017")
 					(unit 1)
 				)
 			)

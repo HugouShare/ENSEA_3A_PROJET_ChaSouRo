@@ -2265,16 +2265,6 @@
 		)
 		(uuid "9f71244e-40f3-4a51-b9e3-e7daec6dad99")
 	)
-	(text "2502 si possible"
-		(exclude_from_sim no)
-		(at 213.106 95.25 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "a037696a-4fe9-448a-b9e7-8fead953e13a")
-	)
 	(text "Buzzer"
 		(exclude_from_sim no)
 		(at 181.864 55.88 0)
