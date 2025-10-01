@@ -1,110 +1,102 @@
-/*
- * LIDAR.h
- *
- *  Created on: Sep 10, 2025
- *      Author: hugoc
- */
-
 #ifndef INC_LIDAR_H_
 #define INC_LIDAR_H_
 
 ////////////////////////////////////////////////////////////////////////INCLUDES
-#include "stm32l4xx_hal.h"		//same as the one in main.h
-#include "stdint.h"
-#include "stdio.h"
-#include <math.h>
+#include "stm32l4xx_hal.h"
+#include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 #include <string.h>
-#include <float.h>  // pour FLT_MAX
+#include <stdlib.h>  // pour abs()
 
 ////////////////////////////////////////////////////////////////////////PARAMETERS
 //Paramètres généraux
-#define LID_htimx	htim2
+#define LID_htimx htim2
 #define LID_TIM_CHANNEL_X TIM_CHANNEL_1
 #define LID_huartx huart4
+#define LID_hdma_uartx_rx hdma_uart4_rx
+
+//DMA
+#define LIDAR_DMA_BUF_SIZE     1024
+#define LIDAR_MAX_FRAME_SIZE   256
+#define LIDAR_N_ANGLES         360
+#define MEDIAN_KERNEL_SIZE 5
 
 //Filtrage et reconnaissance de cluster
 #define LID_SPEED 50		//angular speed in %
-#define SATISFYING_BUFFER_FILL_RATIO 0.5f			//pourcentage de remplissage du buffer non filtré satisfaisant
+#define SATISFYING_BUFFER_FILL_RATIO 0.7f			//pourcentage de remplissage du buffer non filtré satisfaisant
+#define MIN_POINTS_CLUSTER  5	//nombre de points minimum pour détecter un cluster
 
-#define LIDAR_MIN_DIST  1    // mm
-#define LIDAR_MAX_DIST  200    // mm
-#define MAX_DISTANCE_GAP  200  // mm gap between consecutive points -> new cluster
-#define MIN_POINTS_CLUSTER  3	//nombre de points minimum pour détecter un cluster
-#define MAX_CLUSTERS 32
+//Distances et seuils
+#define LIDAR_MIN_VALID_DIST   10
+#define LIDAR_MIN_CLUSTER_DIST 20.0f
+#define LIDAR_DIST_THRESHOLD   300
+#define LIDAR_MERGE_THRESHOLD  50.0f
+#define LIDAR_MAX_RANGE        300
+
+#define LIDAR_MAX_CLUSTERS     32
+#define LIDAR_MAX_SAMPLES_PKT  200U
+
 
 ////////////////////////////////////////////////////////////////////////CONSTANTS
-#define LID_RX_BUF_SIZE   256     // taille du buffer UART DMA (à ajuster)
-#define LID_SAMPLE_NUMBER 360    // nombre de points par scan
-#define MAX_FRAME_SIZE    120     // taille max d’une trame LIDAR (bytes)
-#define RAD_TO_DEG        57.29577951308232f
 
-#define MEDIAN_KERNEL_SIZE 5   // Taille de la fenêtre du filtre median(impair recommandé)
 
+#define RAD_TO_DEG 57.29577951308232f
 
 ////////////////////////////////////////////////////////////////////////STRUCTURES
 typedef struct {
+	float X;
+	float Y;
+	float angle_deg;
 	uint16_t distance_mm;
-	uint16_t angle_x_deg;
-	uint8_t quality;
+	bool quality;
 } LIDAR_Sample;
 
 typedef struct {
-	uint8_t data[MAX_FRAME_SIZE];
+	uint8_t data[LIDAR_MAX_FRAME_SIZE];
 	uint16_t length;
 } LIDAR_Frame;
 
 typedef struct {
-	bool send_frame_to_pc;
-	bool RxHalfCpltCallback;
-	bool RxCpltCallback;
-} LIDAR_Flags_system;
-
-typedef struct {
-	uint16_t start_angle_deg;
-	uint16_t end_angle_deg;
-} LIDAR_Gap;
-
-typedef struct {
-	float x;           // position moyenne X du cluster (m)
-	float y;           // position moyenne Y du cluster (m)
-	uint16_t nPoints;  // nombre de points dans le cluster
-	float minDist;     // distance mini
-	float maxDist;     // distance maxi
-	float angle_deg;// angle du centre géométrique du cluster
+	float x;
+	float y;
+	uint16_t start_idx;
+	uint16_t end_idx;
+	uint16_t size;
+	bool active;
 } LIDAR_Cluster;
 
-////////////////////////////////////////////////////////////////////////PUBLIC VARIABLES
-extern uint8_t lid_rx_buf[LID_RX_BUF_SIZE];
-extern LIDAR_Sample LID_list_of_samples[LID_SAMPLE_NUMBER];
-extern LIDAR_Flags_system LID_Flags;
-extern LIDAR_Cluster clusters[MAX_CLUSTERS];
 
+////////////////////////////////////////////////////////////////////////STRUCTURES
+extern uint8_t LIDAR_dma_buf[LIDAR_DMA_BUF_SIZE];
+extern volatile uint32_t LIDAR_dma_read_idx;
+extern LIDAR_Sample LIDAR_view[LIDAR_N_ANGLES];
+extern LIDAR_Cluster LIDAR_clusters[LIDAR_MAX_CLUSTERS];
+extern uint8_t LIDAR_cluster_count;
 
-////////////////////////////////////////////////////////////////////////DECLARATIONS
+extern UART_HandleTypeDef LID_huartx;
+extern DMA_HandleTypeDef LID_hdma_uartx_rx;
+extern TIM_HandleTypeDef LID_htimx;
+
+/*------------------ FONCTIONS ------------------*/
 void LIDAR_Init(void);
 void LIDAR_While(void);
-void LID_TIMX_SetDuty(uint8_t duty_percent);
+void LIDAR_ProcessDMA(void);
+void LIDAR_StoreSample(LIDAR_Sample sample);
+void LIDAR_ManageFrame(LIDAR_Frame frame, uint16_t sample_count);
 
+int compute_cluster(LIDAR_Sample *points, uint16_t start, uint16_t end, uint8_t idx);
+void segment_points(LIDAR_Sample *points, uint16_t n_points);
 bool verify_checksum(const uint8_t *buf, uint16_t len);
-void LID_ProcessDMA(uint8_t *data, uint16_t len, bool RxCpltCallback);
-void manage_current_frame(LIDAR_Frame current_frame, uint8_t sample_count);
-void LID_Store_Sample(LIDAR_Sample sample);
 
-void LIDAR_SendBuffer_Frame(UART_HandleTypeDef *huart);
+void LIDAR_SegmentSamples(LIDAR_Sample *samples, uint16_t n_samples);
+int LIDAR_ComputeCluster(LIDAR_Sample *samples, uint16_t start, uint16_t end, uint8_t idx);
 
-void LID_clear_sample_buffer(void);
-void LID_clear_cluster_buffer(void);
-
-uint16_t median_filter(uint16_t *values, uint8_t n);
-void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count);
 void LIDAR_FindClusters(void);
-float find_Cluster_norm(LIDAR_Sample sample, LIDAR_Sample prev_sample);
-
-float LID_FillRate_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len);
-uint16_t LID_MinDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len);
-uint16_t LID_MaxDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len);
-float LID_MeanDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len);
-
+float LIDAR_findClusterNorm(LIDAR_Sample sample, LIDAR_Sample prev_sample);
+void LIDAR_clear_view_buffer(void);
+void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count);
+uint16_t median_filter(uint16_t *values, uint8_t n);
+void LID_TIMX_SetDuty(uint8_t duty_percent);
 
 #endif /* INC_LIDAR_H_ */

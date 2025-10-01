@@ -26,8 +26,6 @@
 
 
 
-
-
 #include "LIDAR.h"
 
 extern TIM_HandleTypeDef LID_htimx;

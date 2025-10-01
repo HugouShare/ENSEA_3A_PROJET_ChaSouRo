@@ -1,67 +1,38 @@
-/*
- * LIDAR.c
- *
- *  Created on: Sep 10, 2025
- *      Author: hugoc
- */
 #include "LIDAR.h"
 
-////////////////////////////////////////////////////////////////////////EXTERNAL VARIABLES
-extern TIM_HandleTypeDef LID_htimx;
-extern UART_HandleTypeDef LID_huartx;
-extern UART_HandleTypeDef huart2; //Send data to pc for debug
+////////////////////////////////////////////////////////////////////////GLOBAL VARIABLES
 
 ////////////////////////////////////////////////////////////////////////PRIVATE VARIABLES
-uint8_t lid_rx_buf[LID_RX_BUF_SIZE];
-static LIDAR_Frame current_frame = {0};
+uint8_t LIDAR_dma_buf[LIDAR_DMA_BUF_SIZE];
+volatile uint32_t LIDAR_dma_read_idx = 0;
 
-LIDAR_Sample LID_list_of_samples[LID_SAMPLE_NUMBER];
-uint16_t sample_cnt = 0;
-static float buffer_fill_ratio = 0.0f;
+LIDAR_Cluster LIDAR_clusters[LIDAR_MAX_CLUSTERS] = {0};
+uint8_t LIDAR_cluster_count = 0;
+LIDAR_Sample LIDAR_view[LIDAR_N_ANGLES] = {0};
 
-LIDAR_Flags_system LID_Flags = {0};
+static uint32_t sample_cnt = 0;
+static float buffer_fill_ratio = 0;
 
-LIDAR_Cluster clusters[MAX_CLUSTERS];
-uint16_t cluster_count = 0;
+LIDAR_Frame current_frame = {0};
+
 
 ////////////////////////////////////////////////////////////////////////
 // INIT
 ////////////////////////////////////////////////////////////////////////
-void LIDAR_Init(void)
-{
-	HAL_TIM_PWM_Start(&LID_htimx, LID_TIM_CHANNEL_X);
-	HAL_UART_Receive_DMA(&LID_huartx, lid_rx_buf, LID_RX_BUF_SIZE);
+void LIDAR_Init(void) {
+	HAL_UART_Receive_DMA(&LID_huartx, LIDAR_dma_buf, LIDAR_DMA_BUF_SIZE);
 	LID_TIMX_SetDuty(LID_SPEED);
 }
 
 ////////////////////////////////////////////////////////////////////////
 // WHILE(1)
 ////////////////////////////////////////////////////////////////////////
-void LIDAR_While(void)
-{
-	if(LID_Flags.RxHalfCpltCallback){
-		LID_ProcessDMA(lid_rx_buf, LID_RX_BUF_SIZE / 2, false);
-		LID_Flags.RxHalfCpltCallback = false;
-	}
-
-	if(LID_Flags.RxCpltCallback){
-		LID_ProcessDMA(&lid_rx_buf[LID_RX_BUF_SIZE / 2], LID_RX_BUF_SIZE / 2, true);
-		LID_Flags.RxCpltCallback = false;
-	}
-	if (LID_Flags.send_frame_to_pc){		//debug
-		LIDAR_SendBuffer_Frame(&huart2);
-		LID_clear_sample_buffer();
-		LID_Flags.send_frame_to_pc = false;
-	}
+void LIDAR_While(void) {
+	LIDAR_ProcessDMA();
 	if (buffer_fill_ratio>SATISFYING_BUFFER_FILL_RATIO){ //traiter le buffer et le vider
-//		LIDAR_SendBuffer_Frame(&huart2);
-//		HAL_Delay(3000);
-
-//		LIDAR_ApplyMedianFilter(LID_list_of_samples, LID_SAMPLE_NUMBER);
+		LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
 		LIDAR_FindClusters();
-		LID_clear_sample_buffer();
-
-
+		LIDAR_clear_view_buffer();
 	}
 }
 
@@ -75,26 +46,12 @@ void LID_TIMX_SetDuty(uint8_t duty_percent) {
 	__HAL_TIM_SET_COMPARE(&LID_htimx, LID_TIM_CHANNEL_X, ccr);
 }
 
-////////////////////////////////////////////////////////////////////////
-// CALLBACKS UART DMA
-////////////////////////////////////////////////////////////////////////
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
-{
-	if (huart->Instance == LID_huartx.Instance)
-		LID_Flags.RxHalfCpltCallback = true;
-}
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	if (huart->Instance == LID_huartx.Instance)
-		LID_Flags.RxCpltCallback = true;
-}
 
 ////////////////////////////////////////////////////////////////////////
 // CHECKSUM
 ////////////////////////////////////////////////////////////////////////
-bool verify_checksum(const uint8_t *buf, uint16_t len)
-{
+bool verify_checksum(const uint8_t *buf, uint16_t len) {
 	if (len % 2 != 0) return false;
 	uint16_t acc = 0;
 	for (uint16_t i = 0; i < len; i += 2) {
@@ -105,68 +62,56 @@ bool verify_checksum(const uint8_t *buf, uint16_t len)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// TRAITEMENT DMA
+// PROCESS DMA
 ////////////////////////////////////////////////////////////////////////
-void LID_ProcessDMA(uint8_t *data, uint16_t len, bool RxCpltCallback)
-{
-	static uint16_t buff_idx = 0;
-	static bool frame_detected = false;
-	static uint16_t expected_len = 0;
-	static uint8_t sample_count = 0;
 
+static uint32_t get_dma_write_index(void) {
+	return (LIDAR_DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(&hdma_uart4_rx)) % LIDAR_DMA_BUF_SIZE;
+}
 
+void LIDAR_ProcessDMA(void) {
+	uint32_t write_idx = get_dma_write_index();
 
-	for (uint16_t i = 0; i < len; i++) {
-		uint8_t b = data[i];
+	while (LIDAR_dma_read_idx != write_idx) {
+		uint32_t available = (write_idx + LIDAR_DMA_BUF_SIZE - LIDAR_dma_read_idx) % LIDAR_DMA_BUF_SIZE;
+		if (available < 10) break;
 
-		// -----------------------------
-		// Detect header 0xAA55
-		// -----------------------------
-		if (buff_idx == 0 && b == 0xAA) { current_frame.data[0] = b; buff_idx = 1; continue; }
-		if (buff_idx == 1 && b == 0x55) { current_frame.data[1] = b; buff_idx = 2; continue; }
+		uint8_t b0 = LIDAR_dma_buf[LIDAR_dma_read_idx];
+		uint8_t b1 = LIDAR_dma_buf[(LIDAR_dma_read_idx + 1) % LIDAR_DMA_BUF_SIZE];
 
-		// -----------------------------
-		// Read CT
-		// -----------------------------
-		if (buff_idx == 2) { current_frame.data[2] = b; buff_idx++; continue; }
-
-		// -----------------------------
-		// Read LSN (sample count)
-		// -----------------------------
-		if (buff_idx == 3) {
-			current_frame.data[3] = b; buff_idx++;
-			sample_count = current_frame.data[3];
-
-			if (sample_count > ((MAX_FRAME_SIZE - 10) / 2)) {
-				buff_idx = 0;
-				frame_detected = false;
-				continue;
-			}
-
-			expected_len = 10 + 2 * sample_count;
-			frame_detected = true;
+		if (b0 != 0xAA || b1 != 0x55) {
+			LIDAR_dma_read_idx = (LIDAR_dma_read_idx + 1) % LIDAR_DMA_BUF_SIZE;
 			continue;
 		}
 
-		// -----------------------------
-		// Accumulate remaining bytes
-		// -----------------------------
-		if (frame_detected && buff_idx < expected_len) {
-			current_frame.data[buff_idx++] = b;
+		if (available < 4) break;
+
+		uint8_t lsn = LIDAR_dma_buf[(LIDAR_dma_read_idx + 3) % LIDAR_DMA_BUF_SIZE];
+		if (lsn == 0 || lsn > LIDAR_MAX_SAMPLES_PKT) {
+			LIDAR_dma_read_idx = (LIDAR_dma_read_idx + 2) % LIDAR_DMA_BUF_SIZE;
 			continue;
 		}
 
-		// -----------------------------
-		// Full frame received
-		// -----------------------------
-		if (frame_detected && buff_idx == expected_len) {
-			if (!verify_checksum(current_frame.data, expected_len)) { buff_idx = 0; frame_detected = false; continue; }
-			manage_current_frame(current_frame, sample_count);
-
-			// Reset for next frame
-			buff_idx = 0;
-			frame_detected = false;
+		uint16_t expected_len = (uint16_t)(10 + lsn * 2);
+		if (expected_len > sizeof(current_frame.data)) {
+			LIDAR_dma_read_idx = (LIDAR_dma_read_idx + 2) % LIDAR_DMA_BUF_SIZE;
+			continue;
 		}
+
+		if (available < expected_len) break;
+		current_frame.length = expected_len;
+
+		for (uint16_t i = 0; i < current_frame.length; i++) {
+			current_frame.data[i] = LIDAR_dma_buf[(LIDAR_dma_read_idx + i) % LIDAR_DMA_BUF_SIZE];
+		}
+
+		if (!verify_checksum(current_frame.data, current_frame.length)) {
+			LIDAR_dma_read_idx = (LIDAR_dma_read_idx + 1) % LIDAR_DMA_BUF_SIZE;
+			continue;
+		}
+
+		LIDAR_ManageFrame(current_frame, lsn);
+		LIDAR_dma_read_idx = (LIDAR_dma_read_idx + current_frame.length) % LIDAR_DMA_BUF_SIZE;
 	}
 }
 
@@ -174,106 +119,88 @@ void LID_ProcessDMA(uint8_t *data, uint16_t len, bool RxCpltCallback)
 // MANAGE CURRENT FRAME
 ////////////////////////////////////////////////////////////////////////
 
-void manage_current_frame(LIDAR_Frame current_frame, uint8_t sample_count){
-	uint16_t FSA = (uint16_t)current_frame.data[4] | ((uint16_t)current_frame.data[5] << 8);
-	uint16_t LSA = (uint16_t)current_frame.data[6] | ((uint16_t)current_frame.data[7] << 8);
+void LIDAR_ManageFrame(LIDAR_Frame frame, uint16_t sample_count) {
+	if (frame.length < 10) return;
+
+	uint16_t FSA = (uint16_t)frame.data[4] | ((uint16_t)frame.data[5] << 8);
+	uint16_t LSA = (uint16_t)frame.data[6] | ((uint16_t)frame.data[7] << 8);
 
 	float angle_fsa = (float)(FSA >> 1) / 64.0f;
 	float angle_lsa = (float)(LSA >> 1) / 64.0f;
-	float diff_angle = angle_lsa - angle_fsa; if (diff_angle < 0) diff_angle += 360.0f;
+	float diff_angle = angle_lsa - angle_fsa;
+	if (diff_angle < 0.0f) diff_angle += 360.0f;
 
 	for (uint16_t s = 0; s < sample_count; s++) {
 		uint16_t offset = 10 + 2 * s;
-		uint16_t S_i = (uint16_t)current_frame.data[offset] | ((uint16_t)current_frame.data[offset + 1] << 8);
+		if ((offset + 1) >= frame.length) break;
 
-		float distance_mm_f = (float)(S_i >> 2);
-		float angle_deg_f = (sample_count == 1) ? angle_fsa : angle_fsa + (diff_angle * s) / (sample_count - 1);
+		uint16_t S_i = (uint16_t)frame.data[offset] | ((uint16_t)frame.data[offset + 1] << 8);
 
-		if (distance_mm_f > 0.0f) {
-			float ratio = 21.8f * (155.3f - distance_mm_f) / (155.3f * distance_mm_f);
-			angle_deg_f += atanf(ratio) * RAD_TO_DEG;
+		float dist = (float)(S_i >> 2);
+		float angle = (sample_count == 1) ? angle_fsa : angle_fsa + diff_angle * s / (sample_count - 1);
+
+		if (dist > 0.0f) {
+			float ratio = 21.8f * (155.3f - dist) / (155.3f * dist);
+			angle += atanf(ratio) * RAD_TO_DEG;
+		}
+		else{
+			continue;
 		}
 
-		if (angle_deg_f >= 360.0f) angle_deg_f -= 360.0f;
-		if (angle_deg_f < 0.0f) angle_deg_f += 360.0f;
+		angle = fmodf(angle, 360.0f);
+		if (angle < 0.0f) angle += 360.0f;
+		if (angle < 0.0f) angle += 360.0f;
 
-		LIDAR_Sample sample;
-		sample.distance_mm = (uint16_t)distance_mm_f;
-		sample.angle_x_deg = (uint16_t)(angle_deg_f * (float) LID_SAMPLE_NUMBER/360);
-//		sample.angle_deg_x10 = (uint16_t)(angle_deg_f * 10);////////////////////////////////
-		sample.quality = (S_i & 0x0001) ? 0 : 1;
+		int idx = (int)(angle * (float)LIDAR_N_ANGLES / 360.0f + 0.5f);
+		if (idx < 0) idx = 0;
+		if (idx >= LIDAR_N_ANGLES) idx = LIDAR_N_ANGLES - 1;
 
-		LID_Store_Sample(sample);
+		LIDAR_Sample sample = {
+				.X = 0.0f, // sera calculé plus tard si nécessaire
+				.Y = 0.0f,
+				.angle_deg = angle,
+				.distance_mm = (uint16_t)dist,
+				.quality = !(S_i & 0x0001)
+		};
+		sample.angle_deg = (uint16_t)idx;
+
+		LIDAR_StoreSample(sample);
 	}
 }
 
-
 ////////////////////////////////////////////////////////////////////////
-// STOCKAGE DES SAMPLES
+// STORE SAMPLES
 ////////////////////////////////////////////////////////////////////////
-void LID_Store_Sample(LIDAR_Sample sample) {
-	uint16_t idx = sample.angle_x_deg;
-	if (idx >= LID_SAMPLE_NUMBER) return;
 
-	if (LID_list_of_samples[idx].distance_mm == 0){
-		sample_cnt++;								//si c'est un nouvel échantillon
-	}
+void LIDAR_StoreSample(LIDAR_Sample sample) {
+	uint16_t idx = (uint16_t)sample.angle_deg;
+	if (idx >= LIDAR_N_ANGLES) return;
 
-	LID_list_of_samples[idx].distance_mm = sample.distance_mm;
-	LID_list_of_samples[idx].angle_x_deg = sample.angle_x_deg;
-	LID_list_of_samples[idx].quality = sample.quality;
+	if (LIDAR_view[idx].distance_mm == 0) sample_cnt++;
+	LIDAR_view[idx] = sample;
 
-	// Update buffer fill
-	buffer_fill_ratio = (float)sample_cnt / (float)LID_SAMPLE_NUMBER;
+	buffer_fill_ratio = (float)sample_cnt / (float)LIDAR_N_ANGLES;
 }
 
-////////////////////////////////////////////////////////////////////////
-// COMMUNIQUER AVEC PC
-////////////////////////////////////////////////////////////////////////
-// Envoie tout le buffer LIDAR sur l'UART spécifié
-// Chaque trame commence par '$', chaque échantillon sur une nouvelle ligne
-void LIDAR_SendBuffer_Frame(UART_HandleTypeDef *huart) {
-	char line[32];
-	// Début de trame
-	HAL_UART_Transmit(huart, (uint8_t*)"$\r\n", 2, 10);
-	LIDAR_Sample chosen_s = {0};
-	for (uint16_t i = 0; i < 360; i++) {
-		for(uint16_t j = 0; j < 100; j++){
-			LIDAR_Sample s = LID_list_of_samples[i*10 + j];		//debug
-			if(s.angle_x_deg != 0 && s.distance_mm > LIDAR_MIN_DIST && s.distance_mm < LIDAR_MAX_DIST){
-				chosen_s = s;
-				break;
-			}
-		}
 
-		uint16_t angle_x10 = chosen_s.angle_x_deg;
-
-		// Format "angle,distance\n"
-		int len = snprintf(line, sizeof(line), "%u,%u\r\n", angle_x10, chosen_s.distance_mm);
-
-		if (len > 0) {
-			HAL_UART_Transmit(huart, (uint8_t*)line, len, 10);
-		}
-	}
-}
 ////////////////////////////////////////////////////////////////////////
 // CLEAR BUFFERS
 ////////////////////////////////////////////////////////////////////////
 
-void LID_clear_sample_buffer(void) {
-	sample_cnt = 0;
-	buffer_fill_ratio = 0;
-	memset(LID_list_of_samples, 0, sizeof(LID_list_of_samples));
+void LIDAR_clear_cluster_buffer(void) {
+	LIDAR_cluster_count = 0;
+	memset(LIDAR_clusters, 0, sizeof(LIDAR_clusters));
 }
 
-void LID_clear_cluster_buffer(void) {
-	cluster_count = 0;
-	memset(clusters, 0, sizeof(clusters));
+void LIDAR_clear_view_buffer(void) {
+	sample_cnt = 0;
+	buffer_fill_ratio = 0;
+	memset(LIDAR_view, 0, sizeof(LIDAR_view));
 }
+
 ////////////////////////////////////////////////////////////////////////
 // MEDIAN FILTER
 ////////////////////////////////////////////////////////////////////////
-
 uint16_t median_filter(uint16_t *values, uint8_t n) {
 	// Copie locale pour tri
 	uint16_t temp[MEDIAN_KERNEL_SIZE];
@@ -306,103 +233,80 @@ void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count) {
 	}
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 // FIND CLUSTERS
 ////////////////////////////////////////////////////////////////////////
 
 void LIDAR_FindClusters(void) {
-    cluster_count = 0;
-    LID_clear_cluster_buffer();
-    uint16_t i = 0;
+	LIDAR_clear_cluster_buffer();
+	uint16_t i = 0;
 
-    while (i < LID_SAMPLE_NUMBER) {
-        // ignorer points invalides
-        if (LID_list_of_samples[i].distance_mm == 0 ||
-            LID_list_of_samples[i].distance_mm > (uint16_t)(LIDAR_MAX_DIST) ||
-            LID_list_of_samples[i].distance_mm < (uint16_t)(LIDAR_MIN_DIST)) {
-            i++;
-            continue;
-        }
+	while (i < LIDAR_N_ANGLES) {
+		// ignorer points invalides
+		if (LIDAR_view[i].distance_mm == 0 ||
+				LIDAR_view[i].distance_mm > LIDAR_MAX_RANGE ||
+				LIDAR_view[i].distance_mm < LIDAR_MIN_VALID_DIST) {
+			i++;
+			continue;
+		}
 
-        // début de cluster
-        uint16_t start_idx = i;
-        uint16_t end_idx   = i;
-        LIDAR_Sample prev_sample = LID_list_of_samples[i];
+		// début de cluster
+		uint16_t start_idx = i;
+		uint16_t end_idx   = i;
+		LIDAR_Sample prev_sample = LIDAR_view[i];
 
-        // recherche de la fin du cluster
-        while (++i < LID_SAMPLE_NUMBER) {
-            LIDAR_Sample sample = LID_list_of_samples[i];
-            if (sample.distance_mm == 0) break; // rupture si invalide
-            if (find_Cluster_norm(sample, prev_sample) > MAX_DISTANCE_GAP) {
-                break; // rupture -> fin de cluster
-            }
-            prev_sample = sample;
-            end_idx = i;
-        }
+		// recherche de la fin du cluster
+		while (++i < LIDAR_N_ANGLES) {
+			LIDAR_Sample sample = LIDAR_view[i];
+			if (sample.distance_mm == 0) break; // rupture si invalide
+			if (LIDAR_findClusterNorm(sample, prev_sample) > LIDAR_MIN_CLUSTER_DIST) {
+				break; // rupture -> fin de cluster
+			}
+			prev_sample = sample;
+			end_idx = i;
+		}
 
-        // nombre de points dans ce cluster
-        uint16_t nPoints = end_idx - start_idx + 1;
+		// nombre de points dans ce cluster
+		uint16_t nPoints = end_idx - start_idx + 1;
 
-        if (nPoints >= MIN_POINTS_CLUSTER && cluster_count < MAX_CLUSTERS) {
-            // calcul centre du cluster
-            float sumX = 0.0f;
-            float sumY = 0.0f;
-            float minD = FLT_MAX;
-            float maxD = 0.0f;
-            float closestAngle_deg = 0.0f;
-            uint16_t validPoints = 0;
+		if (nPoints >= MIN_POINTS_CLUSTER && LIDAR_cluster_count < LIDAR_MAX_CLUSTERS) {
+			// calcul centre du cluster
+			float sumX = 0.0f;
+			float sumY = 0.0f;
+			uint16_t validPoints = 0;
 
-            for (uint16_t k = start_idx; k <= end_idx; k++) {
-                if (LID_list_of_samples[k].distance_mm == 0) continue;
+			for (uint16_t k = start_idx; k <= end_idx; k++) {
+				if (LIDAR_view[k].distance_mm == 0) continue;
 
-                float dist_m = LID_list_of_samples[k].distance_mm / 1000.0f;
-                float angle_deg = ((float)LID_list_of_samples[k].angle_x_deg) * 360.0f / (float)LID_SAMPLE_NUMBER;
+				float dist_m = LIDAR_view[k].distance_mm / 1000.0f;
+				float angle_rad = (LIDAR_view[k].angle_deg * (float)M_PI) / 180.0f;
 
-                // normalisation angle [0;360)
-                if (angle_deg >= 360.0f) angle_deg -= 360.0f;
-                if (angle_deg < 0.0f) angle_deg += 360.0f;
+				float x = dist_m * cosf(angle_rad);
+				float y = dist_m * sinf(angle_rad);
 
-                float angle_rad = angle_deg * (float)M_PI / 180.0f;
-                float x = dist_m * cosf(angle_rad);
-                float y = dist_m * sinf(angle_rad);
+				sumX += x;
+				sumY += y;
+				validPoints++;
+			}
 
-                sumX += x;
-                sumY += y;
-                validPoints++;
+			if (validPoints > 0) {
+				LIDAR_clusters[LIDAR_cluster_count].x = sumX / validPoints;
+				LIDAR_clusters[LIDAR_cluster_count].y = sumY / validPoints;
+				LIDAR_clusters[LIDAR_cluster_count].start_idx = start_idx;
+				LIDAR_clusters[LIDAR_cluster_count].end_idx   = end_idx;
+				LIDAR_clusters[LIDAR_cluster_count].size      = validPoints;
+				LIDAR_clusters[LIDAR_cluster_count].active    = true;
 
-                if (dist_m < minD) {
-                    minD = dist_m;
-                    closestAngle_deg = angle_deg; // angle du point le plus proche
-                }
-                if (dist_m > maxD) {
-                    maxD = dist_m;
-                }
-            }
-
-            if (validPoints > 0) {
-                clusters[cluster_count].x        = sumX / validPoints;
-                clusters[cluster_count].y        = sumY / validPoints;
-                clusters[cluster_count].angle_deg = closestAngle_deg;
-                clusters[cluster_count].nPoints  = validPoints;
-                clusters[cluster_count].minDist  = minD;
-                clusters[cluster_count].maxDist  = maxD;
-
-                cluster_count++;
-            }
-        }
-    }
+				LIDAR_cluster_count++;
+			}
+		}
+	}
 }
 
-
-float find_Cluster_norm(LIDAR_Sample sample, LIDAR_Sample prev_sample){
-	//	//Initial radial norm
-	//	return fabsf((float)sample.distance_mm - (float)prev_sample.distance_mm);
-
-	//Euclidian norm
-	float angle1 = ((float)sample.angle_x_deg) * 360.0f / (float)LID_SAMPLE_NUMBER * (M_PI / 180.0f);
-	float angle2 = ((float)prev_sample.angle_x_deg) * 360.0f / (float)LID_SAMPLE_NUMBER * (M_PI / 180.0f);
-
+float LIDAR_findClusterNorm(LIDAR_Sample sample, LIDAR_Sample prev_sample) {
+	// Norme euclidienne entre deux points polaires
+	float angle1 = (sample.angle_deg * (float)M_PI) / 180.0f;
+	float angle2 = (prev_sample.angle_deg * (float)M_PI) / 180.0f;
 
 	float x1 = sample.distance_mm * cosf(angle1);
 	float y1 = sample.distance_mm * sinf(angle1);
@@ -413,72 +317,103 @@ float find_Cluster_norm(LIDAR_Sample sample, LIDAR_Sample prev_sample){
 	return sqrtf((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
 }
 
+
+////////////////////////////////////////////////////////////////////////
+// COMMUNIQUER AVEC PC
+////////////////////////////////////////////////////////////////////////
+// Envoie tout le buffer LIDAR sur l'UART spécifié
+// Chaque trame commence par '$', chaque échantillon sur une nouvelle ligne
+//void LIDAR_SendBuffer_Frame(UART_HandleTypeDef *huart) {
+//	char line[32];
+//	// Début de trame
+//	HAL_UART_Transmit(huart, (uint8_t*)"$\r\n", 2, 10);
+//	LIDAR_Sample chosen_s = {0};
+//	for (uint16_t i = 0; i < 360; i++) {
+//		for(uint16_t j = 0; j < 100; j++){
+//			LIDAR_Sample s = LID_list_of_samples[i*10 + j];		//debug
+//			if(s.angle_x_deg != 0 && s.distance_mm > LIDAR_MIN_DIST && s.distance_mm < LIDAR_MAX_DIST){
+//				chosen_s = s;
+//				break;
+//			}
+//		}
+//
+//		uint16_t angle_x10 = chosen_s.angle_x_deg;
+//
+//		// Format "angle,distance\n"
+//		int len = snprintf(line, sizeof(line), "%u,%u\r\n", angle_x10, chosen_s.distance_mm);
+//
+//		if (len > 0) {
+//			HAL_UART_Transmit(huart, (uint8_t*)line, len, 10);
+//		}
+//	}
+//}
+
+
+
 ////////////////////////////////////////////////////////////////////////
 // STATISTICS
 ////////////////////////////////////////////////////////////////////////
 
-#define ANGULAR_SECTION_NUMBER 36
-float LID_Angular_sections_fill_rate[ANGULAR_SECTION_NUMBER];
-
-void LID_Compute_Angular_sections_fill_rate(void){
-	uint16_t section_len = (uint16_t)LID_SAMPLE_NUMBER/ANGULAR_SECTION_NUMBER;
-	for(int i=0; i<ANGULAR_SECTION_NUMBER; i++){
-		LID_Angular_sections_fill_rate[i] = LID_FillRate_PerAngularSection(LID_list_of_samples, i*section_len, section_len);
-	}
-}
-
-float LID_FillRate_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len){
-	uint16_t cnt = 0;
-	for(uint16_t i =start_angle_deg; i<start_angle_deg+section_len; i++){
-		LIDAR_Sample s = buffer[i];
-		if(s.quality == 0x1){
-			cnt++;
-		}
-	}
-	return (section_len > 0) ? ((float)cnt / (float)section_len) : 0.0f;
-}
-
-
-uint16_t LID_MinDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len) {
-	uint16_t min_val = UINT16_MAX;
-
-	for (uint16_t i = start_angle_deg; i < start_angle_deg + section_len; i++) {
-		LIDAR_Sample s = buffer[i];
-		if (s.quality == 0x1 && s.distance_mm < min_val) {
-			min_val = s.distance_mm;
-		}
-	}
-
-	return (min_val == UINT16_MAX) ? 0 : min_val;
-}
-
-
-uint16_t LID_MaxDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len) {
-	uint16_t max_val = 0;
-
-	for (uint16_t i = start_angle_deg; i < start_angle_deg + section_len; i++) {
-		LIDAR_Sample s = buffer[i];
-		if (s.quality == 0x1 && s.distance_mm > max_val) {
-			max_val = s.distance_mm;
-		}
-	}
-
-	return max_val;
-}
-
-float LID_MeanDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len) {
-	uint32_t sum = 0;
-	uint16_t cnt = 0;
-
-	for (uint16_t i = start_angle_deg; i < start_angle_deg + section_len; i++) {
-		LIDAR_Sample s = buffer[i];
-		if (s.quality == 0x1) {
-			sum += s.distance_mm;
-			cnt++;
-		}
-	}
-
-	return (cnt > 0) ? ((float)sum / (float)cnt) : 0.0f;
-}
-
-
+//#define ANGULAR_SECTION_NUMBER 36
+//float LID_Angular_sections_fill_rate[ANGULAR_SECTION_NUMBER];
+//
+//void LID_Compute_Angular_sections_fill_rate(void){
+//	uint16_t section_len = (uint16_t)LID_SAMPLE_NUMBER/ANGULAR_SECTION_NUMBER;
+//	for(int i=0; i<ANGULAR_SECTION_NUMBER; i++){
+//		LID_Angular_sections_fill_rate[i] = LID_FillRate_PerAngularSection(LID_list_of_samples, i*section_len, section_len);
+//	}
+//}
+//
+//float LID_FillRate_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len){
+//	uint16_t cnt = 0;
+//	for(uint16_t i =start_angle_deg; i<start_angle_deg+section_len; i++){
+//		LIDAR_Sample s = buffer[i];
+//		if(s.quality == 0x1){
+//			cnt++;
+//		}
+//	}
+//	return (section_len > 0) ? ((float)cnt / (float)section_len) : 0.0f;
+//}
+//
+//
+//uint16_t LID_MinDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len) {
+//	uint16_t min_val = UINT16_MAX;
+//
+//	for (uint16_t i = start_angle_deg; i < start_angle_deg + section_len; i++) {
+//		LIDAR_Sample s = buffer[i];
+//		if (s.quality == 0x1 && s.distance_mm < min_val) {
+//			min_val = s.distance_mm;
+//		}
+//	}
+//
+//	return (min_val == UINT16_MAX) ? 0 : min_val;
+//}
+//
+//
+//uint16_t LID_MaxDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len) {
+//	uint16_t max_val = 0;
+//
+//	for (uint16_t i = start_angle_deg; i < start_angle_deg + section_len; i++) {
+//		LIDAR_Sample s = buffer[i];
+//		if (s.quality == 0x1 && s.distance_mm > max_val) {
+//			max_val = s.distance_mm;
+//		}
+//	}
+//
+//	return max_val;
+//}
+//
+//float LID_MeanDistance_PerAngularSection(LIDAR_Sample* buffer, uint16_t start_angle_deg, uint16_t section_len) {
+//	uint32_t sum = 0;
+//	uint16_t cnt = 0;
+//
+//	for (uint16_t i = start_angle_deg; i < start_angle_deg + section_len; i++) {
+//		LIDAR_Sample s = buffer[i];
+//		if (s.quality == 0x1) {
+//			sum += s.distance_mm;
+//			cnt++;
+//		}
+//	}
+//
+//	return (cnt > 0) ? ((float)sum / (float)cnt) : 0.0f;
+//}
