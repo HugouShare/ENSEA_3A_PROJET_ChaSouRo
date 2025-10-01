@@ -3548,10 +3548,6 @@
 		(uuid "20344284-9884-4377-96ab-aeefc6539c0c")
 	)
 	(no_connect
-		(at 231.14 57.15)
-		(uuid "2a824982-dd70-45c1-9e09-8f7b736b8388")
-	)
-	(no_connect
 		(at 270.51 116.84)
 		(uuid "33ad6fea-2042-47d9-9bf8-21c2beb4a17f")
 	)
@@ -4249,7 +4245,7 @@
 		)
 		(uuid "fbe8e1ae-9d7a-4a4a-9dd1-357df937afee")
 	)
-	(label "USER"
+	(label "USER1"
 		(at 166.37 115.57 0)
 		(effects
 			(font
@@ -4258,16 +4254,6 @@
 			(justify left bottom)
 		)
 		(uuid "082599c3-da8b-42ae-9afd-75d6839a96ce")
-	)
-	(label "VREF+"
-		(at 189.23 50.8 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "54c4c72f-9bb2-412b-9236-8c2ca27ef051")
 	)
 	(label "D1"
 		(at 179.07 101.6 0)
@@ -4327,6 +4313,28 @@
 		(uuid "07daed09-668e-4451-811a-1b07c4a171d9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 278.7488 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "USER2"
+		(shape input)
+		(at 231.14 57.15 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "09213b7f-7fe8-4893-8622-efa024dcf731")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 240.2937 57.15 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5608,6 +5616,28 @@
 		(uuid "dbeb0c73-04db-4882-8864-bbc9e681c8d3")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 188.7322 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "USER2"
+		(shape input)
+		(at 45.72 181.61 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "dd5ccb14-a87d-4b06-adc4-971cbcd872a3")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 45.72 190.7637 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7987,6 +8017,72 @@
 			(project ""
 				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c"
 					(reference "#FLG02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 45.72 181.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "78b22912-a93d-4e7d-b08c-a24496b52944")
+		(property "Reference" "TP8"
+			(at 51.308 179.578 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "USER2"
+			(at 51.308 176.784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 50.8 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 50.8 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 45.72 181.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f3258bea-5e53-4db2-8076-745c90ec8561")
+		)
+		(instances
+			(project "ChaSouRo"
+				(path "/831bd0a7-ff0c-4dec-8880-0dfe5b65c90c"
+					(reference "TP8")
 					(unit 1)
 				)
 			)
