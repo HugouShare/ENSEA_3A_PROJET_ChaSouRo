@@ -5774,14 +5774,13 @@
 				)
 			)
 		)
-		(property "Footprint" "ESE:SOT65P280X100-8N"
+		(property "Footprint" "Package_TO_SOT_SMD:TSOT-23-8"
 			(at 194.31 135.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left top)
-				(hide yes)
 			)
 		)
 		(property "Datasheet" "https://www.monolithicpower.com/en/documentview/productdocument/index/version/2/document_type/Datasheet/lang/en/sku/MP1475/document_id/342"
