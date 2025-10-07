@@ -1,0 +1,8 @@
+Explications :
+- Encodeur -> TIM4 encoder mode (CH1&CH2) en mode TI1&TI2
+- Timer périodique pour lire -> TIM2 (ici à 5 Hz)
+- Affichage UART2 à la période de TIM2 de Position 
+et vitesse ang avec le nb de tour avant/arrières
+grâce à FWD/REV.
+- LED2 de la nucleo est toggled dès que le moteur tourne
+
