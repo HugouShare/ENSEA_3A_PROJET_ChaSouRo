@@ -1,0 +1,6 @@
+Pour la prochaine fois :
+- Regarder comment faire pour que lorsqu'on descend
+ça affiche la suite car pas assez de place sur l'écran
+FAIT
+
+

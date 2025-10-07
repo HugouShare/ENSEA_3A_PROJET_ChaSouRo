@@ -1,0 +1,17 @@
+../Core/Src/oled.c:74:12:brightnessToPercent	7
+../Core/Src/oled.c:84:6:oled_git	1
+../Core/Src/oled.c:90:6:oled_garfield	1
+../Core/Src/oled.c:96:6:oled_cat	1
+../Core/Src/oled.c:102:6:oled_mouse	1
+../Core/Src/oled.c:108:6:kirby_bitmap	2
+../Core/Src/oled.c:120:6:scared_cat_bitmap	2
+../Core/Src/oled.c:132:6:kirby_bitmap_tick	3
+../Core/Src/oled.c:151:6:scared_cat_bitmap_tick	3
+../Core/Src/oled.c:170:6:Init_bitmap_tick	3
+../Core/Src/oled.c:189:6:Init_bitmap	2
+../Core/Src/oled.c:201:6:screen_stats	7
+../Core/Src/oled.c:243:6:adjustBrightness	8
+../Core/Src/oled.c:260:6:HAL_GPIO_EXTI_Callback	19
+../Core/Src/oled.c:316:6:checkMenuTimeout	26
+../Core/Src/oled.c:394:6:drawTextMenu	3
+../Core/Src/oled.c:404:6:displayMenu	19
