@@ -1,8 +1,8 @@
-(- faire les statistiques)
-- corriger le code de reconnaissance de clusters
-(- faire le code d'interpolarisation)
-- faire le code de détection des ennemis
+- finir le code de détection des ennemis
+- faire les task et la machine à états
 - faire le code de l'odométrie
+- tout mettre sous RTOS
+- intégrer le code dans le vrai capteur 
 
 
 
