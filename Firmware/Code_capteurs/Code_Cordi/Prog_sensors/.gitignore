@@ -20,7 +20,6 @@ build/
 *.list
 
 # --- STM32 Specific ---
-*.ioc
 *.ld
 
 # --- OS / IDE files ---
