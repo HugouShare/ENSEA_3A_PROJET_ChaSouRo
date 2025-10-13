@@ -8,6 +8,8 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>  // pour abs()
+#include "FreeRTOS.h"
+#include "task.h"
 
 ////////////////////////////////////////////////////////////////////////PARAMETERS
 //Paramètres généraux
@@ -75,9 +77,18 @@ extern UART_HandleTypeDef LID_huartx;
 extern DMA_HandleTypeDef LID_hdma_uartx_rx;
 extern TIM_HandleTypeDef LID_htimx;
 
+
+extern void Error_Handler(void);
+extern int	printf (const char *__restrict, ...)
+_ATTRIBUTE ((__format__ (__printf__, 1, 2)));
+
 ////////////////////////////////////////////////////////////////////////FONCTIONS
 void LIDAR_Init(void);
 void LIDAR_While(void);
+
+//FREERTOS
+void task_LIDAR_Update(void *unused);
+void task_test(void*unused);
 
 
 #endif /* INC_LIDAR_H_ */

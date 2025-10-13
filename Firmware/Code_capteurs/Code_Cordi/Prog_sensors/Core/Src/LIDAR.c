@@ -15,6 +15,11 @@ static float buffer_fill_ratio = 0;
 
 LIDAR_Frame current_frame = {0};
 
+static TaskHandle_t htask_LIDAR_Update = NULL;
+static TaskHandle_t htask_test = NULL;
+
+////////////////////////////////////////////////////////////////////////STATIC FUNCTIONS
+
 static void LIDAR_ProcessDMA(void);
 static void LIDAR_StoreSample(LIDAR_Sample sample);
 static void LIDAR_ManageFrame(LIDAR_Frame frame, uint16_t sample_count);
@@ -27,6 +32,7 @@ static void LIDAR_clear_view_buffer(void);
 static void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count);
 static uint16_t median_filter(uint16_t *values, uint8_t n);
 static void LID_TIMX_SetDuty(uint8_t duty_percent);
+static void LIDAR_Tasks_Create(void);
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -35,6 +41,7 @@ static void LID_TIMX_SetDuty(uint8_t duty_percent);
 void LIDAR_Init(void) {
 	HAL_UART_Receive_DMA(&LID_huartx, LIDAR_dma_buf, LIDAR_DMA_BUF_SIZE);
 	LID_TIMX_SetDuty(LID_SPEED);
+	LIDAR_Tasks_Create();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -46,6 +53,46 @@ void LIDAR_While(void) {
 		LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
 		LIDAR_FindClusters();
 		LIDAR_clear_view_buffer();
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////
+// FREERTOS
+////////////////////////////////////////////////////////////////////////
+//Définition des tasks
+
+///////////////////////////NE PAS OUBLIER D'AJUSTER LA TAILLE DE LA PILE !!!
+
+void task_LIDAR_Update(void *unused) {
+    (void)unused;
+    for (;;) {
+    	LIDAR_ProcessDMA();
+    	if (buffer_fill_ratio>SATISFYING_BUFFER_FILL_RATIO){ //traiter le buffer et le vider
+    		LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
+    		LIDAR_FindClusters();
+    		LIDAR_clear_view_buffer();
+    	}
+    }
+}
+
+void task_test(void*unused){
+	(void)unused;
+	for(;;){
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		vTaskDelay(500);
+	}
+}
+
+//Création des tasks
+static void LIDAR_Tasks_Create(void) {
+	if(xTaskCreate(task_LIDAR_Update, "update du LIDAR",1024 ,NULL, 1, &htask_LIDAR_Update) != pdPASS){
+		printf("Error task_LIDAR_Update \r\n");
+		Error_Handler();
+	}
+	if(xTaskCreate(task_test, "test",512 ,NULL, 2, &htask_test) != pdPASS){
+		printf("Error task_test \r\n");
+		Error_Handler();
 	}
 }
 
