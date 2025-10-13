@@ -15,6 +15,19 @@ static float buffer_fill_ratio = 0;
 
 LIDAR_Frame current_frame = {0};
 
+static void LIDAR_ProcessDMA(void);
+static void LIDAR_StoreSample(LIDAR_Sample sample);
+static void LIDAR_ManageFrame(LIDAR_Frame frame, uint16_t sample_count);
+
+static bool verify_checksum(const uint8_t *buf, uint16_t len);
+
+static void LIDAR_FindClusters(void);
+static float LIDAR_findClusterNorm(LIDAR_Sample sample, LIDAR_Sample prev_sample);
+static void LIDAR_clear_view_buffer(void);
+static void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count);
+static uint16_t median_filter(uint16_t *values, uint8_t n);
+static void LID_TIMX_SetDuty(uint8_t duty_percent);
+
 
 ////////////////////////////////////////////////////////////////////////
 // INIT
@@ -39,7 +52,7 @@ void LIDAR_While(void) {
 ////////////////////////////////////////////////////////////////////////
 // SET DUTY
 ////////////////////////////////////////////////////////////////////////
-void LID_TIMX_SetDuty(uint8_t duty_percent) {
+static void LID_TIMX_SetDuty(uint8_t duty_percent) {
 	if (duty_percent > 100) duty_percent = 100;
 	uint32_t arr = __HAL_TIM_GET_AUTORELOAD(&LID_htimx);
 	uint32_t ccr = (duty_percent * (arr + 1)) / 100;
@@ -51,7 +64,7 @@ void LID_TIMX_SetDuty(uint8_t duty_percent) {
 ////////////////////////////////////////////////////////////////////////
 // CHECKSUM
 ////////////////////////////////////////////////////////////////////////
-bool verify_checksum(const uint8_t *buf, uint16_t len) {
+static bool verify_checksum(const uint8_t *buf, uint16_t len) {
 	if (len % 2 != 0) return false;
 	uint16_t acc = 0;
 	for (uint16_t i = 0; i < len; i += 2) {
@@ -69,7 +82,7 @@ static uint32_t get_dma_write_index(void) {
 	return (LIDAR_DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(&hdma_uart4_rx)) % LIDAR_DMA_BUF_SIZE;
 }
 
-void LIDAR_ProcessDMA(void) {
+static void LIDAR_ProcessDMA(void) {
 	uint32_t write_idx = get_dma_write_index();
 
 	while (LIDAR_dma_read_idx != write_idx) {
@@ -119,7 +132,7 @@ void LIDAR_ProcessDMA(void) {
 // MANAGE CURRENT FRAME
 ////////////////////////////////////////////////////////////////////////
 
-void LIDAR_ManageFrame(LIDAR_Frame frame, uint16_t sample_count) {
+static void LIDAR_ManageFrame(LIDAR_Frame frame, uint16_t sample_count) {
 	if (frame.length < 10) return;
 
 	uint16_t FSA = (uint16_t)frame.data[4] | ((uint16_t)frame.data[5] << 8);
@@ -172,7 +185,7 @@ void LIDAR_ManageFrame(LIDAR_Frame frame, uint16_t sample_count) {
 // STORE SAMPLES
 ////////////////////////////////////////////////////////////////////////
 
-void LIDAR_StoreSample(LIDAR_Sample sample) {
+static void LIDAR_StoreSample(LIDAR_Sample sample) {
 	uint16_t idx = (uint16_t)sample.angle_deg;
 	if (idx >= LIDAR_N_ANGLES) return;
 
@@ -187,12 +200,12 @@ void LIDAR_StoreSample(LIDAR_Sample sample) {
 // CLEAR BUFFERS
 ////////////////////////////////////////////////////////////////////////
 
-void LIDAR_clear_cluster_buffer(void) {
+static void LIDAR_clear_cluster_buffer(void) {
 	LIDAR_cluster_count = 0;
 	memset(LIDAR_clusters, 0, sizeof(LIDAR_clusters));
 }
 
-void LIDAR_clear_view_buffer(void) {
+static void LIDAR_clear_view_buffer(void) {
 	sample_cnt = 0;
 	buffer_fill_ratio = 0;
 	memset(LIDAR_view, 0, sizeof(LIDAR_view));
@@ -201,7 +214,7 @@ void LIDAR_clear_view_buffer(void) {
 ////////////////////////////////////////////////////////////////////////
 // MEDIAN FILTER
 ////////////////////////////////////////////////////////////////////////
-uint16_t median_filter(uint16_t *values, uint8_t n) {
+static uint16_t median_filter(uint16_t *values, uint8_t n) {
 	// Copie locale pour tri
 	uint16_t temp[MEDIAN_KERNEL_SIZE];
 	for (uint8_t i = 0; i < n; i++) temp[i] = values[i];
@@ -219,7 +232,7 @@ uint16_t median_filter(uint16_t *values, uint8_t n) {
 	return temp[n / 2]; // valeur médiane
 }
 
-void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count) {
+static void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count) {
 	if (sample_count < MEDIAN_KERNEL_SIZE) return;
 
 	uint16_t window[MEDIAN_KERNEL_SIZE];
@@ -237,7 +250,7 @@ void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count) {
 // FIND CLUSTERS
 ////////////////////////////////////////////////////////////////////////
 
-void LIDAR_FindClusters(void) {
+static void LIDAR_FindClusters(void) {
 	LIDAR_clear_cluster_buffer();
 	uint16_t i = 0;
 
@@ -303,7 +316,7 @@ void LIDAR_FindClusters(void) {
 	}
 }
 
-float LIDAR_findClusterNorm(LIDAR_Sample sample, LIDAR_Sample prev_sample) {
+static float LIDAR_findClusterNorm(LIDAR_Sample sample, LIDAR_Sample prev_sample) {
 	// Norme euclidienne entre deux points polaires
 	float angle1 = (sample.angle_deg * (float)M_PI) / 180.0f;
 	float angle2 = (prev_sample.angle_deg * (float)M_PI) / 180.0f;

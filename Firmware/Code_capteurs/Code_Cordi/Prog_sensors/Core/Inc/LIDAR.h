@@ -68,9 +68,6 @@ typedef struct {
 
 
 ////////////////////////////////////////////////////////////////////////STRUCTURES
-extern uint8_t LIDAR_dma_buf[LIDAR_DMA_BUF_SIZE];
-extern volatile uint32_t LIDAR_dma_read_idx;
-extern LIDAR_Sample LIDAR_view[LIDAR_N_ANGLES];
 extern LIDAR_Cluster LIDAR_clusters[LIDAR_MAX_CLUSTERS];
 extern uint8_t LIDAR_cluster_count;
 
@@ -78,25 +75,9 @@ extern UART_HandleTypeDef LID_huartx;
 extern DMA_HandleTypeDef LID_hdma_uartx_rx;
 extern TIM_HandleTypeDef LID_htimx;
 
-/*------------------ FONCTIONS ------------------*/
+////////////////////////////////////////////////////////////////////////FONCTIONS
 void LIDAR_Init(void);
 void LIDAR_While(void);
-void LIDAR_ProcessDMA(void);
-void LIDAR_StoreSample(LIDAR_Sample sample);
-void LIDAR_ManageFrame(LIDAR_Frame frame, uint16_t sample_count);
 
-int compute_cluster(LIDAR_Sample *points, uint16_t start, uint16_t end, uint8_t idx);
-void segment_points(LIDAR_Sample *points, uint16_t n_points);
-bool verify_checksum(const uint8_t *buf, uint16_t len);
-
-void LIDAR_SegmentSamples(LIDAR_Sample *samples, uint16_t n_samples);
-int LIDAR_ComputeCluster(LIDAR_Sample *samples, uint16_t start, uint16_t end, uint8_t idx);
-
-void LIDAR_FindClusters(void);
-float LIDAR_findClusterNorm(LIDAR_Sample sample, LIDAR_Sample prev_sample);
-void LIDAR_clear_view_buffer(void);
-void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count);
-uint16_t median_filter(uint16_t *values, uint8_t n);
-void LID_TIMX_SetDuty(uint8_t duty_percent);
 
 #endif /* INC_LIDAR_H_ */
