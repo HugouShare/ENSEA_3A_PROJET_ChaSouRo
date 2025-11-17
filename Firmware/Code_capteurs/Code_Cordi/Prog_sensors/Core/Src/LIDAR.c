@@ -16,7 +16,7 @@ static float buffer_fill_ratio = 0;
 LIDAR_Frame current_frame = {0};
 
 static TaskHandle_t htask_LIDAR_Update = NULL;
-static TaskHandle_t htask_test = NULL;
+//static TaskHandle_t htask_test = NULL;
 
 ////////////////////////////////////////////////////////////////////////STATIC FUNCTIONS
 
@@ -65,24 +65,26 @@ void LIDAR_While(void) {
 ///////////////////////////NE PAS OUBLIER D'AJUSTER LA TAILLE DE LA PILE !!!
 
 void task_LIDAR_Update(void *unused) {
-    (void)unused;
-    for (;;) {
-    	LIDAR_ProcessDMA();
-    	if (buffer_fill_ratio>SATISFYING_BUFFER_FILL_RATIO){ //traiter le buffer et le vider
-    		LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
-    		LIDAR_FindClusters();
-    		LIDAR_clear_view_buffer();
-    	}
-    }
-}
-
-void task_test(void*unused){
 	(void)unused;
-	for(;;){
-		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-		vTaskDelay(500);
+	for (;;) {
+		LIDAR_ProcessDMA();
+		if (buffer_fill_ratio>SATISFYING_BUFFER_FILL_RATIO){ //traiter le buffer et le vider
+			LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
+			LIDAR_FindClusters();
+			LIDAR_clear_view_buffer();
+			vTaskDelay(pdMS_TO_TICKS(5));
+		}
+
 	}
 }
+
+//void task_test(void*unused){
+//	(void)unused;
+//	for(;;){
+//		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+//		vTaskDelay(pdMS_TO_TICKS(500));
+//	}
+//}
 
 //Création des tasks
 static void LIDAR_Tasks_Create(void) {
@@ -90,10 +92,10 @@ static void LIDAR_Tasks_Create(void) {
 		printf("Error task_LIDAR_Update \r\n");
 		Error_Handler();
 	}
-	if(xTaskCreate(task_test, "test",512 ,NULL, 2, &htask_test) != pdPASS){
-		printf("Error task_test \r\n");
-		Error_Handler();
-	}
+//	if(xTaskCreate(task_test, "test",512 ,NULL, 2, &htask_test) != pdPASS){
+//		printf("Error task_test \r\n");
+//		Error_Handler();
+//	}
 }
 
 ////////////////////////////////////////////////////////////////////////

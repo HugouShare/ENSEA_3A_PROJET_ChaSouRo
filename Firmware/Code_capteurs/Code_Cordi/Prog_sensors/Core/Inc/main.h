@@ -32,6 +32,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "LIDAR.h"
+#include "enc.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

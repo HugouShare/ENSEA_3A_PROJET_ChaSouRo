@@ -98,8 +98,15 @@ int main(void)
   MX_TIM2_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
+  MX_TIM6_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 	LIDAR_Init();
+	ENC_Init();
+
+
+
+	vTaskStartScheduler();	//Démarre l'os => boucle infinie => rien ne s'exécutera après cette ligne
 
   /* USER CODE END 2 */
 
@@ -115,7 +122,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-//		LIDAR_While();
+		//		LIDAR_While();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
