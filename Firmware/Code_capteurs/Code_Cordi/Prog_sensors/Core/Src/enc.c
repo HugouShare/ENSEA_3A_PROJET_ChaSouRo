@@ -6,14 +6,21 @@
  */
 
 #include "enc.h"
+#include <math.h> // pour cosf, sinf
 
 /* Instances globales */
 Encoder_t ENC_D;
 Encoder_t ENC_G;
 
+
+robot_Pose_t robot_pose = {0.0f, 0.0f, 0.0f};
+
 /* Prototypes des tâches */
 void task_ENC_D_Update(void *arg);
 void task_ENC_G_Update(void *arg);
+void task_Odom_Update(void *arg);
+
+static TaskHandle_t odom_task_handle = NULL;
 
 /* Fonction générique d'update d'un encodeur */
 static void Encoder_Update_Generic(Encoder_t *E)
@@ -58,6 +65,10 @@ static void Encoder_Update_Generic(Encoder_t *E)
     } else {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
     }
+
+    /* Calcul de la distance parcourue depuis la dernière mise à jour
+     * à stocker dans la structure */
+    E->delta_distance = ((float)delta / TICKS_PER_REV) * WHEEL_CIRCUMFERENCE; // en mètres ou unité choisie
 }
 
 /* ---------------------------------------------------------------------
@@ -66,6 +77,7 @@ static void Encoder_Update_Generic(Encoder_t *E)
 void task_ENC_D_Update(void *arg)
 {
     Encoder_t *E = (Encoder_t*)arg;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     for (;;)
     {
@@ -74,12 +86,20 @@ void task_ENC_D_Update(void *arg)
 
         Encoder_Update_Generic(E);
 
-        /* Affichage UART */
-        char buffer[128];
-        int len = sprintf(buffer,
-            "[ENC_D] Pos:%7.2f deg | Vel:%7.2f deg/s | FWD:%ld | REV:%ld\r\n",
-            E->position_deg, E->velocity_deg_s, E->FWD, E->REV);
-        HAL_UART_Transmit(&huart2, (uint8_t*)buffer, len, HAL_MAX_DELAY);
+        ENC_D.has_been_updated = true;
+        if (ENC_D.has_been_updated && ENC_G.has_been_updated){
+            ENC_D.has_been_updated = false;
+            ENC_G.has_been_updated = false;
+            vTaskNotifyGiveFromISR(odom_task_handle, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
+
+//        /* Affichage UART */
+//        char buffer[128];
+//        int len = sprintf(buffer,
+//            "[ENC_D] Pos:%7.2f deg | Vel:%7.2f deg/s | FWD:%ld | REV:%ld\r\n",
+//            E->position_deg, E->velocity_deg_s, E->FWD, E->REV);
+//        HAL_UART_Transmit(&huart2, (uint8_t*)buffer, len, HAL_MAX_DELAY);
     }
 }
 
@@ -89,6 +109,7 @@ void task_ENC_D_Update(void *arg)
 void task_ENC_G_Update(void *arg)
 {
     Encoder_t *E = (Encoder_t*)arg;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     for (;;)
     {
@@ -97,12 +118,63 @@ void task_ENC_G_Update(void *arg)
 
         Encoder_Update_Generic(E);
 
-        /* Affichage UART */
-        char buffer[128];
-        int len = sprintf(buffer,
-            "[ENC_G] Pos:%7.2f deg | Vel:%7.2f deg/s | FWD:%ld | REV:%ld\r\n",
-            E->position_deg, E->velocity_deg_s, E->FWD, E->REV);
-        HAL_UART_Transmit(&huart2, (uint8_t*)buffer, len, HAL_MAX_DELAY);
+        ENC_G.has_been_updated = true;
+        if (ENC_D.has_been_updated && ENC_G.has_been_updated){
+            ENC_D.has_been_updated = false;
+            ENC_G.has_been_updated = false;
+            vTaskNotifyGiveFromISR(odom_task_handle, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
+
+//        /* Affichage UART */
+//        char buffer[128];
+//        int len = sprintf(buffer,
+//            "[ENC_G] Pos:%7.2f deg | Vel:%7.2f deg/s | FWD:%ld | REV:%ld\r\n",
+//            E->position_deg, E->velocity_deg_s, E->FWD, E->REV);
+//        HAL_UART_Transmit(&huart2, (uint8_t*)buffer, len, HAL_MAX_DELAY);
+    }
+}
+
+/* ---------------------------------------------------------------------
+ * Tâche d'odométrie (calcul de la position globale)
+ * --------------------------------------------------------------------- */
+void task_Odom_Update(void *arg)
+{
+    (void)arg;
+
+    for(;;)
+    {
+        /* Attente notification (donnée par les encodeurs) */
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+        /* Lecture des distances delta */
+        float d_left = ENC_G.delta_distance;
+        float d_right = ENC_D.delta_distance;
+
+        /* Calcul de la distance moyenne */
+        float d_center = (d_left + d_right) / 2.0f;
+
+        /* Calcul du changement d'angle (en radians) */
+        float d_theta = (d_right - d_left) / WHEEL_BASE;
+
+        /* Mise à jour de la pose */
+        robot_pose.theta += d_theta;
+
+        /* Normalisation de theta entre -pi et pi */
+        if (robot_pose.theta > M_PI)
+            robot_pose.theta -= 2.0f * M_PI;
+        else if (robot_pose.theta < -M_PI)
+            robot_pose.theta += 2.0f * M_PI;
+
+        /* Mise à jour x,y en fonction de la nouvelle orientation */
+        robot_pose.x += d_center * cosf(robot_pose.theta);
+        robot_pose.y += d_center * sinf(robot_pose.theta);
+
+//        /* Optionnel : affichage sur UART */
+//        char buf[128];
+//        int len = sprintf(buf, "Pose: x=%.3f m, y=%.3f m, theta=%.3f rad\r\n",
+//            robot_pose.x, robot_pose.y, robot_pose.theta);
+//        HAL_UART_Transmit(&huart2, (uint8_t*)buf, len, HAL_MAX_DELAY);
     }
 }
 
@@ -124,29 +196,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-/* ---------------------------------------------------------------------
- * API publique
- * --------------------------------------------------------------------- */
-
-///* Compatibilité : l'ancien ENC_Update() mettra à jour l'encodeur droit */
-//void ENC_Update(void)
-//{
-//    Encoder_Update_Generic(&ENC_D);
-//}
-
-/* Mise à jour manuelle pour ENC_D */
-void ENC_D_Update(void)
-{
-    Encoder_Update_Generic(&ENC_D);
-}
-
-/* Mise à jour manuelle pour ENC_G */
-void ENC_G_Update(void)
-{
-    Encoder_Update_Generic(&ENC_G);
-}
-
-/* Initialisation : configure les structures, démarre timers/encoder et crée les tasks */
+/* Initialisation : configure les structures, démarre timers/encodeur et crée les tasks */
 void ENC_Init(void)
 {
     /* ----------------------------
@@ -163,12 +213,13 @@ void ENC_Init(void)
     ENC_D.REV = 0;
     ENC_D.led_timer = 0;
     ENC_D.task_handle = NULL;
+    ENC_D.has_been_updated = false;
+    ENC_D.delta_distance = 0.0f;
 
     if (xTaskCreate(task_ENC_D_Update, "ENC_D Task", 1024, &ENC_D, 5, &ENC_D.task_handle) != pdPASS) {
         Error_Handler();
     }
 
-    /* Démarrage du timer encodeur et du timer d'échantillonnage */
     HAL_TIM_Encoder_Start(ENC_D.htim_enc, TIM_CHANNEL_ALL);
     HAL_TIM_Base_Start_IT(ENC_D.htim_sampling);
 
@@ -186,6 +237,8 @@ void ENC_Init(void)
     ENC_G.REV = 0;
     ENC_G.led_timer = 0;
     ENC_G.task_handle = NULL;
+    ENC_G.has_been_updated = false;
+    ENC_G.delta_distance = 0.0f;
 
     if (xTaskCreate(task_ENC_G_Update, "ENC_G Task", 1024, &ENC_G, 5, &ENC_G.task_handle) != pdPASS) {
         Error_Handler();
@@ -193,10 +246,9 @@ void ENC_Init(void)
 
     HAL_TIM_Encoder_Start(ENC_G.htim_enc, TIM_CHANNEL_ALL);
     HAL_TIM_Base_Start_IT(ENC_G.htim_sampling);
+
+    /* Création de la tâche odométrie */
+    if (xTaskCreate(task_Odom_Update, "Odom Task", 1024, NULL, 6, &odom_task_handle) != pdPASS) {
+        Error_Handler();
+    }
 }
-
-
-
-
-
-
