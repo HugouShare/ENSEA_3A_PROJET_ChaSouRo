@@ -68,7 +68,7 @@ static void Encoder_Update_Generic(Encoder_t *E)
 
     /* Calcul de la distance parcourue depuis la dernière mise à jour
      * à stocker dans la structure */
-    E->delta_distance = ((float)delta / TICKS_PER_REV) * WHEEL_CIRCUMFERENCE; // en mètres ou unité choisie
+    E->delta_distance = ((float)delta / TICKS_PER_REV) * E->wheel_circumference; // en mètres ou unité choisie
 }
 
 /* ---------------------------------------------------------------------
@@ -215,6 +215,7 @@ void ENC_Init(void)
     ENC_D.task_handle = NULL;
     ENC_D.has_been_updated = false;
     ENC_D.delta_distance = 0.0f;
+    ENC_D.wheel_circumference = WHEEL_DIAMETER * 3.14159265359f * WHEEL_DIAMETER_ERROR;
 
     if (xTaskCreate(task_ENC_D_Update, "ENC_D Task", 1024, &ENC_D, 5, &ENC_D.task_handle) != pdPASS) {
         Error_Handler();
@@ -239,6 +240,7 @@ void ENC_Init(void)
     ENC_G.task_handle = NULL;
     ENC_G.has_been_updated = false;
     ENC_G.delta_distance = 0.0f;
+    ENC_G.wheel_circumference = WHEEL_DIAMETER * 3.14159265359f;
 
     if (xTaskCreate(task_ENC_G_Update, "ENC_G Task", 1024, &ENC_G, 5, &ENC_G.task_handle) != pdPASS) {
         Error_Handler();

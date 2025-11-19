@@ -27,8 +27,8 @@
 #define TIMER_PERIOD_MS 5
 #define LED_ON_TIME_MS 5
 #define WHEEL_BASE           0.15f   // distance entre les roues en mètres (ex : 15 cm)
-#define WHEEL_DIAMETER       0.07f   // diamètre de la roue en mètres (ex : 7 cm)
-#define WHEEL_CIRCUMFERENCE  (WHEEL_DIAMETER * 3.14159265359f)  // circonférence en mètres
+#define WHEEL_DIAMETER       0.07f   // diamètre de la roue en mètres (ex : 7 cm) (roue gauche)
+#define WHEEL_DIAMETER_ERROR 1.0f	 // Rapport diamètre roue droite sur diamètre roue gauche, à régler
 
 // -----------------------------
 // Défines pour l'encodeur gauche
@@ -67,6 +67,7 @@ typedef struct {
     volatile bool has_been_updated;
 
     volatile float delta_distance;
+    volatile float wheel_circumference;
 } Encoder_t;
 
 typedef struct {
