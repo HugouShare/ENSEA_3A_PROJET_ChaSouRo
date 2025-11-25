@@ -1,0 +1,16 @@
+../Core/Src/LIDAR.c:41:6:LIDAR_Init	1
+../Core/Src/LIDAR.c:50:6:LIDAR_While	2
+../Core/Src/LIDAR.c:68:6:task_LIDAR_Update	2
+../Core/Src/LIDAR.c:91:13:LIDAR_Tasks_Create	2
+../Core/Src/LIDAR.c:105:13:LID_TIMX_SetDuty	2
+../Core/Src/LIDAR.c:117:13:verify_checksum	3
+../Core/Src/LIDAR.c:131:17:get_dma_write_index	1
+../Core/Src/LIDAR.c:135:13:LIDAR_ProcessDMA	12
+../Core/Src/LIDAR.c:185:13:LIDAR_ManageFrame	11
+../Core/Src/LIDAR.c:238:13:LIDAR_StoreSample	3
+../Core/Src/LIDAR.c:253:13:LIDAR_clear_cluster_buffer	1
+../Core/Src/LIDAR.c:258:13:LIDAR_clear_view_buffer	1
+../Core/Src/LIDAR.c:267:17:median_filter	5
+../Core/Src/LIDAR.c:285:13:LIDAR_ApplyMedianFilter	4
+../Core/Src/LIDAR.c:303:13:LIDAR_FindClusters	13
+../Core/Src/LIDAR.c:369:14:LIDAR_findClusterNorm	1
