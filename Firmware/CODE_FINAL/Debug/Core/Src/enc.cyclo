@@ -1,5 +1,0 @@
-../Core/Src/enc.c:26:13:Encoder_Update_Generic	7
-../Core/Src/enc.c:77:6:task_ENC_D_Update	4
-../Core/Src/enc.c:109:6:task_ENC_G_Update	4
-../Core/Src/enc.c:141:6:task_Odom_Update	3
-../Core/Src/enc.c:200:6:ENC_Init	4
