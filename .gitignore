@@ -25,6 +25,25 @@ release
 *.obj
 *.elf
 
+# Eclipse / CubeIDE
+.cproject
+.project
+.settings/
+*.mxproject
+
+# Fichiers binaires / build
+/Debug/
+/Release/
+*.elf
+*.hex
+*.bin
+*.map
+*.o
+*.d
+
+# Autres
+*.log
+
 # Linker output
 *.ilk
 *.map
