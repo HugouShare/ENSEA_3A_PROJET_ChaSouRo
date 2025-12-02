@@ -57,6 +57,7 @@ void FLASH_IRQHandler(void);
 void RCC_IRQHandler(void);
 void EXTI0_IRQHandler(void);
 void EXTI1_IRQHandler(void);
+void DMA1_Channel1_IRQHandler(void);
 void EXTI9_5_IRQHandler(void);
 void TIM1_UP_TIM16_IRQHandler(void);
 void TIM2_IRQHandler(void);
