@@ -46,6 +46,10 @@ extern TIM_HandleTypeDef ENC_G_sampling_htimx;
 extern UART_HandleTypeDef huart2;
 extern void Error_Handler(void);
 
+// on va utiliser les LUTS du fichier LIDAR.c
+extern const int16_t cos_lut[360];
+extern const int16_t sin_lut[360];
+
 // -----------------------------
 // Structure demandée (strictement conservée)
 // -----------------------------
@@ -54,26 +58,25 @@ typedef struct {
     TIM_HandleTypeDef *htim_sampling;
     TaskHandle_t task_handle;
 
-    volatile int32_t last_position;
+    volatile uint32_t last_position;
     volatile int32_t total_ticks;
-    volatile float position_deg;
-    volatile float velocity_deg_s;
+    volatile int32_t position_deg;
+    volatile int32_t velocity_deg_s;
 
-    volatile int32_t FWD;
-    volatile int32_t REV;
+    volatile int8_t FWD;
+    volatile int8_t REV;
 
-    volatile int32_t led_timer;
 
     volatile bool has_been_updated;
 
-    volatile float delta_distance;
-    volatile float wheel_circumference;
+    volatile int32_t delta_distance;	//en  mm
+    volatile int32_t wheel_circumference;	//en  mm
 } Encoder_t;
 
 typedef struct {
-    float x;
-    float y;
-    float theta;
+    int32_t x; //en  mm
+    int32_t y; //en  mm
+    uint16_t theta; //en  deg
 } robot_Pose_t;
 
 // Instances externes
@@ -87,5 +90,7 @@ void ENC_Init(void);      // initialise les 2 encodeurs, crée les tasks
 void ENC_Update(void);    // compatibilité : met à jour ENC_D (ancien comportement)
 void ENC_D_Update(void);
 void ENC_G_Update(void);
+
+
 
 #endif /* INC_ENC_H_ */

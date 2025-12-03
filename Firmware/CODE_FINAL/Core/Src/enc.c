@@ -12,8 +12,8 @@
 Encoder_t ENC_D;
 Encoder_t ENC_G;
 
-
-robot_Pose_t robot_pose = {0.0f, 0.0f, 0.0f};
+/* Pose globale du robot (mm, mm, degrés) */
+robot_Pose_t robot_pose = {0, 0, 0};
 
 /* Prototypes des tâches */
 void task_ENC_D_Update(void *arg);
@@ -28,47 +28,36 @@ static void Encoder_Update_Generic(Encoder_t *E)
     int32_t current = (int32_t)__HAL_TIM_GET_COUNTER(E->htim_enc);
     int32_t delta   = current - E->last_position;
 
-    /* Gestion du wrap-around 16 bits */
+    /* Gestion wrap-around 16 bits */
     if (delta > 32767)  delta -= 65536;
     if (delta < -32768) delta += 65536;
 
     E->total_ticks += delta;
     E->last_position = current;
 
-    /* LED : détecte mouvement */
-    if (delta != 0) {
-        E->led_timer = LED_ON_TIME_MS / TIMER_PERIOD_MS;
-    }
+    /* Détection sens FWD/REV uniquement si un tour complet est passé */
+    int32_t deg_raw = (E->total_ticks * 360) / (int32_t)TICKS_PER_REV;
 
-    /* Conversion en degrés */
-    float raw_deg = ((float)E->total_ticks / TICKS_PER_REV) * 360.0f;
-
-    /* Détection du passage de +360° ou -360° */
-    if (raw_deg >= 360.0f) {
+    if (deg_raw >= 360) {
         E->FWD++;
-        E->total_ticks -= TICKS_PER_REV;
-    } else if (raw_deg <= -360.0f) {
+        E->total_ticks -= (int32_t)TICKS_PER_REV;
+    } else if (deg_raw <= -360) {
         E->REV++;
-        E->total_ticks += TICKS_PER_REV;
+        E->total_ticks += (int32_t)TICKS_PER_REV;
     }
 
-    /* Position modulo 360 */
-    E->position_deg = ((float)E->total_ticks / TICKS_PER_REV) * 360.0f;
+    /* Position en degrés modulo 360 (entier) */
+    E->position_deg = (E->total_ticks * 360) / (int32_t)TICKS_PER_REV;
 
-    /* Vitesse (°/s) - on suppose TIMER_PERIOD_MS en ms */
-    E->velocity_deg_s = ((float)delta / TICKS_PER_REV) * (360.0f * (1000.0f / TIMER_PERIOD_MS));
+    /* Vitesse en deg/s */
+    E->velocity_deg_s =
+        (delta * 360 * (1000 / TIMER_PERIOD_MS)) /
+        (int32_t)TICKS_PER_REV;
 
-    /* Gestion LED (diagnostic simple sur PA5) */
-    if (E->led_timer > 0) {
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-        E->led_timer--;
-    } else {
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-    }
-
-    /* Calcul de la distance parcourue depuis la dernière mise à jour
-     * à stocker dans la structure */
-    E->delta_distance = ((float)delta / TICKS_PER_REV) * E->wheel_circumference; // en mètres ou unité choisie
+    /* Delta distance (mm) */
+    E->delta_distance =
+        (delta * (int32_t)E->wheel_circumference) /
+        (int32_t)TICKS_PER_REV;
 }
 
 /* ---------------------------------------------------------------------
@@ -142,41 +131,46 @@ void task_Odom_Update(void *arg)
 {
     (void)arg;
 
-    for(;;)
+    for (;;)
     {
-        /* Attente notification (donnée par les encodeurs) */
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        /* Lecture des distances delta */
-        float d_left = ENC_G.delta_distance;
-        float d_right = ENC_D.delta_distance;
+        /* Distances roues en mm */
+        int32_t d_left  = ENC_G.delta_distance;
+        int32_t d_right = ENC_D.delta_distance;
 
-        /* Calcul de la distance moyenne */
-        float d_center = (d_left + d_right) / 2.0f;
+        /* Distance centre */
+        int32_t d_center = (d_left + d_right) / 2;
 
-        /* Calcul du changement d'angle (en radians) */
-        float d_theta = (d_right - d_left) / WHEEL_BASE;
+        /* WHEEL_BASE en mm */
+        const int32_t WHEEL_BASE_MM = (int32_t)(WHEEL_BASE * 1000.0f);
 
-        /* Mise à jour de la pose */
-        robot_pose.theta += d_theta;
+        /* d_theta en degrés (pas de float) :
+           theta_deg = ( (R-L)/wheelbase ) * 180/pi
+           180/pi ≈ 57.2958 ≈ 5730 / 100
+        */
+        int32_t d_theta =
+            ((d_right - d_left) * 5730) /
+            (WHEEL_BASE_MM * 100);
 
-        /* Normalisation de theta entre -pi et pi */
-        if (robot_pose.theta > M_PI)
-            robot_pose.theta -= 2.0f * M_PI;
-        else if (robot_pose.theta < -M_PI)
-            robot_pose.theta += 2.0f * M_PI;
+        /* Mise à jour orientation (0..359) */
+        int32_t new_theta = (int32_t)robot_pose.theta + d_theta;
 
-        /* Mise à jour x,y en fonction de la nouvelle orientation */
-        robot_pose.x += d_center * cosf(robot_pose.theta);
-        robot_pose.y += d_center * sinf(robot_pose.theta);
+        while (new_theta >= 360) new_theta -= 360;
+        while (new_theta <    0) new_theta += 360;
 
-//        /* Optionnel : affichage sur UART */
-//        char buf[128];
-//        int len = sprintf(buf, "Pose: x=%.3f m, y=%.3f m, theta=%.3f rad\r\n",
-//            robot_pose.x, robot_pose.y, robot_pose.theta);
-//        HAL_UART_Transmit(&huart2, (uint8_t*)buf, len, HAL_MAX_DELAY);
+        robot_pose.theta = (uint16_t)new_theta;
+
+        /* LUT Q15 */
+        int16_t c = cos_lut[robot_pose.theta];
+        int16_t s = sin_lut[robot_pose.theta];
+
+        /* Mise à jour (mm) : x += d_center * cos / 32768 */
+        robot_pose.x += ( (int32_t)d_center * c ) >> 15;
+        robot_pose.y += ( (int32_t)d_center * s ) >> 15;
     }
 }
+
 
 /* ---------------------------------------------------------------------
  * Callback des timers d'échantillonnage : notifie la tâche correcte
@@ -199,58 +193,59 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 /* Initialisation : configure les structures, démarre timers/encodeur et crée les tasks */
 void ENC_Init(void)
 {
-    /* ----------------------------
-     * ENC_D (encodeur droit)
-     * ---------------------------- */
+    /* ---------- ENC_D (droite) ---------- */
     ENC_D.htim_enc      = &ENC_D_htimx;
     ENC_D.htim_sampling = &ENC_D_sampling_htimx;
 
-    ENC_D.last_position = (int32_t)__HAL_TIM_GET_COUNTER(ENC_D.htim_enc);
+    ENC_D.last_position = __HAL_TIM_GET_COUNTER(ENC_D.htim_enc);
     ENC_D.total_ticks   = 0;
-    ENC_D.position_deg  = 0.0f;
-    ENC_D.velocity_deg_s = 0.0f;
+    ENC_D.position_deg  = 0;
+    ENC_D.velocity_deg_s = 0;
     ENC_D.FWD = 0;
     ENC_D.REV = 0;
-    ENC_D.led_timer = 0;
-    ENC_D.task_handle = NULL;
     ENC_D.has_been_updated = false;
-    ENC_D.delta_distance = 0.0f;
-    ENC_D.wheel_circumference = WHEEL_DIAMETER * 3.14159265359f * WHEEL_DIAMETER_ERROR;
 
-    if (xTaskCreate(task_ENC_D_Update, "ENC_D Task", 1024, &ENC_D, 5, &ENC_D.task_handle) != pdPASS) {
+    ENC_D.task_handle = NULL;
+    ENC_D.delta_distance = 0;
+
+    ENC_D.wheel_circumference =
+        (int32_t)(WHEEL_DIAMETER * 1000.0f * 3.1415926535f *
+                  WHEEL_DIAMETER_ERROR);
+
+    if (xTaskCreate(task_ENC_D_Update, "ENC_D", 1024, &ENC_D, 5,
+                    &ENC_D.task_handle) != pdPASS)
         Error_Handler();
-    }
 
     HAL_TIM_Encoder_Start(ENC_D.htim_enc, TIM_CHANNEL_ALL);
     HAL_TIM_Base_Start_IT(ENC_D.htim_sampling);
 
-    /* ----------------------------
-     * ENC_G (encodeur gauche)
-     * ---------------------------- */
+    /* ---------- ENC_G (gauche) ---------- */
     ENC_G.htim_enc      = &ENC_G_htimx;
     ENC_G.htim_sampling = &ENC_G_sampling_htimx;
 
-    ENC_G.last_position = (int32_t)__HAL_TIM_GET_COUNTER(ENC_G.htim_enc);
+    ENC_G.last_position = __HAL_TIM_GET_COUNTER(ENC_G.htim_enc);
     ENC_G.total_ticks   = 0;
-    ENC_G.position_deg  = 0.0f;
-    ENC_G.velocity_deg_s = 0.0f;
+    ENC_G.position_deg  = 0;
+    ENC_G.velocity_deg_s = 0;
     ENC_G.FWD = 0;
     ENC_G.REV = 0;
-    ENC_G.led_timer = 0;
-    ENC_G.task_handle = NULL;
     ENC_G.has_been_updated = false;
-    ENC_G.delta_distance = 0.0f;
-    ENC_G.wheel_circumference = WHEEL_DIAMETER * 3.14159265359f;
 
-    if (xTaskCreate(task_ENC_G_Update, "ENC_G Task", 1024, &ENC_G, 5, &ENC_G.task_handle) != pdPASS) {
+    ENC_G.task_handle = NULL;
+    ENC_G.delta_distance = 0;
+
+    ENC_G.wheel_circumference =
+        (int32_t)(WHEEL_DIAMETER * 1000.0f * 3.1415926535f);
+
+    if (xTaskCreate(task_ENC_G_Update, "ENC_G", 1024, &ENC_G, 5,
+                    &ENC_G.task_handle) != pdPASS)
         Error_Handler();
-    }
 
     HAL_TIM_Encoder_Start(ENC_G.htim_enc, TIM_CHANNEL_ALL);
     HAL_TIM_Base_Start_IT(ENC_G.htim_sampling);
 
-    /* Création de la tâche odométrie */
-    if (xTaskCreate(task_Odom_Update, "Odom Task", 1024, NULL, 6, &odom_task_handle) != pdPASS) {
+    /* ---------- Tâche odométrie ---------- */
+    if (xTaskCreate(task_Odom_Update, "ODOM", 1024, NULL, 6,
+                    &odom_task_handle) != pdPASS)
         Error_Handler();
-    }
 }
