@@ -16,6 +16,7 @@ _BEGIN_STD_C
 
 #include "ssd1306_conf.h"
 
+#define SSD1306_USE_DMA // A commenter si utilise pas le DMA
 
 #if defined(STM32WB)
 #include "stm32wbxx_hal.h"
