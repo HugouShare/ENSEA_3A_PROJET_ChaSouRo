@@ -2,15 +2,18 @@
 
 ## Init 
 
-- Chaque moteur tourne à son tour et quand un moteur tourne, une LED associée s'allume
+- Fonction `Init_motors()` qui démarre les PWM et fais tourner le robot sur lui même à gauche puis à droite.
 
 ## Principe
 - Une structure de pointeurs motorDriver à été mis en place qui associe à un moteur L ou R, son timer et son FWD/REV.
 - 2 fonctions
-	- motorRun qui séléctionne le moteur et la vitesse (CCR [0:1000])
-	- motorSet utilise motor Run et la durée pendant laquelle il tourne (en ms) puis met le moteur à l'arrêt
-- Fait en FreeRTOS (mais utilise HAL_Delay donc les passer vTaskDelay())
+	- `Motors_Set()` qui vient modifier une structure avec les valeurs de vitesses et durées souhaitées dans les deux moteurs
+	- `Motor_SetSpeed()` qui applique dans la tâche `Task_motor` dédiée et permet au tout de ne pas être bloquant 
 
 ## Utilisation
 
-- Tâche motor créée qui va faire tourner l'un des deux moteurs lorsque son bouton (ISR avec sémaphore) associé à été appuyé.
+Ici configuré dans le callback des boutons 2 consignes :  
+- une où le robot tourne sur lui même sens droite
+- une où le robot avance tout droit lentement
+
+Reste à mettre en plac ue fonction pour corrige la trajectoire qui n'est pas parfaitement droite.

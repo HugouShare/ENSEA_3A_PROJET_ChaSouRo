@@ -67,26 +67,34 @@ int __io_putchar(int chr)
 }
 
 
-void task_motor(void * unused)
+void task_motor(void *unused)
 {
+    TickType_t now;
+
     for (;;)
     {
 
         xSemaphoreTake(xMotorSem, portMAX_DELAY);
 
-		if (Flags.Motor_state == 1) {
-			Motor_Run(&motorL, 400, 1000);
-			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
-			Flags.Motor_state = 0;
-		}
+        // appliquer immédiatement les vitesses demandées
+        Motor_SetSpeed(&motorL, motor_cmd.speedL);
+        Motor_SetSpeed(&motorR, motor_cmd.speedR);
 
-		if (Flags.Motor_state == 2) {
-			Motor_Run(&motorR, -400, 1000);
-			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-			Flags.Motor_state = 0;
-		}
+        // maintenant surveiller jusqu’à la fin
+        for (;;)
+        {
+            now = xTaskGetTickCount();
 
-		Flags.Motor_state = 0;
+            // si temps écoulé -> stop moteurs et sortir de la boucle
+            if (now >= motor_cmd.end_time)
+            {
+                Motor_SetSpeed(&motorL, 0);
+                Motor_SetSpeed(&motorR, 0);
+                break;
+            }
+
+            vTaskDelay(pdMS_TO_TICKS(10));  // check périodique, non bloquant
+        }
     }
 }
 /* USER CODE END 0 */
@@ -124,27 +132,8 @@ int main(void)
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+  Init_motors();
 
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 0);
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0);
-
-  HAL_Delay(500);
-
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
-  Motor_Run(&motorL, 400, 1000);
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
-
-  HAL_Delay(500);
-
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-  Motor_Run(&motorR, -400, 1000);
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
   HAL_Delay(500);
 
