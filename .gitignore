@@ -1,7 +1,5 @@
 # macOS
 .DS_Store
-~ChaSouRo.kicad_pro.lck
-~*.lck
 
 
 #settings
@@ -26,9 +24,7 @@ release
 *.elf
 
 # Eclipse / CubeIDE
-.cproject
-.project
-.settings/
+
 *.mxproject
 
 # Fichiers binaires / build
