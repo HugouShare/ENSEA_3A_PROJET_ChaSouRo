@@ -45,6 +45,8 @@
 #define Q15_SHIFT 15
 
 
+#define LID_STACK_SIZE 128
+
 ////////////////////////////////////////////////////////////////////////CONSTANTS
 
 
@@ -79,7 +81,6 @@ extern volatile uint8_t LIDAR_cluster_count;
 extern UART_HandleTypeDef LID_huartx;
 extern DMA_HandleTypeDef LID_hdma_uartx_rx;
 extern TIM_HandleTypeDef LID_htimx;
-
 
 extern void Error_Handler(void);
 ////////////////////////////////////////////////////////////////////////FONCTIONS

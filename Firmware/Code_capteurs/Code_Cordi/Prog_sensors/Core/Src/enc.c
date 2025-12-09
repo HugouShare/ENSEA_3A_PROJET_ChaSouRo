@@ -6,7 +6,6 @@
  */
 
 #include "enc.h"
-#include <math.h> // pour cosf, sinf
 
 /* Instances globales */
 Encoder_t ENC_D;
@@ -175,7 +174,9 @@ void task_Odom_Update(void *arg)
 /* ---------------------------------------------------------------------
  * Callback des timers d'échantillonnage : notifie la tâche correcte
  * --------------------------------------------------------------------- */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+
+
+void enc_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
@@ -212,7 +213,7 @@ void ENC_Init(void)
         (int32_t)(WHEEL_DIAMETER * 1000.0f * 3.1415926535f *
                   WHEEL_DIAMETER_ERROR);
 
-    if (xTaskCreate(task_ENC_D_Update, "ENC_D", 1024, &ENC_D, 5,
+    if (xTaskCreate(task_ENC_D_Update, "ENC_D", ENC_STACK_SIZE, &ENC_D, 5,
                     &ENC_D.task_handle) != pdPASS)
         Error_Handler();
 
@@ -237,7 +238,7 @@ void ENC_Init(void)
     ENC_G.wheel_circumference =
         (int32_t)(WHEEL_DIAMETER * 1000.0f * 3.1415926535f);
 
-    if (xTaskCreate(task_ENC_G_Update, "ENC_G", 1024, &ENC_G, 5,
+    if (xTaskCreate(task_ENC_G_Update, "ENC_G", ENC_STACK_SIZE, &ENC_G, 5,
                     &ENC_G.task_handle) != pdPASS)
         Error_Handler();
 
@@ -245,7 +246,7 @@ void ENC_Init(void)
     HAL_TIM_Base_Start_IT(ENC_G.htim_sampling);
 
     /* ---------- Tâche odométrie ---------- */
-    if (xTaskCreate(task_Odom_Update, "ODOM", 1024, NULL, 6,
+    if (xTaskCreate(task_Odom_Update, "ODOM", ODOM_STACK_SIZE, NULL, 6,
                     &odom_task_handle) != pdPASS)
         Error_Handler();
 }

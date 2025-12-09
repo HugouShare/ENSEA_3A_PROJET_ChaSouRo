@@ -1,5 +1,6 @@
 #include "LIDAR.h"
 
+
 ////////////////////////////////////////////////////////////////////////PRIVATE VARIABLES
 uint8_t LIDAR_dma_buf[LIDAR_DMA_BUF_SIZE];
 volatile uint32_t LIDAR_dma_read_idx = 0;
@@ -13,7 +14,7 @@ volatile uint8_t buffer_fill_ratiox100 = 0;
 
 LIDAR_Frame current_frame = {0};
 
-static TaskHandle_t htask_LIDAR_Update = NULL;
+TaskHandle_t htask_LIDAR_Update = NULL;
 //static TaskHandle_t htask_test = NULL;
 
 //Luts pour ne pas avoir à calculer cos et sin en float
@@ -84,6 +85,8 @@ void task_LIDAR_Update(void *unused) {
 			LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
 			LIDAR_FindClusters();
 			LIDAR_clear_view_buffer();
+
+
 			vTaskDelay(pdMS_TO_TICKS(5));
 		}
 
@@ -99,7 +102,7 @@ void task_LIDAR_Update(void *unused) {
 //}
 
 static void LIDAR_Tasks_Create(void) {
-	if(xTaskCreate(task_LIDAR_Update, "update du LIDAR",1024 ,NULL, 1, &htask_LIDAR_Update) != pdPASS){
+	if(xTaskCreate(task_LIDAR_Update, "update du LIDAR",LID_STACK_SIZE ,NULL, 1, &htask_LIDAR_Update) != pdPASS){
 		//		printf("Error task_LIDAR_Update \r\n");
 		Error_Handler();
 	}

@@ -63,6 +63,24 @@ int __io_putchar(int chr){
 	HAL_UART_Transmit(&huart2, (uint8_t*) &chr, 1, HAL_MAX_DELAY);
 	return chr;
 }
+
+
+//protection mémoire
+
+void vApplicationMallocFailedHook(void)
+{
+    printf("Malloc failed !\r\n"); //n'arrive pas à créé une task (pas de place)
+    taskDISABLE_INTERRUPTS();
+    for( ;; );
+}
+
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+{
+    printf("Stack overflow in task %s\r\n", pcTaskName); //Stack overflow
+    Error_Handler();
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -182,6 +200,29 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM7 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM7)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+  enc_HAL_TIM_PeriodElapsedCallback(htim);
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
