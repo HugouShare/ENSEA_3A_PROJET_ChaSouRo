@@ -19,26 +19,33 @@
 #define LID_hdma_uartx_rx hdma_uart4_rx
 
 //DMA
-#define LIDAR_DMA_BUF_SIZE     1024
+#define LIDAR_DMA_BUF_SIZE     512
 #define LIDAR_MAX_FRAME_SIZE   256
 #define LIDAR_N_ANGLES         360
 #define MEDIAN_KERNEL_SIZE 5
 
 //Filtrage et reconnaissance de cluster
 #define LID_SPEED 50		//angular speed in %
-#define SATISFYING_BUFFER_FILL_RATIO 0.7f			//pourcentage de remplissage du buffer non filtré satisfaisant
+#define SATISFYING_BUFFER_FILL_RATIO 70			//pourcentage de remplissage du buffer non filtré satisfaisant
 #define MIN_POINTS_CLUSTER  5	//nombre de points minimum pour détecter un cluster
 
 //Distances et seuils
 #define LIDAR_MIN_VALID_DIST   10
-#define LIDAR_MIN_CLUSTER_DIST 20.0f
+#define LIDAR_MIN_CLUSTER_DIST 20
 #define LIDAR_DIST_THRESHOLD   300
-#define LIDAR_MERGE_THRESHOLD  50.0f
+#define LIDAR_MERGE_THRESHOLD  50
 #define LIDAR_MAX_RANGE        300
 
 #define LIDAR_MAX_CLUSTERS     32
 #define LIDAR_MAX_SAMPLES_PKT  200U
 
+// LUTS POUR COS ET SIN
+#define DEG_COUNT 360
+#define Q15_SCALE 32768
+#define Q15_SHIFT 15
+
+
+#define LID_STACK_SIZE 128
 
 ////////////////////////////////////////////////////////////////////////CONSTANTS
 
@@ -47,9 +54,7 @@
 
 ////////////////////////////////////////////////////////////////////////STRUCTURES
 typedef struct {
-	float X;
-	float Y;
-	float angle_deg;
+	uint16_t angle_deg;
 	uint16_t distance_mm;
 	bool quality;
 } LIDAR_Sample;
@@ -60,8 +65,8 @@ typedef struct {
 } LIDAR_Frame;
 
 typedef struct {
-	float x;
-	float y;
+	int16_t x;
+	int16_t y;
 	uint16_t start_idx;
 	uint16_t end_idx;
 	uint16_t size;
@@ -71,17 +76,13 @@ typedef struct {
 
 ////////////////////////////////////////////////////////////////////////STRUCTURES
 extern LIDAR_Cluster LIDAR_clusters[LIDAR_MAX_CLUSTERS];
-extern uint8_t LIDAR_cluster_count;
+extern volatile uint8_t LIDAR_cluster_count;
 
 extern UART_HandleTypeDef LID_huartx;
 extern DMA_HandleTypeDef LID_hdma_uartx_rx;
 extern TIM_HandleTypeDef LID_htimx;
 
-
 extern void Error_Handler(void);
-extern int	printf (const char *__restrict, ...)
-_ATTRIBUTE ((__format__ (__printf__, 1, 2)));
-
 ////////////////////////////////////////////////////////////////////////FONCTIONS
 void LIDAR_Init(void);
 void LIDAR_While(void);

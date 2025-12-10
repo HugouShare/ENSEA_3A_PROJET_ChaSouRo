@@ -80,3 +80,9 @@ timeline
 ## 📝 Journal de bord
 
 Pour consulter notre journal de bord [cliquez ici](Documents/Journal%20de%20bord.md)
+
+## ✅ A faire 
+
+- Diagramme UML (des fichiers, des drivers, pas forcément au format normé)
+- Diagramme des tâches
+- Diagramme hardware (signaux, composants, ...)

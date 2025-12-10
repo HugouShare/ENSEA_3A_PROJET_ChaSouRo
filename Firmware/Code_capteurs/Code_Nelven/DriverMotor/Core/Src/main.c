@@ -67,28 +67,6 @@ int __io_putchar(int chr)
 }
 
 
-void task_motor(void * unused)
-{
-    for (;;)
-    {
-
-        xSemaphoreTake(xMotorSem, portMAX_DELAY);
-
-		if (Flags.Motor_state == 1) {
-			Motor_Run(&motorL, 400, 1000);
-			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
-			Flags.Motor_state = 0;
-		}
-
-		if (Flags.Motor_state == 2) {
-			Motor_Run(&motorR, -400, 1000);
-			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-			Flags.Motor_state = 0;
-		}
-
-		Flags.Motor_state = 0;
-    }
-}
 /* USER CODE END 0 */
 
 /**
@@ -124,38 +102,13 @@ int main(void)
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
-
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 0);
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 0);
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 0);
-
-  HAL_Delay(500);
-
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
-  Motor_Run(&motorL, 400, 1000);
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
-
-  HAL_Delay(500);
-
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-  Motor_Run(&motorR, -400, 1000);
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+  Init_motors();
+  CreateTaskMotors();
 
   HAL_Delay(500);
 
   printf("\r\n==== DriverMoteur ====\r\n");
 
-  xMotorSem = xSemaphoreCreateBinary();
-
-  if (xTaskCreate(task_motor, "MOTOR", 512, NULL,1,NULL) != pdPASS){
-	 printf("Error creating task motor\r\n");
-	 Error_Handler();
-  }
 
 
 

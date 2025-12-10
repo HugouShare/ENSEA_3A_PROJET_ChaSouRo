@@ -4465,29 +4465,6 @@
 			)
 		)
 	)
-	(global_label "TX3"
-		(shape input)
-		(at 195.58 118.11 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-				(thickness 0.1588)
-			)
-			(justify right)
-		)
-		(uuid "1452c29e-1dc6-4aa2-aa89-fd8d126e72a8")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 188.7322 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "ENC_PB_L"
 		(shape input)
 		(at 195.58 113.03 180)
@@ -4666,7 +4643,7 @@
 			)
 		)
 	)
-	(global_label "RX3"
+	(global_label "TX3"
 		(shape input)
 		(at 195.58 120.65 180)
 		(fields_autoplaced yes)
@@ -4677,9 +4654,9 @@
 			)
 			(justify right)
 		)
-		(uuid "316a6478-4150-44c6-aed2-d5223f499cac")
+		(uuid "3187a701-ea2b-4236-b275-94302102a613")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 188.4298 120.65 0)
+			(at 188.7322 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5599,6 +5576,29 @@
 		(uuid "d5892599-c2b8-4f95-985c-f833ff18069e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 186.9101 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "RX3"
+		(shape input)
+		(at 195.58 118.11 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.1588)
+			)
+			(justify right)
+		)
+		(uuid "d5b0a48b-b0ea-4eb9-b1e5-3db502e921c7")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 188.4298 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)

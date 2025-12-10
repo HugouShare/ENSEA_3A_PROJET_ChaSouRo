@@ -1,5 +1,17 @@
+
+##### CONFIGURATION #####
+0-Mettre les inits dans le main.c et les includes dans main.h
+1-Ouvrir STM32CubeProgrammer et configurer les Option Bytes du microcontroller (Voir dossier concerné)
+2-Remplacer dans les headers "stm32l4xx_hal.h" par "stm32g4xx_hal.h"
+3-Dans l'ioc, activer le DMA pour l'usart approprié
+4-Dans l'ioc, activer PWM generation pour le gpio de controle de la vitesse du LIDAR
+5-Dans l'ioc, activer les Hooks (pour les stack overflow et les malloc) et highwatermark pour l'espace mémoire
+6-Flash le code de la carte
+
+
+##### MES NOTES #####
+
 - finir le code de détection des ennemis
-- finir fait qu'il y ait 2 encodeurs
 - régler les encodeurs
 - faire les task et la machine à états
 - faire le code de l'odométrie

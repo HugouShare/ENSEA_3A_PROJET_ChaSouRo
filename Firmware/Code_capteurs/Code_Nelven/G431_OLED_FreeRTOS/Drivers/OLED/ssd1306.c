@@ -2,22 +2,72 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>  // For memcpy
+#include "cmsis_os.h"
 
 #if defined(SSD1306_USE_I2C)
 
-void ssd1306_Reset(void) {
-    /* for I2C - do nothing */
+volatile uint8_t SSD1306_DMA_Ready = 1; // Pour DMA
+static uint8_t SSD1306_Buffer[SSD1306_BUFFER_SIZE];
+static uint8_t SSD1306_Buffer_Backup[SSD1306_BUFFER_SIZE]; // Double-buffer
+SemaphoreHandle_t ssd1306_dma_sem;
+
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+    if (hi2c->Instance == SSD1306_I2C_PORT.Instance) {
+        SSD1306_DMA_Ready = 1;
+    }
 }
 
-// Send a byte to the command register
+void ssd1306_Reset(void) {
+    /* pour I2C - rien à faire */
+}
+
 void ssd1306_WriteCommand(uint8_t byte) {
     HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x00, 1, &byte, 1, HAL_MAX_DELAY);
 }
 
-// Send data
+#if !defined(SSD1306_USE_DMA)
+// Version classique (bloquante)
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
     HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x40, 1, buffer, buff_size, HAL_MAX_DELAY);
 }
+
+void ssd1306_UpdateScreen(void) {
+    for(uint8_t i = 0; i < SSD1306_HEIGHT / 8; i++) {
+        ssd1306_WriteCommand(0xB0 + i);
+        ssd1306_WriteCommand(0x00);
+        ssd1306_WriteCommand(0x10);
+        ssd1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH * i], SSD1306_WIDTH);
+    }
+}
+#else
+// Version DMA
+void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
+    if (!SSD1306_DMA_Ready) return; // DMA busy
+    SSD1306_DMA_Ready = 0;
+    memcpy(SSD1306_Buffer_Backup, buffer, buff_size);
+    HAL_I2C_Mem_Write_DMA(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR,
+                          0x40, 1,
+                          SSD1306_Buffer_Backup,
+                          buff_size);
+}
+
+void ssd1306_UpdateScreen(void) {
+    if (!SSD1306_DMA_Ready) return;
+    SSD1306_DMA_Ready = 0;
+    for (uint8_t i = 0; i < SSD1306_HEIGHT / 8; i++) {
+        ssd1306_WriteCommand(0xB0 + i);
+        ssd1306_WriteCommand(0x00);
+        ssd1306_WriteCommand(0x10);
+
+        SSD1306_DMA_Ready = 0; // mettre avant de lancer le DMA
+        HAL_I2C_Mem_Write_DMA(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR,
+                              0x40, 1,
+                              &SSD1306_Buffer[SSD1306_WIDTH * i],
+                              SSD1306_WIDTH);
+        while (!SSD1306_DMA_Ready);
+    }
+}
+#endif // SSD1306_USE_DMA
 
 #elif defined(SSD1306_USE_SPI)
 
@@ -177,20 +227,45 @@ void ssd1306_Fill(SSD1306_COLOR color) {
 }
 
 /* Write the screenbuffer with changed to the screen */
-void ssd1306_UpdateScreen(void) {
-    // Write data to each page of RAM. Number of pages
-    // depends on the screen height:
-    //
-    //  * 32px   ==  4 pages
-    //  * 64px   ==  8 pages
-    //  * 128px  ==  16 pages
-    for(uint8_t i = 0; i < SSD1306_HEIGHT/8; i++) {
-        ssd1306_WriteCommand(0xB0 + i); // Set the current RAM page address.
-        ssd1306_WriteCommand(0x00 + SSD1306_X_OFFSET_LOWER);
-        ssd1306_WriteCommand(0x10 + SSD1306_X_OFFSET_UPPER);
-        ssd1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH*i],SSD1306_WIDTH);
-    }
-}
+//void ssd1306_UpdateScreen(void) {
+//    // Write data to each page of RAM. Number of pages
+//    // depends on the screen height:
+//    //
+//    //  * 32px   ==  4 pages
+//    //  * 64px   ==  8 pages
+//    //  * 128px  ==  16 pages
+//	//==== Even with one-shot DMA ====
+//    for(uint8_t i = 0; i < SSD1306_HEIGHT/8; i++) {
+//        ssd1306_WriteCommand(0xB0 + i); // Set the current RAM page address.
+//        ssd1306_WriteCommand(0x00 + SSD1306_X_OFFSET_LOWER);
+//        ssd1306_WriteCommand(0x10 + SSD1306_X_OFFSET_UPPER);
+//        ssd1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH*i],SSD1306_WIDTH);
+//    }
+//}
+
+//==== Version DMA one-shot ====
+//void ssd1306_UpdateScreen(void) {
+//
+//    if (!SSD1306_DMA_Ready)
+//        return;  // évite de lancer 2 DMA en même temps
+//
+//    SSD1306_DMA_Ready = 0;
+//
+//    for (uint8_t i = 0; i < 8; i++) {
+//
+//        ssd1306_WriteCommand(0xB0 + i);
+//        ssd1306_WriteCommand(0x00);
+//        ssd1306_WriteCommand(0x10);
+//
+//        HAL_I2C_Mem_Write_DMA(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR,
+//                              0x40, 1,
+//                              &SSD1306_Buffer[128 * i], 128);
+//
+//        // attendre la fin du DMA page par page
+//        while (!SSD1306_DMA_Ready);
+//        SSD1306_DMA_Ready = 0;
+//    }
+//}
 
 /*
  * Draw one pixel in the screenbuffer
