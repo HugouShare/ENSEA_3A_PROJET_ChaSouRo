@@ -6,7 +6,9 @@
  */
 
 #include "motor.h"
+#include "gpio.h"
 
+int count = 0;
 SystFlag Flags = {0};
 extern SemaphoreHandle_t xMotorSem;
 MotorCommand motor_cmd = {0, 0, 0};
@@ -37,7 +39,7 @@ void Init_motors(void){
     Motor_SetSpeed(&motorR, 0);
     HAL_Delay(500);
 
-    // --- 3. Faire tourner le robot sur lui-même à gauche ---
+    // --- 3. Faire tourner le robot sur lui-même à droite ---
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
     Motor_SetSpeed(&motorL, 300);   // gauche avant
     Motor_SetSpeed(&motorR, -300);  // droite arrière
@@ -49,7 +51,7 @@ void Init_motors(void){
     Motor_SetSpeed(&motorR, 0);
     HAL_Delay(500);
 
-    // --- 5. Faire tourner le robot sur lui-même à droite ---
+    // --- 5. Faire tourner le robot sur lui-même à gauche ---
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     Motor_SetSpeed(&motorL, -300);  // gauche arrière
     Motor_SetSpeed(&motorR, 300);   // droite avant
@@ -83,7 +85,7 @@ void Motor_SetSpeed(MotorDriver *m, int speed)
 
 void Motors_Set(int left, int right, uint32_t duration_ms)
 {
-	// Met à jour la structure motor_cmd qui ensuite est utilisé dans la tâche
+	// Met à jour la structure motor_cmd qui ensuite est utilisée dans la tâche
 	// pour modifier les PWM via Motor_SetSpeed
 
     // --- 1. Saturation des vitesses ---
@@ -111,11 +113,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     if (GPIO_Pin == GPIO_PIN_1) {
-        Motors_Set(200, 200, 1000);
+        Motors_Set(300, 300, 5000);
     }
 
     else if (GPIO_Pin == GPIO_PIN_9) {
-        Motors_Set(300, -300, 1000);
+    	if (count == 2){
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
+        Motors_Set(500, -500, 500);
+        count = 0;
+    	}
+    	if (count == 1){
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		Motors_Set(500, -500, 250);
+		count++;
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_15);
+		}
+    	if (count == 0){
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		Motors_Set(500, -500, 100);
+		count++;
+		}
     }
 
     xSemaphoreGiveFromISR(xMotorSem, &xHigherPriorityTaskWoken);

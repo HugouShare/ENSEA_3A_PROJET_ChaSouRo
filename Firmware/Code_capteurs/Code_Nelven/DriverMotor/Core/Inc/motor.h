@@ -31,7 +31,7 @@ typedef struct {
 
 extern SystFlag Flags;
 
-/* === Nouvelle structure de commande globale === */
+/* === Structure de commande globale === */
 typedef struct {
     int speedL;               // vitesse moteur gauche
     int speedR;               // vitesse moteur droit
