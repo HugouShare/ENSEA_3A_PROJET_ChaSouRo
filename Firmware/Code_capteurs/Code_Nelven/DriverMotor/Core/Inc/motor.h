@@ -10,6 +10,7 @@
 
 #include "tim.h"
 #include "cmsis_os.h"
+#include <stdio.h>
 
 #define MOTOR_PWM_MAX   1000    // ARR = 1000 -> PWM max
 #define MOTOR_PWM_MIN   0       // pas utile, mais propre
@@ -46,5 +47,6 @@ void Motors_Set(int left, int right, uint32_t duration_ms);// Sert à modifier l
 // Architecture “commander via structure + appliquer via task” -> non bloquante
 
 void Init_motors(void);
+void CreateTaskMotors(void);
 
 #endif /* INC_MOTOR_H_ */

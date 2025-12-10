@@ -67,36 +67,6 @@ int __io_putchar(int chr)
 }
 
 
-void task_motor(void *unused)
-{
-    TickType_t now;
-
-    for (;;)
-    {
-
-        xSemaphoreTake(xMotorSem, portMAX_DELAY);
-
-        // appliquer immédiatement les vitesses demandées
-        Motor_SetSpeed(&motorL, motor_cmd.speedL);
-        Motor_SetSpeed(&motorR, motor_cmd.speedR);
-
-        // maintenant surveiller jusqu’à la fin
-        for (;;)
-        {
-            now = xTaskGetTickCount();
-
-            // si temps écoulé -> stop moteurs et sortir de la boucle
-            if (now >= motor_cmd.end_time)
-            {
-                Motor_SetSpeed(&motorL, 0);
-                Motor_SetSpeed(&motorR, 0);
-                break;
-            }
-
-            vTaskDelay(pdMS_TO_TICKS(10));  // check périodique, non bloquant
-        }
-    }
-}
 /* USER CODE END 0 */
 
 /**
@@ -133,18 +103,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   Init_motors();
-
+  CreateTaskMotors();
 
   HAL_Delay(500);
 
   printf("\r\n==== DriverMoteur ====\r\n");
 
-  xMotorSem = xSemaphoreCreateBinary();
-
-  if (xTaskCreate(task_motor, "MOTOR", 512, NULL,1,NULL) != pdPASS){
-	 printf("Error creating task motor\r\n");
-	 Error_Handler();
-  }
 
 
 
