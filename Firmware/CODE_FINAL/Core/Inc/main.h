@@ -31,8 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "enc.h"
-#include "LIDAR.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -66,6 +65,7 @@ void Error_Handler(void);
 #define LED_D1_GPIO_Port GPIOC
 #define USER2_Pin GPIO_PIN_1
 #define USER2_GPIO_Port GPIOA
+#define USER2_EXTI_IRQn EXTI1_IRQn
 #define LID_USART2_RX_Pin GPIO_PIN_3
 #define LID_USART2_RX_GPIO_Port GPIOA
 #define ENC_PA_R_Pin GPIO_PIN_4
@@ -100,10 +100,12 @@ void Error_Handler(void);
 #define Buzzer_GPIO_Port GPIOB
 #define XShunt1_Pin GPIO_PIN_6
 #define XShunt1_GPIO_Port GPIOB
+#define XShunt1_EXTI_IRQn EXTI9_5_IRQn
 #define ENC_PB_L_Pin GPIO_PIN_8
 #define ENC_PB_L_GPIO_Port GPIOB
 #define USER1_Pin GPIO_PIN_9
 #define USER1_GPIO_Port GPIOB
+#define USER1_EXTI_IRQn EXTI9_5_IRQn
 
 /* USER CODE BEGIN Private defines */
 

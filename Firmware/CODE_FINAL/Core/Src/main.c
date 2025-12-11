@@ -29,6 +29,11 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "motor.h"
+#include "enc.h"
+#include "LIDAR.h"
+#include "ssd1306.h"
+#include "ssd1306_fonts.h"
+#include "oled.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -130,9 +135,11 @@ int main(void)
 	Init_motors();
 	LIDAR_Init();
 	ENC_Init();
+	OLED_Init();
 
 	//CREATION DES TASKS
-	CreateTaskMotors();
+	OLED_Tasks_Create();
+	Motors_Tasks_Create();
 	LIDAR_Tasks_Create();
 	ENC_Tasks_Create();
 
@@ -200,7 +207,10 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	oled_HAL_GPIO_EXTI_Callback(GPIO_Pin);
+//	motor_HAL_GPIO_EXTI_Callback(GPIO_Pin);
+}
 /* USER CODE END 4 */
 
 /**

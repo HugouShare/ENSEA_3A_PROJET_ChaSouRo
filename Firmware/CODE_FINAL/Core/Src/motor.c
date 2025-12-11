@@ -9,7 +9,7 @@
 #include "gpio.h"
 
 int count = 0;
-SystFlag Flags = {0};
+SystFlagMotors FlagsM = {0};
 extern SemaphoreHandle_t xMotorSem;
 MotorCommand motor_cmd = {0, 0, 0};
 SemaphoreHandle_t xMotorSem;
@@ -62,7 +62,7 @@ void task_motor(void *unused)
 
 //
 
-void CreateTaskMotors(void){
+void Motors_Tasks_Create(void){
   xMotorSem = xSemaphoreCreateBinary();
 
   if (xTaskCreate(task_motor, "MOTOR", MOTOR_STACK_SIZE, NULL,1,NULL) != pdPASS){
@@ -152,7 +152,7 @@ void Motors_Set(int left, int right, uint32_t duration_ms)
     motor_cmd.end_time = xTaskGetTickCount() + pdMS_TO_TICKS(duration_ms);
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+void motor_HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
