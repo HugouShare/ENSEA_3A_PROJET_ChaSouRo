@@ -1,5 +1,6 @@
 #include "LIDAR.h"
 
+
 ////////////////////////////////////////////////////////////////////////PRIVATE VARIABLES
 uint8_t LIDAR_dma_buf[LIDAR_DMA_BUF_SIZE];
 volatile uint32_t LIDAR_dma_read_idx = 0;
@@ -13,7 +14,7 @@ volatile uint8_t buffer_fill_ratiox100 = 0;
 
 LIDAR_Frame current_frame = {0};
 
-static TaskHandle_t htask_LIDAR_Update = NULL;
+TaskHandle_t htask_LIDAR_Update = NULL;
 //static TaskHandle_t htask_test = NULL;
 
 //Luts pour ne pas avoir à calculer cos et sin en float
@@ -45,7 +46,6 @@ static void LIDAR_clear_view_buffer(void);
 static void LIDAR_ApplyMedianFilter(LIDAR_Sample* buffer, uint16_t sample_count);
 static uint16_t median_filter(uint16_t *values, uint8_t n);
 static void LID_TIMX_SetDuty(uint8_t duty_percent);
-static void LIDAR_Tasks_Create(void);
 
 static inline uint8_t fast_round_ratio_100(uint32_t num, uint32_t den);
 
@@ -55,7 +55,6 @@ static inline uint8_t fast_round_ratio_100(uint32_t num, uint32_t den);
 void LIDAR_Init(void) {
 	HAL_UART_Receive_DMA(&LID_huartx, LIDAR_dma_buf, LIDAR_DMA_BUF_SIZE);
 	LID_TIMX_SetDuty(LID_SPEED);
-	LIDAR_Tasks_Create();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -84,6 +83,8 @@ void task_LIDAR_Update(void *unused) {
 			LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
 			LIDAR_FindClusters();
 			LIDAR_clear_view_buffer();
+
+
 			vTaskDelay(pdMS_TO_TICKS(5));
 		}
 
@@ -98,8 +99,8 @@ void task_LIDAR_Update(void *unused) {
 //	}
 //}
 
-static void LIDAR_Tasks_Create(void) {
-	if(xTaskCreate(task_LIDAR_Update, "update du LIDAR",1024 ,NULL, 1, &htask_LIDAR_Update) != pdPASS){
+void LIDAR_Tasks_Create(void) {
+	if(xTaskCreate(task_LIDAR_Update, "update du LIDAR",LID_STACK_SIZE ,NULL, 1, &htask_LIDAR_Update) != pdPASS){
 		//		printf("Error task_LIDAR_Update \r\n");
 		Error_Handler();
 	}
@@ -140,7 +141,7 @@ static bool verify_checksum(const uint8_t *buf, uint16_t len) {
 // PROCESS DMA
 ////////////////////////////////////////////////////////////////////////
 static uint32_t get_dma_write_index(void) {
-	return (LIDAR_DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(&LID_hdma_usartx_rx)) % LIDAR_DMA_BUF_SIZE;
+	return (LIDAR_DMA_BUF_SIZE - __HAL_DMA_GET_COUNTER(&LID_hdma_uartx_rx)) % LIDAR_DMA_BUF_SIZE;
 }
 
 static void LIDAR_ProcessDMA(void) {

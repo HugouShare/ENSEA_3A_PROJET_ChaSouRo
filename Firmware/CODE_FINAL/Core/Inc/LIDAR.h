@@ -16,7 +16,7 @@
 #define LID_htimx htim15
 #define LID_TIM_CHANNEL_X TIM_CHANNEL_2
 #define LID_huartx huart2
-#define LID_hdma_usartx_rx hdma_usart2_rx
+#define LID_hdma_uartx_rx hdma_usart2_rx
 
 //DMA
 #define LIDAR_DMA_BUF_SIZE     512
@@ -44,6 +44,8 @@
 #define Q15_SCALE 32768
 #define Q15_SHIFT 15
 
+
+#define LID_STACK_SIZE 128
 
 ////////////////////////////////////////////////////////////////////////CONSTANTS
 
@@ -77,9 +79,8 @@ extern LIDAR_Cluster LIDAR_clusters[LIDAR_MAX_CLUSTERS];
 extern volatile uint8_t LIDAR_cluster_count;
 
 extern UART_HandleTypeDef LID_huartx;
-extern DMA_HandleTypeDef LID_hdma_usartx_rx;
+extern DMA_HandleTypeDef LID_hdma_uartx_rx;
 extern TIM_HandleTypeDef LID_htimx;
-
 
 extern void Error_Handler(void);
 ////////////////////////////////////////////////////////////////////////FONCTIONS
@@ -89,6 +90,7 @@ void LIDAR_While(void);
 //FREERTOS
 void task_LIDAR_Update(void *unused);
 void task_test(void*unused);
+void LIDAR_Tasks_Create(void);
 
 
 #endif /* INC_LIDAR_H_ */

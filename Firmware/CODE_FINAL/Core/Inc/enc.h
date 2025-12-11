@@ -30,6 +30,9 @@
 #define WHEEL_DIAMETER       0.07f   // diamètre de la roue en mètres (ex : 7 cm) (roue gauche)
 #define WHEEL_DIAMETER_ERROR 1.0f	 // Rapport diamètre roue droite sur diamètre roue gauche, à régler
 
+#define ENC_STACK_SIZE 40
+#define ODOM_STACK_SIZE 64
+
 // -----------------------------
 // Défines pour l'encodeur gauche
 // (tu peux mapper vers d'autres timers si besoin)
@@ -90,6 +93,8 @@ void ENC_Init(void);      // initialise les 2 encodeurs, crée les tasks
 void ENC_Update(void);    // compatibilité : met à jour ENC_D (ancien comportement)
 void ENC_D_Update(void);
 void ENC_G_Update(void);
+void enc_HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+void ENC_Tasks_Create(void);
 
 
 
