@@ -63,23 +63,27 @@ Les missions principales sont les suivantes (réparties selon différents niveau
 timeline
     title 🚀 Évolution du projet
     section Phase 1 - conception du PCB
-      Séance 1 : Schéma architectural / BOM
+      Séance 1 : Point réunion + schéma architectural / BOM
       Séance 2 et 3 : Schéma électronique annoté
       Séance 4 : Corrections Schéma / BOM Finale
-      Séance 5 : Placement
+      Séance 5 : Point réunion + placement
       Séance 6 : Placement corrigé
       Séance 7 et 8 : Routage
       Séance 9 et 10 : Corrections Routage, export...
-    section Phase 2 - écriture du code C
-      Séance 1 : Architecture de subsomption + architecture schéma logicielle
-      A compléter...
-    section Phase 3 - tests et vérifications
-      A compléter...
+    section Phase 2 - mécanique 3D + prise en main et programmation des différents capteurs et actionneurs
+      Séance 1 : Point réunion + architecture de subsomption + architecture schéma logicielle + soudure composants sur PCBs + vérification du bon fonctionnement des PCBs
+      Séance 2 et 3 et 4 : Prise en main & programmation du LiDar + accéléromètre + écran OLED + module bluetooth avec développement application apk
+      Séance 5 : Point réunion + vérification du bon fonctionnement des différents modules
+      Séance 6 et 7 et 8 : Développement de l'odométrie + programmation des moteurs + 1x TOF puis 4x TOFs + modification de la structure mécanique du robot pour intégration des 4 TOFs et écran OLED
+      Séance 9 et 10 : Impression 3D de la structure mécanique du robot + début de l'intégration des différents modules + finalisation de la programmation des 4x TOFs ensemble 
+    section Phase 3 - Intégration, tests & vérifications
+      Séance 1 et 2 : Point réunion + intégration, tests & vérifications
+      Séance 3 : DEMONSTRATION FINALE
 ```
 
-## 📝 Journal de bord
+## 📝 Journal des activités
 
-Pour consulter notre journal de bord [cliquez ici](Documents/Journal%20de%20bord.md)
+Pour consulter notre journal des activités [cliquez ici](Documents/Journal%20de%20bord.md)  
 
 ## ✅ A faire 
 
