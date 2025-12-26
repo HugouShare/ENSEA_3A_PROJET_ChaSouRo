@@ -47,6 +47,7 @@ Les missions principales sont les suivantes (réparties selon différents niveau
   - **Niveau 3 :**
     - Il n’est pas affecté par les obstacles hors de la table
     - Il est donc capable de se localiser
+Dans notre cas à nous, nous choisissons le niveau 1 voire potentiellement, selon notre avancement, le niveau 2.  
 
 ## ⌚ Timeline du projet  
 
