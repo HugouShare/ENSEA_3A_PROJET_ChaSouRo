@@ -6,9 +6,9 @@
 # Contexte général du projet  
 
 Comme expliqué précédemment, le but de notre projet est de concevoir un robot capable de jouer au jeu du chat et de la souris de manière complètement autonome sur une table.   
-Pour plus d'informations sur le projet [cliquez ici](Descriptif%20du%20projet.pdf)  
+Pour plus d'informations sur le projet : [cliquez ici](Descriptif%20du%20projet.pdf)  
 
-Pour se faire, seul les composants utilisés dans le projet nous sont imposés [liste des composants](Liste%20des%20composants%20disponibles.pdf)  
+Pour se faire, seuls les composants utilisés dans le projet nous sont imposés : [liste des composants](Liste%20des%20composants%20disponibles.pdf)  
 Charge à nous :  
 - de développer une PCB
 - de programmer les différents modules : capteurs, actionneurs, écran OLED et module de communication bluetooth
@@ -22,10 +22,12 @@ Voici ce que chaque membre du groupe réalise au sein du projet...
 
 # Rapport individuel des tâches réalisées au sein du projet  
 
-## Nelven THEBAULT  
+### Nelven THEBAULT  
 
-## Hugo CARVALHO FONTES  
+### Hugo CARVALHO FONTES  
 
-## Arthur Cesar NKWA NJITCHOU  
+### Arthur Cesar NKWA NJITCHOU  
 
-## Hugo CORDI  
+### Hugo CORDI  
+
+# Résultat final le jour J  
