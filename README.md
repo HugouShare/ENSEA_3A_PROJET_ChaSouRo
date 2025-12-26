@@ -80,12 +80,6 @@ timeline
       Séance 3 : DEMONSTRATION FINALE
 ```
 
-## 📝 Journal des activités
+## 📝 Rapport de projet
 
-Pour consulter notre journal des activités [cliquez ici](Documents/Journal%20de%20bord.md)  
-
-## ✅ A faire 
-
-- Diagramme UML (des fichiers, des drivers, pas forcément au format normé)
-- Diagramme des tâches
-- Diagramme hardware (signaux, composants, ...)
+Pour consulter notre rapport de projet [cliquez ici](Documents/Rapport%20de%20projet.md)  
