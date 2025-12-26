@@ -48,7 +48,7 @@ Les missions principales sont les suivantes (réparties selon différents niveau
     - Il n’est pas affecté par les obstacles hors de la table
     - Il est donc capable de se localiser
 
-## ⌚ Timeline
+## ⌚ Timeline du projet  
 
 ```mermaid
 %%{init: {"theme":"default", "themeVariables": {
@@ -61,7 +61,6 @@ Les missions principales sont les suivantes (réparties selon différents niveau
 }}}%%
 
 timeline
-    title 🚀 Évolution du projet
     section Phase 1 - conception du PCB
       Séance 1 : Point réunion + schéma architectural / BOM
       Séance 2 et 3 : Schéma électronique annoté
