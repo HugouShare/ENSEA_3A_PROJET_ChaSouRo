@@ -252,6 +252,7 @@ typedef struct {
 void VL53L0X_XSHUT(GPIO_TypeDef * GPIO, uint16_t pin, GPIO_PinState state);
 void VL53L0X_InitSingleTOF (h_vl53l0x_t * h_vl53l0x);
 void VL53L0X_InitAllTOF (h_vl53l0x_t * h_vl53l0x);
+void VL53L0X_CreateTask (h_vl53l0x_t * h_vl53l0x);
 void task_vl53l0x_print_distance (h_vl53l0x_t * h_vl53l0x);
 void print_distance (h_vl53l0x_t * h_vl53l0x);
 void VL53L0X_ReadAll (void);

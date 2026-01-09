@@ -1020,7 +1020,7 @@ bool performSingleRefCalibration(uint8_t vhv_init_byte)
 /*
  * !!! DO NOT TOUCH ALL THE CODE ABOVE !!!
  * THIS CODE HAS BEEN TAKEN FROM A GITHUB REPOSITORY AND MUST NOT BE MODIFIED AT ALL
- */
+*/
 
 TaskHandle_t h_task_vl53l0x_print_distance = NULL;
 statInfo_t_VL53L0X distanceStr;
@@ -1028,7 +1028,7 @@ statInfo_t_VL53L0X distanceStr;
 #define ADDRESS_TOF1 0x54
 #define ADDRESS_TOF2 0x56
 #define ADDRESS_TOF3 0x58
-#define ADDRESS_TOF4 0x60
+#define ADDRESS_TOF4 0x5A
 
 void VL53L0X_XSHUT(GPIO_TypeDef* GPIO, uint16_t pin, GPIO_PinState state)
 {
@@ -1061,27 +1061,30 @@ void VL53L0X_InitAllTOF (h_vl53l0x_t * h_vl53l0x)
 	VL53L0X_XSHUT(h_vl53l0x->XSHUT_TOF4_GPIO_Port,h_vl53l0x->XSHUT_TOF4_GPIO_Pin,GPIO_PIN_RESET);
 	HAL_Delay(10);
 
-	// TOF 1 : Initalisation + address definition
-	VL53L0X_XSHUT(h_vl53l0x->XSHUT_TOF1_GPIO_Port,h_vl53l0x->XSHUT_TOF1_GPIO_Pin,GPIO_PIN_SET);
-	HAL_Delay(10);
-	VL53L0X_InitSingleTOF(h_vl53l0x);
-	setAddress_VL53L0X(ADDRESS_TOF1);
+//	// TOF 1 : Initalisation + address definition
+//	VL53L0X_XSHUT(h_vl53l0x->XSHUT_TOF1_GPIO_Port,h_vl53l0x->XSHUT_TOF1_GPIO_Pin,GPIO_PIN_SET);
+//	HAL_Delay(10);
+//	VL53L0X_InitSingleTOF(h_vl53l0x);
+//	setAddress_VL53L0X(ADDRESS_TOF1);
 	// TOF 2 : Initalisation + address definition
 	VL53L0X_XSHUT(h_vl53l0x->XSHUT_TOF2_GPIO_Port,h_vl53l0x->XSHUT_TOF2_GPIO_Pin,GPIO_PIN_SET);
 	HAL_Delay(10);
 	VL53L0X_InitSingleTOF(h_vl53l0x);
 	setAddress_VL53L0X(ADDRESS_TOF2);
-	// TOF 3 : Initalisation + address definition
-	VL53L0X_XSHUT(h_vl53l0x->XSHUT_TOF3_GPIO_Port,h_vl53l0x->XSHUT_TOF3_GPIO_Pin,GPIO_PIN_SET);
-	HAL_Delay(10);
-	VL53L0X_InitSingleTOF(h_vl53l0x);
-	setAddress_VL53L0X(ADDRESS_TOF3);
-	// TOF 4 : Initalisation + address definition
-	VL53L0X_XSHUT(h_vl53l0x->XSHUT_TOF4_GPIO_Port,h_vl53l0x->XSHUT_TOF4_GPIO_Pin,GPIO_PIN_SET);
-	HAL_Delay(10);
-	VL53L0X_InitSingleTOF(h_vl53l0x);
-	setAddress_VL53L0X(ADDRESS_TOF4);
+//	// TOF 3 : Initalisation + address definition
+//	VL53L0X_XSHUT(h_vl53l0x->XSHUT_TOF3_GPIO_Port,h_vl53l0x->XSHUT_TOF3_GPIO_Pin,GPIO_PIN_SET);
+//	HAL_Delay(10);
+//	VL53L0X_InitSingleTOF(h_vl53l0x);
+//	setAddress_VL53L0X(ADDRESS_TOF3);
+//	// TOF 4 : Initalisation + address definition
+//	VL53L0X_XSHUT(h_vl53l0x->XSHUT_TOF4_GPIO_Port,h_vl53l0x->XSHUT_TOF4_GPIO_Pin,GPIO_PIN_SET);
+//	HAL_Delay(10);
+//	VL53L0X_InitSingleTOF(h_vl53l0x);
+//	setAddress_VL53L0X(ADDRESS_TOF4);
+}
 
+void VL53L0X_CreateTask (h_vl53l0x_t * h_vl53l0x)
+{
 	if (xTaskCreate(task_vl53l0x_print_distance, "VL53L0X PRINT DISTANCE", 256, h_vl53l0x, 1, &h_task_vl53l0x_print_distance) != pdPASS)
 	{
 		printf("Error creating vl53l0x print distance task \r\n");
@@ -1109,23 +1112,23 @@ void task_vl53l0x_print_distance (h_vl53l0x_t * h_vl53l0x)
 uint16_t distances [4];
 void VL53L0X_ReadAll (void)
 {
-	g_i2cAddr = ADDRESS_TOF1;
-	distances[0] = readRangeSingleMillimeters(&distanceStr);
+//	g_i2cAddr = ADDRESS_TOF1;
+//	distances[0] = readRangeSingleMillimeters(&distanceStr);
 	g_i2cAddr = ADDRESS_TOF2;
 	distances[1] = readRangeSingleMillimeters(&distanceStr);
-	g_i2cAddr = ADDRESS_TOF3;
-	distances[2] = readRangeSingleMillimeters(&distanceStr);
-	g_i2cAddr = ADDRESS_TOF4;
-	distances[3] = readRangeSingleMillimeters(&distanceStr);
+//	g_i2cAddr = ADDRESS_TOF3;
+//	distances[2] = readRangeSingleMillimeters(&distanceStr);
+//	g_i2cAddr = ADDRESS_TOF4;
+//	distances[3] = readRangeSingleMillimeters(&distanceStr);
 }
 
 void print_distance (h_vl53l0x_t * h_vl53l0x)
 {
 	VL53L0X_ReadAll();
-	printf("\r\n TOF1 measured distance : %d \r\n",distances[0]);
+//	printf("\r\n TOF1 measured distance : %d \r\n",distances[0]);
 	printf("\r\n TOF2 measured distance : %d \r\n",distances[1]);
-	printf("\r\n TOF3 measured distance : %d \r\n",distances[2]);
-	printf("\r\n TOF4 measured distance : %d \r\n",distances[3]);
+//	printf("\r\n TOF3 measured distance : %d \r\n",distances[2]);
+//	printf("\r\n TOF4 measured distance : %d \r\n",distances[3]);
 	HAL_Delay(500);
 }
 

@@ -19,14 +19,15 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "dma.h"
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "VL53L0X.h"
-#include "stdio.h"
+#include "HC05.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,22 +48,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-h_vl53l0x_t h_vl53l0x =
+h_hc05_t h_hc05 =
 {
-		.htim = &htim7,
-		.hi2c = &hi2c3,
-		// XSHUT TOF 1
-		.XSHUT_TOF1_GPIO_Port = GPIOB,
-		.XSHUT_TOF1_GPIO_Pin = GPIO_PIN_6,
-		// XSHUT TOF 2
-		.XSHUT_TOF2_GPIO_Port = GPIOB,
-		.XSHUT_TOF2_GPIO_Pin = GPIO_PIN_13,
-		// XSHUT TOF 3
-		.XSHUT_TOF3_GPIO_Port = GPIOB,
-		.XSHUT_TOF3_GPIO_Pin = GPIO_PIN_0,
-		// XSHUT TOF 4
-		.XSHUT_TOF4_GPIO_Port = GPIOC,
-		.XSHUT_TOF4_GPIO_Pin = GPIO_PIN_14,
+		.huart = &huart3
 };
 /* USER CODE END PV */
 
@@ -77,7 +65,7 @@ void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN 0 */
 int __io_putchar(int chr)
 {
-	HAL_UART_Transmit(&huart4, (uint8_t*) &chr, 1, HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart2, (uint8_t*) &chr, 1, HAL_MAX_DELAY);
 	return chr;
 }
 /* USER CODE END 0 */
@@ -111,6 +99,7 @@ int main(void)
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
+	MX_DMA_Init();
 	MX_I2C1_Init();
 	MX_I2C3_Init();
 	MX_TIM2_Init();
@@ -120,11 +109,8 @@ int main(void)
 	MX_USART2_UART_Init();
 	MX_USART3_UART_Init();
 	MX_TIM16_Init();
-	MX_TIM7_Init();
 	/* USER CODE BEGIN 2 */
-	printf("\r\n ================= VL53L0X ================= \r\n");
-	VL53L0X_InitAllTOF(&h_vl53l0x);
-	VL53L0X_CreateTask(&h_vl53l0x);
+	HC05_Init(&h_hc05);
 	vTaskStartScheduler();
 	/* USER CODE END 2 */
 
@@ -188,7 +174,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if (huart->Instance==USART3)
+	{
+		hc05_RX_callback(&h_hc05);
+	}
+}
 /* USER CODE END 4 */
 
 /**
@@ -207,10 +199,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if (htim->Instance == TIM6)
 	{
 		HAL_IncTick();
-	}
-	if (htim->Instance == TIM7)
-	{
-		VL53L0X_TIMx_Callback(&h_vl53l0x);
 	}
 	/* USER CODE BEGIN Callback 1 */
 

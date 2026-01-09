@@ -25,8 +25,8 @@
 #include "gpio.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "VL53L0X.h"
-#include "stdio.h"
+#include "adxl345.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,22 +47,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-h_vl53l0x_t h_vl53l0x =
+h_adxl345_t h_adxl345 =
 {
-		.htim = &htim7,
-		.hi2c = &hi2c3,
-		// XSHUT TOF 1
-		.XSHUT_TOF1_GPIO_Port = GPIOB,
-		.XSHUT_TOF1_GPIO_Pin = GPIO_PIN_6,
-		// XSHUT TOF 2
-		.XSHUT_TOF2_GPIO_Port = GPIOB,
-		.XSHUT_TOF2_GPIO_Pin = GPIO_PIN_13,
-		// XSHUT TOF 3
-		.XSHUT_TOF3_GPIO_Port = GPIOB,
-		.XSHUT_TOF3_GPIO_Pin = GPIO_PIN_0,
-		// XSHUT TOF 4
-		.XSHUT_TOF4_GPIO_Port = GPIOC,
-		.XSHUT_TOF4_GPIO_Pin = GPIO_PIN_14,
+		.hi2c = &hi2c1
 };
 /* USER CODE END PV */
 
@@ -120,11 +107,16 @@ int main(void)
 	MX_USART2_UART_Init();
 	MX_USART3_UART_Init();
 	MX_TIM16_Init();
-	MX_TIM7_Init();
 	/* USER CODE BEGIN 2 */
-	printf("\r\n ================= VL53L0X ================= \r\n");
-	VL53L0X_InitAllTOF(&h_vl53l0x);
-	VL53L0X_CreateTask(&h_vl53l0x);
+	printf("\r\n ================= ADXL345 ================= \r\n");
+
+	if (ADXL345_Init(&h_adxl345) != HAL_OK)
+	{
+		printf("\n\r Erreur : ADXL345 introuvable ! \n\r");
+		Error_Handler();
+	}
+	printf("\n\r ADXL345 détecté et initialisé. \n\r");
+
 	vTaskStartScheduler();
 	/* USER CODE END 2 */
 
@@ -207,10 +199,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if (htim->Instance == TIM6)
 	{
 		HAL_IncTick();
-	}
-	if (htim->Instance == TIM7)
-	{
-		VL53L0X_TIMx_Callback(&h_vl53l0x);
 	}
 	/* USER CODE BEGIN Callback 1 */
 
