@@ -10,6 +10,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "freeRTOS_tasks_priority.h"
+
 
 #define OLED_STACK_SIZE 128
 

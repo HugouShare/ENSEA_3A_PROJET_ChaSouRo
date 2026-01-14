@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include "FreeRTOS.h"
 #include "task.h"
+#include "freeRTOS_tasks_priority.h"
 
 // -----------------------------
 // Défines d'origine (conservés)

@@ -210,14 +210,14 @@ void ssd1306_Init(void) {
 
     // Clear screen
     ssd1306_Fill(Black);
-    
+
     // Flush buffer to screen
     ssd1306_UpdateScreen();
-    
+
     // Set default values for screen object
     SSD1306.CurrentX = 0;
     SSD1306.CurrentY = 0;
-    
+
     SSD1306.Initialized = 1;
 }
 
@@ -278,11 +278,11 @@ void ssd1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_COLOR color) {
         // Don't write outside the buffer
         return;
     }
-   
+
     // Draw in the right color
     if(color == White) {
         SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] |= 1 << (y % 8);
-    } else { 
+    } else {
         SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] &= ~(1 << (y % 8));
     }
 }
@@ -295,11 +295,11 @@ void ssd1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_COLOR color) {
  */
 char ssd1306_WriteChar(char ch, SSD1306_Font_t Font, SSD1306_COLOR color) {
     uint32_t i, b, j;
-    
+
     // Check if character is valid
     if (ch < 32 || ch > 126)
         return 0;
-    
+
     // Char width is not equal to font width for proportional font
     const uint8_t char_width = Font.char_width ? Font.char_width[ch-32] : Font.width;
     // Check remaining space on current line
@@ -309,7 +309,7 @@ char ssd1306_WriteChar(char ch, SSD1306_Font_t Font, SSD1306_COLOR color) {
         // Not enough space on current line
         return 0;
     }
-    
+
     // Use the font to write
     for(i = 0; i < Font.height; i++) {
         b = Font.data[(ch - 32) * Font.height + i];
@@ -321,10 +321,10 @@ char ssd1306_WriteChar(char ch, SSD1306_Font_t Font, SSD1306_COLOR color) {
             }
         }
     }
-    
+
     // The current space is now taken
     SSD1306.CurrentX += char_width;
-    
+
     // Return written char for validation
     return ch;
 }
@@ -338,7 +338,7 @@ char ssd1306_WriteString(char* str, SSD1306_Font_t Font, SSD1306_COLOR color) {
         }
         str++;
     }
-    
+
     // Everything ok
     return *str;
 }
@@ -357,7 +357,7 @@ void ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR 
     int32_t signY = ((y1 < y2) ? 1 : -1);
     int32_t error = deltaX - deltaY;
     int32_t error2;
-    
+
     ssd1306_DrawPixel(x2, y2, color);
 
     while((x1 != x2) || (y1 != y2)) {
@@ -367,7 +367,7 @@ void ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR 
             error -= deltaY;
             x1 += signX;
         }
-        
+
         if(error2 < deltaX) {
             error += deltaX;
             y1 += signY;
@@ -421,9 +421,9 @@ void ssd1306_DrawArc(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle,
     uint32_t count;
     uint32_t loc_sweep;
     float rad;
-    
+
     loc_sweep = ssd1306_NormalizeTo0_360(sweep);
-    
+
     count = (ssd1306_NormalizeTo0_360(start_angle) * CIRCLE_APPROXIMATION_SEGMENTS) / 360;
     approx_segments = (loc_sweep * CIRCLE_APPROXIMATION_SEGMENTS) / 360;
     approx_degree = loc_sweep / (float)approx_segments;
@@ -431,7 +431,7 @@ void ssd1306_DrawArc(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle,
     {
         rad = ssd1306_DegToRad(count*approx_degree);
         xp1 = x + (int8_t)(sinf(rad)*radius);
-        yp1 = y + (int8_t)(cosf(rad)*radius);    
+        yp1 = y + (int8_t)(cosf(rad)*radius);
         count++;
         if(count != approx_segments) {
             rad = ssd1306_DegToRad(count*approx_degree);
@@ -439,10 +439,10 @@ void ssd1306_DrawArc(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle,
             rad = ssd1306_DegToRad(loc_sweep);
         }
         xp2 = x + (int8_t)(sinf(rad)*radius);
-        yp2 = y + (int8_t)(cosf(rad)*radius);    
+        yp2 = y + (int8_t)(cosf(rad)*radius);
         ssd1306_Line(xp1,yp1,xp2,yp2,color);
     }
-    
+
     return;
 }
 
@@ -463,20 +463,20 @@ void ssd1306_DrawArcWithRadiusLine(uint8_t x, uint8_t y, uint8_t radius, uint16_
     uint32_t count;
     uint32_t loc_sweep;
     float rad;
-    
+
     loc_sweep = ssd1306_NormalizeTo0_360(sweep);
-    
+
     count = (ssd1306_NormalizeTo0_360(start_angle) * CIRCLE_APPROXIMATION_SEGMENTS) / 360;
     approx_segments = (loc_sweep * CIRCLE_APPROXIMATION_SEGMENTS) / 360;
     approx_degree = loc_sweep / (float)approx_segments;
 
     rad = ssd1306_DegToRad(count*approx_degree);
     uint8_t first_point_x = x + (int8_t)(sinf(rad)*radius);
-    uint8_t first_point_y = y + (int8_t)(cosf(rad)*radius);   
+    uint8_t first_point_y = y + (int8_t)(cosf(rad)*radius);
     while (count < approx_segments) {
         rad = ssd1306_DegToRad(count*approx_degree);
         xp1 = x + (int8_t)(sinf(rad)*radius);
-        yp1 = y + (int8_t)(cosf(rad)*radius);    
+        yp1 = y + (int8_t)(cosf(rad)*radius);
         count++;
         if (count != approx_segments) {
             rad = ssd1306_DegToRad(count*approx_degree);
@@ -484,10 +484,10 @@ void ssd1306_DrawArcWithRadiusLine(uint8_t x, uint8_t y, uint8_t radius, uint16_
             rad = ssd1306_DegToRad(loc_sweep);
         }
         xp2 = x + (int8_t)(sinf(rad)*radius);
-        yp2 = y + (int8_t)(cosf(rad)*radius);    
+        yp2 = y + (int8_t)(cosf(rad)*radius);
         ssd1306_Line(xp1,yp1,xp2,yp2,color);
     }
-    
+
     // Radius line
     ssd1306_Line(x,y,first_point_x,first_point_y,color);
     ssd1306_Line(x,y,xp2,yp2,color);

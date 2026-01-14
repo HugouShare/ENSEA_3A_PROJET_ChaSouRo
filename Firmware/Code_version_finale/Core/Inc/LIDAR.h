@@ -10,6 +10,7 @@
 #include <stdlib.h>  // pour abs()
 #include "FreeRTOS.h"
 #include "task.h"
+#include "freeRTOS_tasks_priority.h"
 
 ////////////////////////////////////////////////////////////////////////PARAMETERS
 //Paramètres généraux
@@ -23,9 +24,10 @@
 #define LIDAR_MAX_FRAME_SIZE   256
 #define LIDAR_N_ANGLES         360
 #define MEDIAN_KERNEL_SIZE 5
+#define DMA_STUCK_THRESHOLD 1000
 
 //Filtrage et reconnaissance de cluster
-#define LID_SPEED 50		//angular speed in %
+#define LID_SPEED 30		//angular speed in %
 #define SATISFYING_BUFFER_FILL_RATIO 70			//pourcentage de remplissage du buffer non filtré satisfaisant
 #define MIN_POINTS_CLUSTER  5	//nombre de points minimum pour détecter un cluster
 
@@ -45,7 +47,7 @@
 #define Q15_SHIFT 15
 
 
-#define LID_STACK_SIZE 128
+#define LID_STACK_SIZE 256
 
 ////////////////////////////////////////////////////////////////////////CONSTANTS
 
@@ -81,6 +83,8 @@ extern volatile uint8_t LIDAR_cluster_count;
 extern UART_HandleTypeDef LID_huartx;
 extern DMA_HandleTypeDef LID_hdma_uartx_rx;
 extern TIM_HandleTypeDef LID_htimx;
+
+extern TaskHandle_t htask_LIDAR_Update;
 
 extern void Error_Handler(void);
 ////////////////////////////////////////////////////////////////////////FONCTIONS

@@ -33,12 +33,14 @@
 #include "LIDAR.h"
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
-#include "oled.h"
+#include "adxl345.h"
+#include "control.h"
+//#include "oled.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+ADXL345_HandleTypeDef hadxl;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -68,6 +70,18 @@ void MX_FREERTOS_Init(void);
 int __io_putchar(int chr){
 	HAL_UART_Transmit(&huart2, (uint8_t*) &chr, 1, HAL_MAX_DELAY);
 	return chr;
+}
+
+bool debounce_check(uint32_t *lastTick, TickType_t delay_ms)
+{
+    TickType_t now = xTaskGetTickCountFromISR();
+
+    if ((now - *lastTick) < pdMS_TO_TICKS(delay_ms))
+    {
+        return false; // rebond, ignorer
+    }
+    *lastTick = now;
+    return true; // action validée
 }
 
 //PROTECTION MEMOIRE
@@ -131,17 +145,26 @@ int main(void)
   MX_TIM15_Init();
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
+
 	//INITS
-	Init_motors();
 	LIDAR_Init();
+	Init_motors();
+
+
 	ENC_Init();
-	OLED_Init();
+	if (ADXL345_Init(&hadxl, &hi2c1) != HAL_OK) {
+		Error_Handler();
+	}
+	Control_Init();
+	//	OLED_Init();
 
 	//CREATION DES TASKS
-	OLED_Tasks_Create();
+	//	OLED_Tasks_Create();
+	Control_Tasks_Create();
 	Motors_Tasks_Create();
 	LIDAR_Tasks_Create();
 	ENC_Tasks_Create();
+	ADXL345_StartTasks(&hadxl);
 
 	//LANCE LE SCHEDULER
 	vTaskStartScheduler();
@@ -207,10 +230,69 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	oled_HAL_GPIO_EXTI_Callback(GPIO_Pin);
-//	motor_HAL_GPIO_EXTI_Callback(GPIO_Pin);
+
+
+
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    static TickType_t lastTickUser1 = 0;
+    static uint8_t toggle = 1;
+
+    if (GPIO_Pin == USER1_Pin)
+    {
+        if (!debounce_check(&lastTickUser1, 200))
+            return; // Ignorer rebond
+        if(toggle){
+        	Control_TurnAngleFromISR(179);
+			toggle = 0;
+        }
+        else{
+        	Control_StopFromISR();
+        	toggle = 1;
+        }
+    }
 }
+
+
+
+
+
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+{
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	if (huart == &LID_huartx)
+	{
+		vTaskNotifyGiveFromISR(htask_LIDAR_Update,
+				&xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	}
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	if (huart == &LID_huartx)
+	{
+		vTaskNotifyGiveFromISR(htask_LIDAR_Update,
+				&xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
 /* USER CODE END 4 */
 
 /**
@@ -234,9 +316,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 	//CODE DES CALLBACKS
 	enc_HAL_TIM_PeriodElapsedCallback(htim);
-
-
-
   /* USER CODE END Callback 1 */
 }
 
@@ -257,8 +336,7 @@ void Error_Handler(void)
 	}
   /* USER CODE END Error_Handler_Debug */
 }
-
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

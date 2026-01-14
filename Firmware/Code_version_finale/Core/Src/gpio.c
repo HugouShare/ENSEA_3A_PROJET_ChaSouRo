@@ -69,11 +69,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(XShunt4_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : USER2_Pin INT_XL2_Pin INT_XL1_Pin */
-  GPIO_InitStruct.Pin = USER2_Pin|INT_XL2_Pin|INT_XL1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  /*Configure GPIO pin : USER2_Pin */
+  GPIO_InitStruct.Pin = USER2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(USER2_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED_STATE_Pin */
   GPIO_InitStruct.Pin = LED_STATE_Pin;
@@ -81,8 +81,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(LED_STATE_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : XShunt3_Pin XShunt2_Pin XShunt1_Pin USER1_Pin */
-  GPIO_InitStruct.Pin = XShunt3_Pin|XShunt2_Pin|XShunt1_Pin|USER1_Pin;
+  /*Configure GPIO pins : XShunt3_Pin XShunt2_Pin XShunt1_Pin */
+  GPIO_InitStruct.Pin = XShunt3_Pin|XShunt2_Pin|XShunt1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -93,6 +93,18 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(EN_BT_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : INT_XL2_Pin INT_XL1_Pin */
+  GPIO_InitStruct.Pin = INT_XL2_Pin|INT_XL1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : USER1_Pin */
+  GPIO_InitStruct.Pin = USER1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(USER1_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI1_IRQn, 5, 0);

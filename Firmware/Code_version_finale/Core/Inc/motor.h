@@ -7,50 +7,45 @@
 
 #ifndef INC_MOTOR_H_
 #define INC_MOTOR_H_
-
 #include "tim.h"
-#include "cmsis_os.h"
-#include <stdio.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "freeRTOS_tasks_priority.h"
 
-#define MOTOR_PWM_MAX   1000    // ARR = 1000 -> PWM max
-#define MOTOR_PWM_MIN   0       // pas utile, mais propre
+/* ================= CONFIG ================= */
 
+#define MOTOR_PWM_MAX     300    // ARR = 1000 -> PWM max
+#define MOTOR_STACK_SIZE  64      // mots (≈ 256 octets)
 
-#define MOTOR_STACK_SIZE 48 // 192 octets de RAM
+/* ================= DRIVER ================= */
 
-/* === Driver d'un moteur individuel === */
+/* Driver d'un moteur individuel */
 typedef struct {
     TIM_HandleTypeDef *htim;
     uint32_t channel_fwd;
     uint32_t channel_rev;
 } MotorDriver;
 
+/* Moteurs globaux */
 extern MotorDriver motorL;
 extern MotorDriver motorR;
 
-/* === Indicateurs système  === */
-typedef struct {
-    int Motor_state;
-} SystFlagMotors;
+/* ================= API ================= */
 
-extern SystFlagMotors FlagsM;
+/* Applique directement une PWM à un moteur */
+void Motor_SetSpeed(MotorDriver *m, int speed);
 
-/* === Structure de commande globale === */
-typedef struct {
-    int speedL;               // vitesse moteur gauche
-    int speedR;               // vitesse moteur droit
-    TickType_t end_time;      // moment d'arrêt (tick)
-} MotorCommand;
+/* Définit la consigne globale (appelée par Control) */
+void Motors_SetPWM(int left, int right);
 
-extern MotorCommand motor_cmd;
-
-/* === API publique === */
-void Motor_SetSpeed(MotorDriver *m, int speed); //Sert à appliquer les PWM
-void Motors_Set(int left, int right, uint32_t duration_ms);// Sert à modifier la structure utilisé par Motor_SetSpeed
-// Architecture “commander via structure + appliquer via task” -> non bloquante
-
+/* Initialisation hardware PWM */
 void Init_motors(void);
+
+/* Création de la tâche moteur */
 void Motors_Tasks_Create(void);
-void motor_HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+
+/* Tâche RTOS moteur */
+void task_motor(void *arg);
+
 
 #endif /* INC_MOTOR_H_ */

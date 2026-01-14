@@ -246,14 +246,14 @@ void ENC_Init(void)
 }
 
 void ENC_Tasks_Create(void){
-	if (xTaskCreate(task_ENC_D_Update, "ENC_D", ENC_STACK_SIZE, &ENC_D, 5, &ENC_D.task_handle) != pdPASS){
+	if (xTaskCreate(task_ENC_D_Update, "ENC_D", ENC_STACK_SIZE, &ENC_D, task_ENC_D_Update_PRIORITY, &ENC_D.task_handle) != pdPASS){
 		Error_Handler();
 	}
-	if (xTaskCreate(task_ENC_G_Update, "ENC_G", ENC_STACK_SIZE, &ENC_G, 5, &ENC_G.task_handle) != pdPASS){
+	if (xTaskCreate(task_ENC_G_Update, "ENC_G", ENC_STACK_SIZE, &ENC_G, task_ENC_G_Update_PRIORITY, &ENC_G.task_handle) != pdPASS){
 		Error_Handler();
 	}
 	/* ---------- Tâche odométrie ---------- */
-	if (xTaskCreate(task_Odom_Update, "ODOM", ODOM_STACK_SIZE, NULL, 6, &odom_task_handle) != pdPASS){
+	if (xTaskCreate(task_Odom_Update, "ODOM", ODOM_STACK_SIZE, NULL, task_Odom_Update_PRIORITY, &odom_task_handle) != pdPASS){
 		Error_Handler();
 	}
 }

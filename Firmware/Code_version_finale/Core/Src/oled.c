@@ -14,8 +14,12 @@
 #include "cmsis_os.h"
 
 // Ajout FreeRTOS
-SemaphoreHandle_t sem_select_menu;
-SemaphoreHandle_t sem_enter_menu;
+//SemaphoreHandle_t sem_select_menu;
+//SemaphoreHandle_t sem_enter_menu;
+TaskHandle_t hmenuTaskHandle = NULL;
+#define MENU_SELECT   (1UL << 0)
+#define MENU_ENTER    (1UL << 1)
+
 
 SystFlag Flags = {0};
 
@@ -83,28 +87,47 @@ uint32_t lastMenuActivity = 0;
 void task_screen(void * unused){
 
 	for(;;){
-		// Attend soit un "select", soit un "enter"
-		if (xSemaphoreTake(sem_select_menu, 0) == pdTRUE)
-		{
-			select_Menu();
-		}
 
-		if (xSemaphoreTake(sem_enter_menu, 0) == pdTRUE)
-		{
-			enter_Menu();
-		}
+//		// Attend soit un "select", soit un "enter"
+//		if (xSemaphoreTake(sem_select_menu, 0) == pdTRUE)
+//		{
+//			select_Menu();
+//		}
+//
+//		if (xSemaphoreTake(sem_enter_menu, 0) == pdTRUE)
+//		{
+//			enter_Menu();
+//		}
+		uint32_t notif;
 
+	    xTaskNotifyWait(
+	        0x00,
+	        MENU_SELECT | MENU_ENTER,
+	        &notif,
+	        0
+	    );
+
+	    if (notif & MENU_SELECT)
+	    {
+	    	select_Menu();
+	    }
+	    if (notif & MENU_ENTER)
+	    {
+	    	enter_Menu();
+	    }
 		// Affichage + gestion de veille
 		displayMenu();
 		checkMenuTimeout();
+
+		vTaskDelay(pdMS_TO_TICKS(80));
 	}
 }
 
 void OLED_Tasks_Create(void){
-  sem_select_menu = xSemaphoreCreateBinary();
-  sem_enter_menu = xSemaphoreCreateBinary();
+//  sem_select_menu = xSemaphoreCreateBinary();
+//  sem_enter_menu = xSemaphoreCreateBinary();
 
-  if (xTaskCreate(task_screen, "SCREEN", OLED_STACK_SIZE, NULL,10,NULL) != pdPASS){
+  if (xTaskCreate(task_screen, "SCREEN", OLED_STACK_SIZE, NULL,task_screen_PRIORITY,&hmenuTaskHandle) != pdPASS){
 	 printf("Error creating task screen\r\n");
 	 Error_Handler();
   }
@@ -162,7 +185,7 @@ void kirby_bitmap(){
 		ssd1306_Fill(Black);
 		ssd1306_DrawBitmap(0,0,kirby_bitmap_allArray[i],128,64,White);
 		ssd1306_UpdateScreen();
-		HAL_Delay(40);
+		vTaskDelay(40);
 		i++;
 	}
 
@@ -174,16 +197,16 @@ void kirby_bitmap(){
 //		ssd1306_Fill(Black);
 //		ssd1306_DrawBitmap(0,0,scared_cat_bitmap_allArray[i],128,64,White);
 //		ssd1306_UpdateScreen();
-//		HAL_Delay(40);
+//		vTaskDelay(40);
 //		i++;
 //	}
 //
 //}
 
 void kirby_bitmap_tick(void) {
-    uint32_t now = HAL_GetTick();
+    TickType_t now = xTaskGetTickCount();
 
-    if (now - lastUpdateKirby > 120) {  // avance toutes les 40 ms
+    if (now - lastUpdateKirby > pdMS_TO_TICKS(120)) {  // avance toutes les 40 ms
         lastUpdateKirby = now;
 
         ssd1306_Fill(Black);
@@ -200,9 +223,9 @@ void kirby_bitmap_tick(void) {
 }
 
 //void scared_cat_bitmap_tick(void) {
-//    uint32_t now = HAL_GetTick();
+//    TickType_t now = xTaskGetTickCount();
 //
-//    if (now - lastUpdateCat > 120) {  // avance toutes les 40 ms sans bloquer comme un while
+//    if (now - lastUpdateCat > pdMS_TO_TICKS(120)) {  // avance toutes les 40 ms sans bloquer comme un while
 //        lastUpdateCat = now;
 //
 //        ssd1306_Fill(Black);
@@ -219,9 +242,10 @@ void kirby_bitmap_tick(void) {
 //}
 
 void Init_bitmap_tick(void) {
-    uint32_t now = HAL_GetTick();
+    TickType_t now = xTaskGetTickCount();
 
-    if (now - lastUpdateInit > 120) {  // avance toutes les 40 ms sans bloquer comme un while
+
+    if (now - lastUpdateInit > pdMS_TO_TICKS(120)) {  // avance toutes les 40 ms sans bloquer comme un while
         lastUpdateInit = now;
 
         ssd1306_Fill(Black);
@@ -251,41 +275,41 @@ void Init_bitmap(){
 
 void screen_stats(){
 	if (Flags.User_Button == 1){
-		  HAL_Delay(100);
+		  vTaskDelay(100);
 		  oled_cat();
-		  HAL_Delay(50);
+		  vTaskDelay(50);
 	};
 	if (Flags.User_Button == 2){
-		  HAL_Delay(100);
+		  vTaskDelay(100);
 		  oled_mouse();
-		  HAL_Delay(50);
+		  vTaskDelay(50);
 
 	};
 	if (Flags.User_Button == 3){
-		  HAL_Delay(100);
+		  vTaskDelay(100);
 		  ssd1306_Fill(Black);
 		  ssd1306_SetCursor(20,20);
 		  ssd1306_WriteString("ChaSouRo", Font_11x18, White);
 		  ssd1306_UpdateScreen();
-		  HAL_Delay(50);
+		  vTaskDelay(50);
 	};
 	if (Flags.User_Button == 4){
-//		  HAL_Delay(100);
+//		  vTaskDelay(100);
 //		  kirby_bitmap();
-//		  HAL_Delay(40);
+//		  vTaskDelay(40);
 		kirby_bitmap_tick();
 	};
 	if (Flags.User_Button == 5){
-//		  HAL_Delay(100);
+//		  vTaskDelay(100);
 //		  scared_cat_bitmap();
-//		  HAL_Delay(40);
+//		  vTaskDelay(40);
 //		scared_cat_bitmap_tick();
 
 		};
 	if (Flags.User_Button == 6){
-//		  HAL_Delay(100);
+//		  vTaskDelay(100);
 //		  scared_cat_bitmap();
-//		  HAL_Delay(40);
+//		  vTaskDelay(40);
 		Init_bitmap_tick();
 
 		};
@@ -306,34 +330,57 @@ void adjustBrightness(bool increase) {
     // Appliquer le contraste
     ssd1306_SetContrast(brightnessLevel);
 }
+//
+//void oled_HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+////	if (GPIO_Pin == GPIO_PIN_1) {
+////		Flags.Select_Menu = 1;
+////	}
+//
+////	if (GPIO_Pin == GPIO_PIN_9){
+////		Flags.Enter_Menu = 1;
+////	}
+//	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+//
+//	    if (GPIO_Pin == GPIO_PIN_1)  // bouton PA1
+//	    {
+//	        xSemaphoreGiveFromISR(sem_select_menu, &xHigherPriorityTaskWoken);
+//	    }
+//	    else if (GPIO_Pin == GPIO_PIN_9)  // bouton PB9
+//	    {
+//	        xSemaphoreGiveFromISR(sem_enter_menu, &xHigherPriorityTaskWoken);
+//	    }
+//
+//	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+//}
 
-void oled_HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-//	if (GPIO_Pin == GPIO_PIN_1) {
-//		Flags.Select_Menu = 1;
-//	}
 
-//	if (GPIO_Pin == GPIO_PIN_9){
-//		Flags.Enter_Menu = 1;
-//	}
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+void oled_HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-	    if (GPIO_Pin == GPIO_PIN_1)  // bouton PA1
-	    {
-	        xSemaphoreGiveFromISR(sem_select_menu, &xHigherPriorityTaskWoken);
-	    }
-	    else if (GPIO_Pin == GPIO_PIN_9)  // bouton PB9
-	    {
-	        xSemaphoreGiveFromISR(sem_enter_menu, &xHigherPriorityTaskWoken);
-	    }
+    if (GPIO_Pin == GPIO_PIN_1)
+    {
+        xTaskNotifyFromISR(hmenuTaskHandle,
+                           MENU_SELECT,
+                           eSetBits,
+                           &xHigherPriorityTaskWoken);
+    }
+    else if (GPIO_Pin == GPIO_PIN_9)
+    {
+        xTaskNotifyFromISR(hmenuTaskHandle,
+                           MENU_ENTER,
+                           eSetBits,
+                           &xHigherPriorityTaskWoken);
+    }
 
-	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void select_Menu(void)
 {
-    uint32_t now = HAL_GetTick();
+    TickType_t now = xTaskGetTickCount();
 
-    if (now - lastPressBtnPA1 < 100) return;  // anti-rebond
+    if (now - lastPressBtnPA1 < pdMS_TO_TICKS(100)) return;  // anti-rebond
     lastPressBtnPA1 = now;
     lastMenuActivity = now;
 
@@ -385,9 +432,9 @@ void select_Menu(void)
 
 void enter_Menu(void)
 {
-    uint32_t now = HAL_GetTick();
+    TickType_t now = xTaskGetTickCount();
 
-    if (now - lastPressBtnPB9 < 100) return; // anti-rebond
+    if (now - lastPressBtnPB9 < pdMS_TO_TICKS(100)) return; // anti-rebond
     lastPressBtnPB9 = now;
     lastMenuActivity = now;
 
@@ -426,12 +473,12 @@ void enter_Menu(void)
 }
 
 void checkMenuTimeout(void) {
-    uint32_t now = HAL_GetTick();
+    TickType_t now = xTaskGetTickCount();
 
     //Ajouter condition sur le menu car on veut pas se mettre en veille dans le mode lancement par exemple
 
     // Si plus de 20 secondes sans appuyer mode veille
-    if ((now - lastMenuActivity) <= 20000)
+    if ((now - lastMenuActivity) <= pdMS_TO_TICKS(20000))
         return;
 
     currentMenu = MENU_ATTENDRE;

@@ -53,7 +53,13 @@ static inline uint8_t fast_round_ratio_100(uint32_t num, uint32_t den);
 // INIT
 ////////////////////////////////////////////////////////////////////////
 void LIDAR_Init(void) {
-	HAL_UART_Receive_DMA(&LID_huartx, LIDAR_dma_buf, LIDAR_DMA_BUF_SIZE);
+	if(HAL_UART_Receive_DMA(&LID_huartx, LIDAR_dma_buf, LIDAR_DMA_BUF_SIZE) != HAL_OK){
+		Error_Handler();
+	}
+
+	if(HAL_TIM_PWM_Start(&LID_htimx, LID_TIM_CHANNEL_X) != HAL_OK){
+		Error_Handler();
+	}
 	LID_TIMX_SetDuty(LID_SPEED);
 }
 
@@ -75,21 +81,29 @@ void LIDAR_While(void) {
 
 ///////////////////////////NE PAS OUBLIER D'AJUSTER LA TAILLE DE LA PILE !!!
 
-void task_LIDAR_Update(void *unused) {
-	(void)unused;
-	for (;;) {
-		LIDAR_ProcessDMA();
-		if (buffer_fill_ratiox100>SATISFYING_BUFFER_FILL_RATIO){ //traiter le buffer et le vider
-			LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
-			LIDAR_FindClusters();
-			LIDAR_clear_view_buffer();
+void task_LIDAR_Update(void *unused)
+{
+    (void)unused;
 
+    for (;;)
+    {
+        // dort jusqu'à ce que le DMA ou le timer le réveille
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-			vTaskDelay(pdMS_TO_TICKS(5));
-		}
+        // traiter les données fraîchement reçues
+        LIDAR_ProcessDMA();
 
-	}
+        if (buffer_fill_ratiox100 > SATISFYING_BUFFER_FILL_RATIO)
+        {
+        	taskENTER_CRITICAL();
+            LIDAR_ApplyMedianFilter(LIDAR_view, LIDAR_N_ANGLES);
+            LIDAR_FindClusters();
+            LIDAR_clear_view_buffer();
+            taskEXIT_CRITICAL();
+        }
+    }
 }
+
 
 //void task_test(void*unused){
 //	(void)unused;
@@ -100,7 +114,7 @@ void task_LIDAR_Update(void *unused) {
 //}
 
 void LIDAR_Tasks_Create(void) {
-	if(xTaskCreate(task_LIDAR_Update, "update du LIDAR",LID_STACK_SIZE ,NULL, 1, &htask_LIDAR_Update) != pdPASS){
+	if(xTaskCreate(task_LIDAR_Update, "LIDAR UPDATE",LID_STACK_SIZE ,NULL, task_LIDAR_Update_PRIORITY, &htask_LIDAR_Update) != pdPASS){
 		//		printf("Error task_LIDAR_Update \r\n");
 		Error_Handler();
 	}
@@ -145,7 +159,24 @@ static uint32_t get_dma_write_index(void) {
 }
 
 static void LIDAR_ProcessDMA(void) {
+	static uint32_t last_write_idx = 0;
+	static uint32_t stuck_cnt = 0;
+
 	uint32_t write_idx = get_dma_write_index();
+
+	/* ---- DMA WATCHDOG ---- */
+	if (write_idx == last_write_idx) {
+		if (++stuck_cnt > DMA_STUCK_THRESHOLD) {
+			HAL_UART_AbortReceive(&LID_huartx);
+			HAL_UART_Receive_DMA(&LID_huartx, LIDAR_dma_buf, LIDAR_DMA_BUF_SIZE);
+			LIDAR_dma_read_idx = 0;
+			stuck_cnt = 0;
+		}
+	} else {
+		stuck_cnt = 0;
+	}
+	last_write_idx = write_idx;
+
 
 	while (LIDAR_dma_read_idx != write_idx) {
 		uint32_t available = (write_idx + LIDAR_DMA_BUF_SIZE - LIDAR_dma_read_idx) % LIDAR_DMA_BUF_SIZE;
