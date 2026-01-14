@@ -78,10 +78,11 @@ typedef struct {
 } Encoder_t;
 
 typedef struct {
-    int32_t x; //en  mm
-    int32_t y; //en  mm
-    uint16_t theta; //en  deg
+    int32_t x; // en mm
+    int32_t y; // en mm
+    int16_t theta; // en degrés, intervalle [-180, 180]
 } robot_Pose_t;
+
 
 // Instances externes
 extern Encoder_t ENC_D; // encodeur droit

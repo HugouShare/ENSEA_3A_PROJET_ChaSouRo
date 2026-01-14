@@ -434,6 +434,7 @@ static void LIDAR_FindClusters(void) {
             int32_t sumX = 0;  // somme en int32_t pour éviter overflow
             int32_t sumY = 0;
             uint16_t valid = 0;
+            int16_t angle180;
 
             for (uint16_t k = start_idx; k <= end_idx; k++) {
                 LIDAR_Sample s = LIDAR_view[k];
@@ -441,6 +442,9 @@ static void LIDAR_FindClusters(void) {
 
                 uint16_t a = s.angle_deg;  // Angle entier [0..359]
                 uint16_t r = s.distance_mm;
+
+                angle180 = (s.angle_deg > 180) ? s.angle_deg - 360 : s.angle_deg;
+
 
                 // Calcul en Q15 fixed-point : (r * cos(angle)) >> 15
                 int16_t x = (int16_t)(((int32_t)r * cos_lut[a]) >> Q15_SHIFT);
@@ -455,6 +459,7 @@ static void LIDAR_FindClusters(void) {
                 // moyenne en int16_t, en s'assurant que la moyenne rentre dans 16 bits
                 LIDAR_clusters[LIDAR_cluster_count].x = (int16_t)(sumX / valid);
                 LIDAR_clusters[LIDAR_cluster_count].y = (int16_t)(sumY / valid);
+                LIDAR_clusters[LIDAR_cluster_count].angle_deg = angle180;
                 LIDAR_clusters[LIDAR_cluster_count].start_idx = start_idx;
                 LIDAR_clusters[LIDAR_cluster_count].end_idx = end_idx;
                 LIDAR_clusters[LIDAR_cluster_count].size = valid;

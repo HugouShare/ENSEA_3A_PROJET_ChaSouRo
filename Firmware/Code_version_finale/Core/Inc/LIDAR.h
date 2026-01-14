@@ -69,6 +69,7 @@ typedef struct {
 typedef struct {
 	int16_t x;
 	int16_t y;
+	int16_t angle_deg; //[-180, +180]
 	uint16_t start_idx;
 	uint16_t end_idx;
 	uint16_t size;

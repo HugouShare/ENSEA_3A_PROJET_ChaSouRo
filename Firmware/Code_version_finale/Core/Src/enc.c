@@ -152,17 +152,21 @@ void task_Odom_Update(void *arg)
 				((d_right - d_left) * 5730) /
 				(WHEEL_BASE_MM * 100);
 
-		/* Mise à jour orientation (0..359) */
+		/* Mise à jour orientation (-180..+179) */
 		int32_t new_theta = (int32_t)robot_pose.theta + d_theta;
 
-		while (new_theta >= 360) new_theta -= 360;
-		while (new_theta <    0) new_theta += 360;
+		while (new_theta > 180)  new_theta -= 360;
+		while (new_theta <= -180) new_theta += 360;
 
-		robot_pose.theta = (uint16_t)new_theta;
+		robot_pose.theta = (int16_t)new_theta;
 
 		/* LUT Q15 */
-		int16_t c = cos_lut[robot_pose.theta];
-		int16_t s = sin_lut[robot_pose.theta];
+		/* Pour cos_lut et sin_lut, l'index doit être dans [0..359].
+		   On convertit theta en [0..359] pour la LUT */
+		uint16_t lut_index = (uint16_t)(new_theta < 0 ? (360 + new_theta) : new_theta);
+
+		int16_t c = cos_lut[lut_index];
+		int16_t s = sin_lut[lut_index];
 
 		/* Mise à jour (mm) : x += d_center * cos / 32768 */
 		robot_pose.x += ( (int32_t)d_center * c ) >> 15;
@@ -257,4 +261,3 @@ void ENC_Tasks_Create(void){
 		Error_Handler();
 	}
 }
-

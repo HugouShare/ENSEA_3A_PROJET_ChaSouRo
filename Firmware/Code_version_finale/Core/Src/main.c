@@ -244,12 +244,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         if (!debounce_check(&lastTickUser1, 200))
             return; // Ignorer rebond
         if(toggle){
-        	Control_TurnAngleFromISR(179);
+        	Control_TurnAngleFromISR(-179);
 			toggle = 0;
-        }
-        else{
-        	Control_StopFromISR();
-        	toggle = 1;
         }
     }
 }

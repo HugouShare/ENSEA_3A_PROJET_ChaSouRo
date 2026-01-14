@@ -29,13 +29,13 @@ void Control_Init(void)
 
     /* PID rotation */
     PID_Init(&pid_turn,
-             2.0, 0.0, 0.5,
+    		KP_TURN, KI_TURN, KD_TURN,
              -MOTOR_PWM_MAX,
              MOTOR_PWM_MAX);
 
     /* PID translation */
     PID_Init(&pid_move,
-             1.5, 0.0, 0.3,
+    		KP_MOVE, KI_MOVE, KD_MOVE,
              -MOTOR_PWM_MAX,
              MOTOR_PWM_MAX);
 }

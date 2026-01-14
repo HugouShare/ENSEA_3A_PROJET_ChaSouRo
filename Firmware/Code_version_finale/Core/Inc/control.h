@@ -26,6 +26,17 @@
 #define DIST_THRESHOLD_MM     20
 #define ANGLE_THRESHOLD_DEG   3
 
+
+#define KP_TURN 4.1
+#define KI_TURN 0.95
+#define KD_TURN 0.6
+
+#define KP_MOVE 1.5
+#define KI_MOVE 0.0
+#define KD_MOVE 0.5
+
+
+
 /* ================= TYPES ================= */
 
 typedef enum
