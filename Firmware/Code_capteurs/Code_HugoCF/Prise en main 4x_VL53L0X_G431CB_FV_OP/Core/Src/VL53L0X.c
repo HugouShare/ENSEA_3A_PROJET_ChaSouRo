@@ -12,6 +12,8 @@
 #include "i2c.h"
 
 #include "VL53L0X.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 //---------------------------------------------------------
 // Global variables removed in favor of VL53L0X_Dev_t struct
@@ -928,118 +930,108 @@ bool performSingleRefCalibration(VL53L0X_Dev_t *dev, uint8_t vhv_init_byte)
 	return true;
 }
 
-////////////////////////////////////////////// PERSONAL
+// Personal Functions //////////////////////////////////////////////////////////////
+
 /*
  * !!! DO NOT TOUCH ALL THE CODE ABOVE !!!
  * THIS CODE HAS BEEN TAKEN FROM A GITHUB REPOSITORY AND MUST NOT BE MODIFIED AT ALL
  */
 
-//// XSHUT TOF 1
-//#define XSHUT_TOF1_GPIO_Port GPIOB
-//#define XSHUT_TOF1_GPIO_Pin GPIO_PIN_6
-//// XSHUT TOF 2
-//#define XSHUT_TOF2_GPIO_Port GPIOB
-//#define XSHUT_TOF2_GPIO_Pin GPIO_PIN_13
-//// XSHUT TOF 3
-//#define XSHUT_TOF3_GPIO_Port GPIOB
-//#define XSHUT_TOF3_GPIO_Pin GPIO_PIN_0
-//// XSHUT TOF 4
-//#define XSHUT_TOF4_GPIO_Port GPIOC
-//#define XSHUT_TOF4_GPIO_Pin GPIO_PIN_14
-//
-//TaskHandle_t h_task_vl53l0x_print_distance = NULL;
-//statInfo_t_VL53L0X distanceStr;
-//
-//void task_vl53l0x_print_distance (VL53L0X_Dev_t * h_vl53l0x)
-//{
-//	/*
-//	 * Le fonctionnement de cette tâche-ci est le suivant :
-//	 * - Cette tâche est activée suite au déclenchement d'une interruption TIM provenant d'un TIMER x
-//	 * - Un des TOFs est activé et une mesure est réalisée et la distance affichée sur le terminal
-//	 */
-//
-//	for (;;)
-//	{
-//		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-//		print_distance(h_vl53l0x);
-//	}
-//}
-//
-//void VL53L0X_Init_TOF1 (VL53L0X_Dev_t * h_vl53l0x)
-//{
-//	HAL_GPIO_WritePin(XSHUT_TOF1_GPIO_Port, XSHUT_TOF1_GPIO_Pin, GPIO_PIN_RESET);
-//	HAL_Delay(20);
-//	HAL_GPIO_WritePin(XSHUT_TOF1_GPIO_Port, XSHUT_TOF1_GPIO_Pin, GPIO_PIN_SET);
-//	HAL_Delay(20);
-//
-//	// VL53L0X library initialisation (from GitHub)
-//	initVL53L0X(h_vl53l0x, 1, h_vl53l0x->I2cHandle);
-//
-//	setAddress_VL53L0X(h_vl53l0x, 0x52);
-//
-//	// VL53L0X address check
-//	if (getAddress_VL53L0X(h_vl53l0x)!=0x52)
-//	{
-//		printf("VL53L0X wrong address \r\n");
-//	}
-//
-//	// VL53L0X module configuration
-//	setSignalRateLimit(h_vl53l0x,200);
-//	setVcselPulsePeriod(h_vl53l0x,VcselPeriodPreRange, 10);
-//	setVcselPulsePeriod(h_vl53l0x,VcselPeriodFinalRange, 14);
-//	setMeasurementTimingBudget(h_vl53l0x,300 * 1000UL);
-//}
-//
-//void VL53L0X_Init_TOF2 (VL53L0X_Dev_t * h_vl53l0x)
-//{
-//	HAL_GPIO_WritePin(XSHUT_TOF2_GPIO_Port, XSHUT_TOF2_GPIO_Pin, GPIO_PIN_RESET);
-//	HAL_Delay(20);
-//	HAL_GPIO_WritePin(XSHUT_TOF2_GPIO_Port, XSHUT_TOF2_GPIO_Pin, GPIO_PIN_SET);
-//	HAL_Delay(20);
-//
-//	// VL53L0X library initialisation (from GitHub)
-//	initVL53L0X(h_vl53l0x, 1, h_vl53l0x->I2cHandle);
-//
-//	setAddress_VL53L0X(h_vl53l0x, 0x54);
-//
-//	// VL53L0X module configuration
-//	setSignalRateLimit(h_vl53l0x,200);
-//	setVcselPulsePeriod(h_vl53l0x,VcselPeriodPreRange, 10);
-//	setVcselPulsePeriod(h_vl53l0x,VcselPeriodFinalRange, 14);
-//	setMeasurementTimingBudget(h_vl53l0x,300 * 1000UL);
-//}
-//
-//void VL53L0X_Init (VL53L0X_Dev_t * h_vl53l0x)
-//{
-//	/*
-//	 * Check that VL53L0X initialisation and address are OK
-//	 * And configure VL53L0X module
-//	 */
-//
-//	VL53L0X_Init_TOF2 (h_vl53l0x);
-//
-//	if (xTaskCreate(task_vl53l0x_print_distance, "VL53L0X PRINT DISTANCE", 256, h_vl53l0x, 1, &h_task_vl53l0x_print_distance) != pdPASS)
-//	{
-//		printf("Error creating vl53l0x print distance task \r\n");
-//		Error_Handler();
-//	}
-//
-//	HAL_TIM_Base_Start_IT(h_vl53l0x->htim);
-//
-//}
-//
-//void print_distance (VL53L0X_Dev_t * h_vl53l0x)
-//{
-//	// uint16_t distance is the distance in millimeters.
-//	// statInfo_t_VL53L0X distanceStr is the statistics read from the sensor.
-//	uint16_t distance = readRangeSingleMillimeters(h_vl53l0x,&distanceStr);
-//	printf("\r\n VL53L0X Distance : %d \r\n",distance);
-//}
-//
-//void vl53l0x_TIMx_Callback (VL53L0X_Dev_t * h_vl53l0x)
-//{
-//	BaseType_t higher_priority_task_woken = pdFALSE;
-//	vTaskNotifyGiveFromISR(h_task_vl53l0x_print_distance,&higher_priority_task_woken);
-//	HAL_TIM_Base_Start_IT(h_vl53l0x->htim);
-//	portYIELD_FROM_ISR(higher_priority_task_woken);
-//}
+// === XSHUT PINS ===
+#define XSHUT_TOF1_GPIO_Port GPIOB
+#define XSHUT_TOF1_Pin       GPIO_PIN_6
+
+#define XSHUT_TOF2_GPIO_Port GPIOB
+#define XSHUT_TOF2_Pin       GPIO_PIN_13
+
+#define XSHUT_TOF3_GPIO_Port GPIOB
+#define XSHUT_TOF3_Pin       GPIO_PIN_0
+
+#define XSHUT_TOF4_GPIO_Port GPIOC
+#define XSHUT_TOF4_Pin       GPIO_PIN_14
+
+// === I2C ADDRESSES (7 bits) ===
+#define TOF1_ADDR 0x54
+#define TOF2_ADDR 0x56
+#define TOF3_ADDR 0x58
+#define TOF4_ADDR 0x5A
+
+VL53L0X_Dev_t tof1, tof2, tof3, tof4;
+statInfo_t_VL53L0X measure1, measure2, measure3, measure4;
+uint16_t dist1, dist2, dist3, dist4;
+
+void init_tof(VL53L0X_Dev_t *tof, GPIO_TypeDef *port, uint16_t pin, uint8_t address)
+{
+	HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
+	HAL_Delay(50);
+
+	if (initVL53L0X(tof, 1, &hi2c3)!=1)
+	{
+		printf("VL53L0X init error\r\n");
+		Error_Handler();
+	}
+
+	setAddress_VL53L0X(tof, address);
+	setSignalRateLimit(tof, 0.1);
+	setVcselPulsePeriod(tof, VcselPeriodPreRange, 18);
+	setVcselPulsePeriod(tof, VcselPeriodFinalRange, 14);
+	setMeasurementTimingBudget(tof, 200000);
+}
+
+void TOFs_Init (void)
+{
+	printf("\r\n ================= VL53L0X ================= \r\n");
+
+	// === RESET ALL SENSORS ===
+	HAL_GPIO_WritePin(XSHUT_TOF1_GPIO_Port, XSHUT_TOF1_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(XSHUT_TOF2_GPIO_Port, XSHUT_TOF2_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(XSHUT_TOF3_GPIO_Port, XSHUT_TOF3_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(XSHUT_TOF4_GPIO_Port, XSHUT_TOF4_Pin, GPIO_PIN_RESET);
+	HAL_Delay(50);
+
+	// === INIT SENSORS ONE BY ONE ===
+	init_tof(&tof1, XSHUT_TOF1_GPIO_Port, XSHUT_TOF1_Pin, TOF1_ADDR);
+	init_tof(&tof2, XSHUT_TOF2_GPIO_Port, XSHUT_TOF2_Pin, TOF2_ADDR);
+	init_tof(&tof3, XSHUT_TOF3_GPIO_Port, XSHUT_TOF3_Pin, TOF3_ADDR);
+	init_tof(&tof4, XSHUT_TOF4_GPIO_Port, XSHUT_TOF4_Pin, TOF4_ADDR);
+
+	printf("All VL53L0X initialized successfully\r\n");
+}
+
+void task_tofs_read_distances (void)
+{
+	/*
+	 * Le fonctionnement de cette tâche-ci est le suivant :
+	 * - Un timer déclenche une interruption toutes les x ms
+	 * - L'interruption active alors cette tâche-ci
+	 * - Cette tâche envoie alors au téléphone, via Bluetooth, un buffer contenant (x,y) = la position du robot sur la map
+	 */
+
+	for (;;)
+	{
+		print_tofs_distances();
+		vTaskDelay(pdMS_TO_TICKS(100));
+	}
+}
+
+void TOFs_Tasks_Create (void)
+{
+	if (xTaskCreate(task_tofs_read_distances, "TOFs_READ_DISTANCES", 256, NULL, 1, NULL) != pdPASS)
+	{
+		printf("\n\r Error creating tofs read distances task \n\r");
+		Error_Handler();
+	}
+}
+
+void print_tofs_distances (void)
+{
+	dist1 = readRangeSingleMillimeters(&tof1, &measure1);
+	dist2 = readRangeSingleMillimeters(&tof2, &measure2);
+	dist3 = readRangeSingleMillimeters(&tof3, &measure3);
+	dist4 = readRangeSingleMillimeters(&tof4, &measure4);
+
+	printf("D1:%4d mm | D2:%4d mm | D3:%4d mm | D4:%4d mm\r\n",
+			dist1, dist2, dist3, dist4);
+
+	HAL_Delay(100);
+}

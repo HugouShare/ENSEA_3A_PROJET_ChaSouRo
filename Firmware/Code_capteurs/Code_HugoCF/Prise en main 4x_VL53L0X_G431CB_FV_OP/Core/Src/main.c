@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
@@ -26,8 +27,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "VL53L0X.h"
-#include "stdio.h"
-#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,24 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-// === XSHUT PINS ===
-#define XSHUT_TOF1_GPIO_Port GPIOB
-#define XSHUT_TOF1_Pin       GPIO_PIN_6
 
-#define XSHUT_TOF2_GPIO_Port GPIOB
-#define XSHUT_TOF2_Pin       GPIO_PIN_13
-
-#define XSHUT_TOF3_GPIO_Port GPIOB
-#define XSHUT_TOF3_Pin       GPIO_PIN_0
-
-#define XSHUT_TOF4_GPIO_Port GPIOC
-#define XSHUT_TOF4_Pin       GPIO_PIN_14
-
-// === I2C ADDRESSES (7 bits) ===
-#define TOF1_ADDR 0x54
-#define TOF2_ADDR 0x56
-#define TOF3_ADDR 0x58
-#define TOF4_ADDR 0x5A
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -65,15 +47,14 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-VL53L0X_Dev_t tof1, tof2, tof3, tof4;
-statInfo_t_VL53L0X measure1, measure2, measure3, measure4;
-uint16_t dist1, dist2, dist3, dist4;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-void init_tof(VL53L0X_Dev_t *tof,GPIO_TypeDef *port, uint16_t pin, uint8_t address);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -82,24 +63,6 @@ int __io_putchar(int chr)
 {
 	HAL_UART_Transmit(&huart4, (uint8_t*) &chr, 1, HAL_MAX_DELAY);
 	return chr;
-}
-
-void init_tof(VL53L0X_Dev_t *tof, GPIO_TypeDef *port, uint16_t pin, uint8_t address)
-{
-	HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
-	HAL_Delay(50);
-
-	if (initVL53L0X(tof, 1, &hi2c3)!=1)
-	{
-		printf("VL53L0X init error\r\n");
-		Error_Handler();
-	}
-
-	setAddress_VL53L0X(tof, address);
-	setSignalRateLimit(tof, 0.1);
-	setVcselPulsePeriod(tof, VcselPeriodPreRange, 18);
-	setVcselPulsePeriod(tof, VcselPeriodFinalRange, 14);
-	setMeasurementTimingBudget(tof, 200000);
 }
 /* USER CODE END 0 */
 
@@ -144,43 +107,30 @@ int main(void)
 	MX_TIM7_Init();
 	/* USER CODE BEGIN 2 */
 
-	printf("\r\n ================= VL53L0X ================= \r\n");
+	//INITS
+	TOFs_Init();
 
-	//	VL53L0X_Init(&h_vl53l0x);
-	//	vTaskStartScheduler();
+	//CREATION DES TASKS
+	TOFs_Tasks_Create();
 
-
-	// === RESET ALL SENSORS ===
-	HAL_GPIO_WritePin(XSHUT_TOF1_GPIO_Port, XSHUT_TOF1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(XSHUT_TOF2_GPIO_Port, XSHUT_TOF2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(XSHUT_TOF3_GPIO_Port, XSHUT_TOF3_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(XSHUT_TOF4_GPIO_Port, XSHUT_TOF4_Pin, GPIO_PIN_RESET);
-	HAL_Delay(50);
-
-	// === INIT SENSORS ONE BY ONE ===
-	init_tof(&tof1, XSHUT_TOF1_GPIO_Port, XSHUT_TOF1_Pin, TOF1_ADDR);
-	init_tof(&tof2, XSHUT_TOF2_GPIO_Port, XSHUT_TOF2_Pin, TOF2_ADDR);
-	init_tof(&tof3, XSHUT_TOF3_GPIO_Port, XSHUT_TOF3_Pin, TOF3_ADDR);
-	init_tof(&tof4, XSHUT_TOF4_GPIO_Port, XSHUT_TOF4_Pin, TOF4_ADDR);
-
-	printf("All VL53L0X initialized successfully\r\n");
-
+	//LANCE LE SCHEDULER
+	vTaskStartScheduler();
 
 	/* USER CODE END 2 */
+
+	/* Call init function for freertos objects (in cmsis_os2.c) */
+	MX_FREERTOS_Init();
+
+	/* Start scheduler */
+	osKernelStart();
+
+	/* We should never get here as control is now taken by the scheduler */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		dist1 = readRangeSingleMillimeters(&tof1, &measure1);
-		dist2 = readRangeSingleMillimeters(&tof2, &measure2);
-		dist3 = readRangeSingleMillimeters(&tof3, &measure3);
-		dist4 = readRangeSingleMillimeters(&tof4, &measure4);
 
-		printf("D1:%4d mm | D2:%4d mm | D3:%4d mm | D4:%4d mm\r\n",
-				dist1, dist2, dist3, dist4);
-
-		HAL_Delay(100);
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
@@ -231,6 +181,28 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM6 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	/* USER CODE BEGIN Callback 0 */
+
+	/* USER CODE END Callback 0 */
+	if (htim->Instance == TIM6)
+	{
+		HAL_IncTick();
+	}
+	/* USER CODE BEGIN Callback 1 */
+
+	/* USER CODE END Callback 1 */
+}
 
 /**
  * @brief  This function is executed in case of error occurrence.

@@ -248,10 +248,9 @@ typedef struct {
 }SequenceStepTimeouts;
 
 ////////////////////////////////////////////// PERSONAL
-//void VL53L0X_Init (VL53L0X_Dev_t * h_vl53l0x);
-//void print_distance (VL53L0X_Dev_t * h_vl53l0x);
-//void vl53l0x_TIMx_Callback (VL53L0X_Dev_t * h_vl53l0x);
-//void VL53L0X_Init_TOF1 (VL53L0X_Dev_t * h_vl53l0x);
-//void VL53L0X_Init_TOF2 (VL53L0X_Dev_t * h_vl53l0x);
+
+void init_tof(VL53L0X_Dev_t *tof,GPIO_TypeDef *port, uint16_t pin, uint8_t address);
+void TOFs_Init (void);
+void print_tofs_distances (void);
 
 #endif
