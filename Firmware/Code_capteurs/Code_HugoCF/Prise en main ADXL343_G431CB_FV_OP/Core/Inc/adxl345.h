@@ -7,6 +7,7 @@ extern "C" {
 
 ////////////////////////////////////////////// INCLUDES
 #include "stm32g4xx_hal.h"
+#include "main.h"
 #include "cmsis_os.h"
 #include <stdint.h>
 
@@ -53,6 +54,7 @@ typedef struct {
  * -------------------------------------------------------------------------- */
 HAL_StatusTypeDef ADXL345_Init(h_adxl345_t * h_adxl345);
 HAL_StatusTypeDef ADXL345_ReadXYZ(h_adxl345_t * h_adxl345, int16_t *x, int16_t *y, int16_t *z);
+void ADXL345_Tasks_Create (h_adxl345_t * h_adxl345);
 
 /* Si besoin d'accéder à la queue depuis autre fichier */
 extern QueueHandle_t xADXL_Queue;

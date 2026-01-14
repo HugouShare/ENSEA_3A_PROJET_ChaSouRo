@@ -108,16 +108,16 @@ int main(void)
 	MX_USART3_UART_Init();
 	MX_TIM16_Init();
 	/* USER CODE BEGIN 2 */
-	printf("\r\n ================= ADXL345 ================= \r\n");
 
-	if (ADXL345_Init(&h_adxl345) != HAL_OK)
-	{
-		printf("\n\r Erreur : ADXL345 introuvable ! \n\r");
-		Error_Handler();
-	}
-	printf("\n\r ADXL345 détecté et initialisé. \n\r");
+	//INITS
+	ADXL345_Init(&h_adxl345);
 
+	//CREATION DES TASKS
+	ADXL345_Tasks_Create(&h_adxl345);
+
+	//LANCE LE SCHEDULER
 	vTaskStartScheduler();
+
 	/* USER CODE END 2 */
 
 	/* Call init function for freertos objects (in cmsis_os2.c) */

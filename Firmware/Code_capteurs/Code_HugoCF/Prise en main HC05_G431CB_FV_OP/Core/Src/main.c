@@ -110,8 +110,16 @@ int main(void)
 	MX_USART3_UART_Init();
 	MX_TIM16_Init();
 	/* USER CODE BEGIN 2 */
-	HC05_Init(&h_hc05);
+
+	//INITS
+	// PAS D'INIT POUR LE HC05...
+
+	//CREATION DES TASKS
+	HC05_Tasks_Create(&h_hc05);
+
+	//LANCE LE SCHEDULER
 	vTaskStartScheduler();
+
 	/* USER CODE END 2 */
 
 	/* Call init function for freertos objects (in cmsis_os2.c) */

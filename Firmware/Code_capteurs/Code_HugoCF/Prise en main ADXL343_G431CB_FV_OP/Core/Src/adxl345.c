@@ -81,6 +81,7 @@ static void ADXL_TaskPrint(void * unused)
  * -------------------------------------------------------------------------- */
 HAL_StatusTypeDef ADXL345_Init(h_adxl345_t * h_adxl345)
 {
+	printf("\r\n ================= ADXL345 ================= \r\n");
 
 	h_adxl345->address = ADXL345_I2C_ADDR << 1;     // HAL = adresse 8 bits
 	h_adxl345->scale_mg_lsb = 3.9f;                 // sensibilité typique
@@ -109,13 +110,25 @@ HAL_StatusTypeDef ADXL345_Init(h_adxl345_t * h_adxl345)
 
 	HAL_Delay(10);
 
-	/* Création des différentes tâches */
+	return HAL_OK;
+
+	printf("\n\r ADXL345 détecté et initialisé. \n\r");
+}
+
+void ADXL345_Tasks_Create (h_adxl345_t * h_adxl345)
+{
 	if (xADXL_Queue == NULL)
 	{
 		xADXL_Queue = xQueueCreate(10, sizeof(ADXL345_Data_t));
 	}
-	xTaskCreate(ADXL_TaskRead,  "ADXL_Read",  256, h_adxl345, 2, NULL);
-	xTaskCreate(ADXL_TaskPrint, "ADXL_Print", 256, h_adxl345, 1, NULL);
-
-	return HAL_OK;
+	if (xTaskCreate(ADXL_TaskRead,  "ADXL_Read",  256, h_adxl345, 2, NULL) != pdPASS)
+	{
+		printf("\n\r Error creating ADXL read task \n\r");
+		Error_Handler();
+	}
+	if (xTaskCreate(ADXL_TaskPrint, "ADXL_Print", 256, h_adxl345, 1, NULL) != pdPASS)
+	{
+		printf("\n\r Error creating ADXL print task \n\r");
+		Error_Handler();
+	}
 }

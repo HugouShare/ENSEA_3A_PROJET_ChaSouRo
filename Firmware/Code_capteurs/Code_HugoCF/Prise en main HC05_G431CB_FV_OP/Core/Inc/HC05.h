@@ -192,7 +192,7 @@ void HC05_ClearBindings(h_hc05_t * h_hc05);
 void HC05_SetAutoConnect(h_hc05_t * h_hc05, const char* mac);
 
 ////////////////////////////////////////////// COMMANDES TRAITEMENTS
-void HC05_Init (h_hc05_t * h_hc05);
+void HC05_Tasks_Create (h_hc05_t * h_hc05);
 void send_coordinates (h_hc05_t * h_hc05);
 void rx_process (h_hc05_t * h_hc05);
 void hc05_RX_callback(h_hc05_t * h_hc05);

@@ -508,7 +508,7 @@ void rx_process (h_hc05_t * h_hc05)
 }
 
 // Initialisation du module HC05
-void HC05_Init (h_hc05_t * h_hc05)
+void HC05_Tasks_Create (h_hc05_t * h_hc05)
 {
 	HAL_UART_Receive_IT(h_hc05->huart, h_hc05->rxData, rxData_LENGTH);
 	if (xTaskCreate(task_hc05_tx, "HC05_TX", 256, h_hc05, 1, &h_task_hc05_tx) != pdPASS)
