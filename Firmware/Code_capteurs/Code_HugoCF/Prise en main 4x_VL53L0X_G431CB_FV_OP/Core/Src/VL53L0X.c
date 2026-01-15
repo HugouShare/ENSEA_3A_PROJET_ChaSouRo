@@ -11,6 +11,7 @@
 #include "string.h"
 #include "i2c.h"
 
+#include "main.h"
 #include "VL53L0X.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -938,8 +939,8 @@ bool performSingleRefCalibration(VL53L0X_Dev_t *dev, uint8_t vhv_init_byte)
  */
 
 // === XSHUT PINS ===
-#define XSHUT_TOF1_GPIO_Port GPIOB
-#define XSHUT_TOF1_Pin       GPIO_PIN_6
+#define XSHUT_TOF1_GPIO_Port GPIOA
+#define XSHUT_TOF1_Pin       GPIO_PIN_1
 
 #define XSHUT_TOF2_GPIO_Port GPIOB
 #define XSHUT_TOF2_Pin       GPIO_PIN_13
@@ -998,7 +999,7 @@ void TOFs_Init (void)
 	printf("All VL53L0X initialized successfully\r\n");
 }
 
-void task_tofs_read_distances (void)
+void task_tofs_read_distances (void * unused)
 {
 	/*
 	 * Le fonctionnement de cette tâche-ci est le suivant :
@@ -1033,5 +1034,5 @@ void print_tofs_distances (void)
 	printf("D1:%4d mm | D2:%4d mm | D3:%4d mm | D4:%4d mm\r\n",
 			dist1, dist2, dist3, dist4);
 
-	HAL_Delay(100);
+	vTaskDelay(pdMS_TO_TICKS(100));
 }

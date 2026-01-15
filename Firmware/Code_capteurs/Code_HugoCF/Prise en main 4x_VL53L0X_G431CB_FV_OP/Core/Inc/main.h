@@ -63,8 +63,8 @@ void Error_Handler(void);
 #define XSHUT4_GPIO_Port GPIOC
 #define LED_D1_Pin GPIO_PIN_15
 #define LED_D1_GPIO_Port GPIOC
-#define USER2_Pin GPIO_PIN_1
-#define USER2_GPIO_Port GPIOA
+#define XSHUT1_Pin GPIO_PIN_1
+#define XSHUT1_GPIO_Port GPIOA
 #define ENC_PA_R_Pin GPIO_PIN_4
 #define ENC_PA_R_GPIO_Port GPIOA
 #define FWD_L_Pin GPIO_PIN_5
@@ -95,8 +95,6 @@ void Error_Handler(void);
 #define REV_L_GPIO_Port GPIOB
 #define Buzzer_Pin GPIO_PIN_4
 #define Buzzer_GPIO_Port GPIOB
-#define XSHUT1_Pin GPIO_PIN_6
-#define XSHUT1_GPIO_Port GPIOB
 #define ENC_PB_L_Pin GPIO_PIN_8
 #define ENC_PB_L_GPIO_Port GPIOB
 #define USER1_Pin GPIO_PIN_9

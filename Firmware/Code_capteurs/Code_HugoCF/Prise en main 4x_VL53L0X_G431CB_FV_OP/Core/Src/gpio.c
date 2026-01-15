@@ -58,7 +58,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(XSHUT4_GPIO_Port, XSHUT4_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, XSHUT3_Pin|XSHUT2_Pin|XSHUT1_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(XSHUT1_GPIO_Port, XSHUT1_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, XSHUT3_Pin|XSHUT2_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(EN_BT_GPIO_Port, EN_BT_Pin, GPIO_PIN_RESET);
@@ -77,11 +80,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(XSHUT4_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : USER2_Pin INT_XL2_Pin INT_XL1_Pin */
-  GPIO_InitStruct.Pin = USER2_Pin|INT_XL2_Pin|INT_XL1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  /*Configure GPIO pin : XSHUT1_Pin */
+  GPIO_InitStruct.Pin = XSHUT1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(XSHUT1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED_STATE_Pin */
   GPIO_InitStruct.Pin = LED_STATE_Pin;
@@ -89,8 +93,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(LED_STATE_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : XSHUT3_Pin XSHUT2_Pin XSHUT1_Pin */
-  GPIO_InitStruct.Pin = XSHUT3_Pin|XSHUT2_Pin|XSHUT1_Pin;
+  /*Configure GPIO pins : XSHUT3_Pin XSHUT2_Pin */
+  GPIO_InitStruct.Pin = XSHUT3_Pin|XSHUT2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -110,6 +114,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF1_TIM15;
   HAL_GPIO_Init(M_CTRL_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : INT_XL2_Pin INT_XL1_Pin */
+  GPIO_InitStruct.Pin = INT_XL2_Pin|INT_XL1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : USER1_Pin */
   GPIO_InitStruct.Pin = USER1_Pin;
