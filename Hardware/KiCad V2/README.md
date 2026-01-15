@@ -8,4 +8,4 @@
 - Changement de la capacité de découplage du VDDA : 47uF -> 22uF
 - Oublie des capacités pour limiter les rebonds sur USER1 et USER2 -> ajout de 0.1uF
 - Inversion sur le PCB des RX3/TX3 sur les pins PB10/PB11 du STM32
-- Problème d'angle droit sur la ligne SDA3 enlevé (peu être incidence sur l'I2C3)
+- Problème d'angle droit sur la ligne SDA3 enlevé (peut-être incidence sur l'I2C3)
