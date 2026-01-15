@@ -159,18 +159,19 @@ void task_Odom_Update(void *arg)
 		while (new_theta <= -180) new_theta += 360;
 
 		robot_pose.theta = (int16_t)new_theta;
+		robot_pose.x_dist += (int32_t)d_center;
 
-		/* LUT Q15 */
-		/* Pour cos_lut et sin_lut, l'index doit être dans [0..359].
-		   On convertit theta en [0..359] pour la LUT */
-		uint16_t lut_index = (uint16_t)(new_theta < 0 ? (360 + new_theta) : new_theta);
-
-		int16_t c = cos_lut[lut_index];
-		int16_t s = sin_lut[lut_index];
-
-		/* Mise à jour (mm) : x += d_center * cos / 32768 */
-		robot_pose.x += ( (int32_t)d_center * c ) >> 15;
-		robot_pose.y += ( (int32_t)d_center * s ) >> 15;
+//		/* LUT Q15 */
+//		/* Pour cos_lut et sin_lut, l'index doit être dans [0..359].
+//		   On convertit theta en [0..359] pour la LUT */
+//		uint16_t lut_index = (uint16_t)(new_theta < 0 ? (360 + new_theta) : new_theta);
+//
+//		int16_t c = cos_lut[lut_index];
+//		int16_t s = sin_lut[lut_index];
+//
+//		/* Mise à jour (mm) : x += d_center * cos / 32768 */
+//		robot_pose.x += X_COEFF *( (int32_t)d_center * c ) >> 15;
+//		robot_pose.y += Y_COEFF *( (int32_t)d_center * s ) >> 15;
 	}
 }
 

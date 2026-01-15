@@ -31,6 +31,8 @@ void PID_Init(PID_t *pid,
               int32_t out_max);
 
 int32_t PID_Compute(PID_t *pid, int32_t error);
+void PID_ResetIntegrator(PID_t *pid);
+void PID_Reset(PID_t *pid);
 
 
 #endif /* INC_PID_H_ */

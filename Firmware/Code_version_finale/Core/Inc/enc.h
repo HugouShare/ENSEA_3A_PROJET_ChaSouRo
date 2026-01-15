@@ -34,6 +34,9 @@
 #define ENC_STACK_SIZE 40
 #define ODOM_STACK_SIZE 64
 
+#define X_COEFF 1
+#define Y_COEFF 1
+
 // -----------------------------
 // Défines pour l'encodeur gauche
 // (tu peux mapper vers d'autres timers si besoin)
@@ -78,8 +81,7 @@ typedef struct {
 } Encoder_t;
 
 typedef struct {
-    int32_t x; // en mm
-    int32_t y; // en mm
+	int32_t x_dist;
     int16_t theta; // en degrés, intervalle [-180, 180]
 } robot_Pose_t;
 

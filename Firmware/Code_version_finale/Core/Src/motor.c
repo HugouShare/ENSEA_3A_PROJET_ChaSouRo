@@ -14,13 +14,13 @@ static volatile int pwm_right_cmd = 0;
 
 /* ================= DRIVERS ================= */
 
-MotorDriver motorL = {
+MotorDriver motorR = {
     .htim = &htim2,
     .channel_fwd = TIM_CHANNEL_2,
     .channel_rev = TIM_CHANNEL_1
 };
 
-MotorDriver motorR = {
+MotorDriver motorL = {
     .htim = &htim2,
     .channel_fwd = TIM_CHANNEL_3,
     .channel_rev = TIM_CHANNEL_4

@@ -40,3 +40,15 @@ int32_t PID_Compute(PID_t *pid, int32_t error)
 
     return output;
 }
+
+void PID_ResetIntegrator(PID_t *pid)
+{
+    pid->integral = 0;
+}
+
+void PID_Reset(PID_t *pid)
+{
+    pid->integral = 0;
+    pid->prev_error = 0;
+}
+

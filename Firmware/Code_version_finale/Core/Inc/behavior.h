@@ -13,11 +13,13 @@
 #define ROOMBA_STACK_SIZE 512
 #define CHAT_STACK_SIZE 512
 #define SOURIS_STACK_SIZE 512
+#define EDGE_STACK_SIZE 512
 
 
 void task_ROOMBA(void *unused);
 void task_CHAT(void *unused);
 void task_SOURIS(void *unused);
+void task_EDGE(void *unused);
 
 
 #endif /* INC_BEHAVIOR_H_ */

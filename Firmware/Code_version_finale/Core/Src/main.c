@@ -234,21 +234,21 @@ void SystemClock_Config(void)
 
 
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-    static TickType_t lastTickUser1 = 0;
-    static uint8_t toggle = 1;
-
-    if (GPIO_Pin == USER1_Pin)
-    {
-        if (!debounce_check(&lastTickUser1, 200))
-            return; // Ignorer rebond
-        if(toggle){
-        	Control_TurnAngleFromISR(-179);
-			toggle = 0;
-        }
-    }
-}
+//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+//{
+//    static TickType_t lastTickUser1 = 0;
+//    static uint8_t toggle = 1;
+//
+//    if (GPIO_Pin == USER1_Pin)
+//    {
+//        if (!debounce_check(&lastTickUser1, 200))
+//            return; // Ignorer rebond
+//        if(toggle){
+//        	Control_MoveDistanceFromISR(1000);
+//			toggle = 0;
+//        }
+//    }
+//}
 
 
 

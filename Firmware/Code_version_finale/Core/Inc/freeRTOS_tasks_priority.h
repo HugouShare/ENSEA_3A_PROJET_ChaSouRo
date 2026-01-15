@@ -14,6 +14,7 @@
 #define task_ROOMBA_PRIORITY 1
 #define task_CHAT_PRIORITY 2
 #define task_SOURIS_PRIORITY 2
+#define task_EDGE_PRIORITY 0
 
 #define task_Control_PRIORITY 3
 
