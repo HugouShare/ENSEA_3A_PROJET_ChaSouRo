@@ -89,8 +89,8 @@ void Control_Stop(void)
     if (xSemaphoreTake(ctrl_mutex, portMAX_DELAY) == pdTRUE)
     {
         ctrl.mode = CTRL_IDLE;
-        robot_pose.theta = 0;
-        robot_pose.x_dist = 0;
+//        robot_pose.theta = 0;
+//        robot_pose.x_dist = 0;
         xSemaphoreGive(ctrl_mutex);
     }
 
@@ -152,6 +152,16 @@ bool Control_IsBusy(void)
     return busy;
 }
 
+
+void Control_WaitUntilNotBusy(void)
+{
+    while (Control_IsBusy())
+    {
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+}
+
+
 /* ================= TASK ================= */
 
 void task_Control(void *arg)
@@ -200,23 +210,32 @@ void task_Control(void *arg)
         /* ===== ROTATION ===== */
         if (local.mode == CTRL_TURN)
         {
-            int32_t delta = robot_pose.theta - local.start_theta;
+            static bool first_call = true;
 
-            /* Normalisation [-180 ; +180] */
-            if (delta > 180)  delta -= 360;
-            if (delta < -180) delta += 360;
+            if (first_call)
+            {
+                PID_Reset(&pid_turn);
+                first_call = false;
+            }
 
-            int32_t error = local.target - delta;
+            int32_t target_theta = local.start_theta + local.target;
+            int32_t error = target_theta - robot_pose.theta;
+
+            while (error > 180)  error -= 360;
+            while (error < -180) error += 360;
 
             if (abs(error) < ANGLE_THRESHOLD_DEG)
             {
                 Control_Stop();
+                first_call = true;
                 continue;
             }
 
             int32_t cmd = PID_Compute(&pid_turn, error);
-            Motors_SetPWM(-cmd, cmd);
+            Motors_SetPWM(cmd, -cmd);
         }
+
+
 
         /* ===== TRANSLATION (POLAIRE) ===== */
         /* ===== TRANSLATION (POLAIRE + MAINTIEN DE CAP) ===== */

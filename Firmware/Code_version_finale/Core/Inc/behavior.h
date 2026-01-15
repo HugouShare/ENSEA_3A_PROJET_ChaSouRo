@@ -16,10 +16,36 @@
 #define EDGE_STACK_SIZE 512
 
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "event_groups.h"
+#include <stdbool.h>
+
+/* ================= EVENTS ================= */
+
+#define EVT_CHAT_TRIGGERED    (1 << 0)
+#define EVT_SOURIS_TRIGGERED  (1 << 1)
+#define EVT_EDGE_TRIGGERED    (1 << 2)
+
+/* ================= TASK HANDLES ================= */
+
+extern TaskHandle_t htask_ROOMBA;
+extern TaskHandle_t htask_CHAT;
+extern TaskHandle_t htask_SOURIS;
+extern TaskHandle_t htask_EDGE;
+
+/* ================= API ================= */
+
+void behavior_Tasks_Create(void);
+
+/* ================= TASKS ================= */
+
 void task_ROOMBA(void *unused);
 void task_CHAT(void *unused);
 void task_SOURIS(void *unused);
 void task_EDGE(void *unused);
+
+
 
 
 #endif /* INC_BEHAVIOR_H_ */

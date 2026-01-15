@@ -24,18 +24,23 @@
 
 /* ================= CONFIG ================= */
 
-#define DIST_THRESHOLD_MM     20
-#define ANGLE_THRESHOLD_DEG   3
+#define DIST_THRESHOLD_MM     30
+#define ANGLE_THRESHOLD_DEG   5
 
-#define KP_TURN 4.1
-#define KI_TURN 0.95
-#define KD_TURN 0.6
+#define KP_TURN 6.0
+#define KI_TURN 0.2
+#define KD_TURN 0.5
+
 
 #define KP_TURN_SA 2.0
 #define KI_TURN_SA 0.5
 #define KD_TURN_SA 0.5
 
-#define KP_MOVE 1.5
+//#define KP_MOVE 1.5
+//#define KI_MOVE 0.0
+//#define KD_MOVE 0.5
+
+#define KP_MOVE 2.0
 #define KI_MOVE 0.0
 #define KD_MOVE 0.5
 
@@ -83,6 +88,7 @@ void Control_StopFromISR(void);
 /* Arrêt immédiat */
 void Control_Stop(void);
 bool Control_IsBusy(void);
+void Control_WaitUntilNotBusy(void);
 
 /* Tâche RTOS */
 void task_Control(void *arg);

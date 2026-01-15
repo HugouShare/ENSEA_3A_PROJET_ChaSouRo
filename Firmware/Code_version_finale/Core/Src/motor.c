@@ -79,7 +79,26 @@ void Init_motors(void)
     HAL_TIM_PWM_Start(motorR.htim, motorR.channel_fwd);
     HAL_TIM_PWM_Start(motorR.htim, motorR.channel_rev);
 
+
+
+
+//    Motor_SetSpeed(&motorL, 300);
+//    Motor_SetSpeed(&motorR, -300);
+//
+//    HAL_Delay(1000);
+//
+//    Motor_SetSpeed(&motorL, -300);
+//    Motor_SetSpeed(&motorR, +300);
+//
+//    HAL_Delay(1000);
+//
+//    Motor_SetSpeed(&motorL, 0);
+//    Motor_SetSpeed(&motorR, 0);
+
     Motors_SetPWM(0, 0);
+
+
+
 }
 
 /* ================= LOW LEVEL ================= */
