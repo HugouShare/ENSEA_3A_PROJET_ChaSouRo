@@ -2,7 +2,7 @@
  * motor.c
  */
 
-#include "motor.h"
+#include "actuators/motor.h"
 #include "gpio.h"
 #include "FreeRTOS.h"
 #include "task.h"

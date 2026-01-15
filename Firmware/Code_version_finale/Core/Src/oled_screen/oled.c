@@ -5,12 +5,12 @@
  *      Author: nelven
  */
 
-#include "oled.h"
+#include "oled_screen/oled.h"
+#include "oled_screen/bitmaps.h"
 #include <string.h>
 #include <stdio.h>
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
-#include "bitmaps.h"
 #include "cmsis_os.h"
 
 // Ajout FreeRTOS

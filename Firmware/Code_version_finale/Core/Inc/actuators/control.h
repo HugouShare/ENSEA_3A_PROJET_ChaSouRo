@@ -17,9 +17,9 @@
 #include "semphr.h"
 #include "queue.h"
 
-#include "enc.h"
-#include "motor.h"
-#include "pid.h"
+#include "actuators/encoder.h"
+#include "actuators/motor.h"
+#include "actuators/pid.h"
 #include "freeRTOS_tasks_priority.h"
 
 /* ================= CONFIG ================= */

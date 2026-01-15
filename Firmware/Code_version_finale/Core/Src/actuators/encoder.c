@@ -5,7 +5,7 @@
  *      Author: hugoc
  */
 
-#include "enc.h"
+#include "actuators/encoder.h"
 
 /* Instances globales */
 Encoder_t ENC_D;

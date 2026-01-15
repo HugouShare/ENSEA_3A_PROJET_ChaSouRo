@@ -11,7 +11,7 @@
 #define ADXL_TaskRead_PRIORITY 2
 #define ADXL_TaskPrint_PRIORITY 1
 
-#define task_ROOMBA_PRIORITY 1
+#define task_ROOMBA_PRIORITY 56
 #define task_CHAT_PRIORITY 2
 #define task_SOURIS_PRIORITY 2
 #define task_EDGE_PRIORITY 5

@@ -45,7 +45,9 @@ void task_CHAT(void *unused);
 void task_SOURIS(void *unused);
 void task_EDGE(void *unused);
 
-
-
+void behavior_ROOMBA (bool first_iteration);
+void behavior_SOURIS (void);
+void behavior_CHAT (void);
+void behavior_EDGE (void);
 
 #endif /* INC_BEHAVIOR_H_ */

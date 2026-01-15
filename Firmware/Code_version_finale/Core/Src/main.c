@@ -17,6 +17,7 @@
  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <sensors/lidar.h>
 #include "main.h"
 #include "cmsis_os.h"
 #include "dma.h"
@@ -24,18 +25,17 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-#include "motor.h"
-#include "enc.h"
-#include "LIDAR.h"
+#include "actuators/motor.h"
+#include "actuators/encoder.h"
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
-#include "adxl345.h"
-#include "control.h"
-#include "behavior.h"
+#include "sensors/accelerometer.h"
+#include "actuators/control.h"
+#include "actuators/behavior.h"
+#include "sensors/tofs.h"
 //#include "oled.h"
 /* USER CODE END Includes */
 
@@ -68,8 +68,9 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int __io_putchar(int chr){
-	HAL_UART_Transmit(&huart2, (uint8_t*) &chr, 1, HAL_MAX_DELAY);
+int __io_putchar(int chr)
+{
+	HAL_UART_Transmit(&huart4, (uint8_t*) &chr, 1, HAL_MAX_DELAY);
 	return chr;
 }
 
@@ -86,7 +87,6 @@ bool debounce_check(uint32_t *lastTick, TickType_t delay_ms)
 }
 
 //PROTECTION MEMOIRE
-
 void vApplicationMallocFailedHook(void)
 {
 	printf("Malloc failed !\r\n"); //n'arrive pas à créé une task (pas de place)
@@ -94,14 +94,13 @@ void vApplicationMallocFailedHook(void)
 	for( ;; );
 }
 
+//PROTECTION MEMOIRE
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
 	printf("Stack overflow in task %s\r\n", pcTaskName); //Stack overflow
 	taskDISABLE_INTERRUPTS();
 	for( ;; );
 }
-
-
 /* USER CODE END 0 */
 
 /**
@@ -150,24 +149,21 @@ int main(void)
 	//INITS
 	Init_motors();
 	LIDAR_Init();
-
-
-
+	TOFs_Init();
 	ENC_Init();
-	if (ADXL345_Init(&hadxl, &hi2c1) != HAL_OK) {
-		Error_Handler();
-	}
+	ADXL345_Init(&hadxl, &hi2c1);
 	Control_Init();
-	//	OLED_Init();
+	//OLED_Init();
 
 	//CREATION DES TASKS
-	//	OLED_Tasks_Create();
+	TOFs_Tasks_Create();
 	Control_Tasks_Create();
 	Motors_Tasks_Create();
 	LIDAR_Tasks_Create();
 	ENC_Tasks_Create();
 	ADXL345_StartTasks(&hadxl);
 	behavior_Tasks_Create();
+	//OLED_Tasks_Create();
 
 	//LANCE LE SCHEDULER
 	vTaskStartScheduler();
@@ -234,9 +230,6 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-
-
-
 //void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 //{
 //    static TickType_t lastTickUser1 = 0;
@@ -252,10 +245,6 @@ void SystemClock_Config(void)
 //        }
 //    }
 //}
-
-
-
-
 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -280,17 +269,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
 
 /* USER CODE END 4 */
 
@@ -331,7 +309,6 @@ void Error_Handler(void)
 	{
 		HAL_GPIO_WritePin(GPIOC, LED_D1_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOC, LED_D2_Pin, GPIO_PIN_SET);
-
 	}
 	/* USER CODE END Error_Handler_Debug */
 }

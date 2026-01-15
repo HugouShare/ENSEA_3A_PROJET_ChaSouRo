@@ -1,4 +1,4 @@
-#include "adxl345.h"
+#include "sensors/accelerometer.h"
 #include <stdio.h>
 
 

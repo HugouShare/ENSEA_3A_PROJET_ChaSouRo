@@ -2,7 +2,7 @@
  * control.c
  */
 
-#include "control.h"
+#include "actuators/control.h"
 #include <math.h>
 #include <stdlib.h>
 

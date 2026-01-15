@@ -59,13 +59,12 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define LED_D2_Pin GPIO_PIN_13
 #define LED_D2_GPIO_Port GPIOC
-#define XShunt4_Pin GPIO_PIN_14
-#define XShunt4_GPIO_Port GPIOC
+#define XSHUT4_Pin GPIO_PIN_14
+#define XSHUT4_GPIO_Port GPIOC
 #define LED_D1_Pin GPIO_PIN_15
 #define LED_D1_GPIO_Port GPIOC
-#define USER2_Pin GPIO_PIN_1
-#define USER2_GPIO_Port GPIOA
-#define USER2_EXTI_IRQn EXTI1_IRQn
+#define XSHUT1_Pin GPIO_PIN_1
+#define XSHUT1_GPIO_Port GPIOA
 #define ENC_PA_R_Pin GPIO_PIN_4
 #define ENC_PA_R_GPIO_Port GPIOA
 #define FWD_L_Pin GPIO_PIN_5
@@ -74,12 +73,12 @@ void Error_Handler(void);
 #define ENC_PB_R_GPIO_Port GPIOA
 #define LED_STATE_Pin GPIO_PIN_7
 #define LED_STATE_GPIO_Port GPIOA
-#define XShunt3_Pin GPIO_PIN_0
-#define XShunt3_GPIO_Port GPIOB
+#define XSHUT3_Pin GPIO_PIN_0
+#define XSHUT3_GPIO_Port GPIOB
 #define EN_BT_Pin GPIO_PIN_1
 #define EN_BT_GPIO_Port GPIOB
-#define XShunt2_Pin GPIO_PIN_13
-#define XShunt2_GPIO_Port GPIOB
+#define XSHUT2_Pin GPIO_PIN_13
+#define XSHUT2_GPIO_Port GPIOB
 #define ENC_PA_L_Pin GPIO_PIN_6
 #define ENC_PA_L_GPIO_Port GPIOC
 #define FWD_R_Pin GPIO_PIN_9
@@ -94,9 +93,6 @@ void Error_Handler(void);
 #define REV_L_GPIO_Port GPIOB
 #define Buzzer_Pin GPIO_PIN_4
 #define Buzzer_GPIO_Port GPIOB
-#define XShunt1_Pin GPIO_PIN_6
-#define XShunt1_GPIO_Port GPIOB
-#define XShunt1_EXTI_IRQn EXTI9_5_IRQn
 #define ENC_PB_L_Pin GPIO_PIN_8
 #define ENC_PB_L_GPIO_Port GPIOB
 #define USER1_Pin GPIO_PIN_9
