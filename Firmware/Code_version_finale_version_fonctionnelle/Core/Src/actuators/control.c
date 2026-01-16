@@ -51,7 +51,7 @@ void Control_Tasks_Create(void)
 {
     if (xTaskCreate(task_Control,
                     "CTRL",
-                    256,
+                    128,
                     NULL,
                     task_Control_PRIORITY,
                     NULL) != pdPASS)
@@ -69,6 +69,7 @@ void Control_TurnAngle(int32_t angle_deg)
         ctrl.mode = CTRL_TURN;
         ctrl.target = angle_deg;
         ctrl.start_theta = robot_pose.theta;
+        ctrl.target_reached = false;
         xSemaphoreGive(ctrl_mutex);
     }
 }
@@ -80,6 +81,7 @@ void Control_MoveDistance(int32_t distance_mm)
         ctrl.mode = CTRL_MOVE;
         ctrl.target = distance_mm;
         ctrl.start_dist = robot_pose.x_dist;
+        ctrl.target_reached = false;
         xSemaphoreGive(ctrl_mutex);
     }
 }
@@ -91,6 +93,9 @@ void Control_Stop(void)
         ctrl.mode = CTRL_IDLE;
         robot_pose.theta = 0;
         robot_pose.x_dist = 0;
+        ctrl.start_theta = 0;
+        ctrl.start_dist = 0;
+        ctrl.target_reached = true;
         xSemaphoreGive(ctrl_mutex);
     }
 
@@ -155,9 +160,9 @@ bool Control_IsBusy(void)
 
 void Control_WaitUntilNotBusy(void)
 {
-    while (Control_IsBusy())
+    if (Control_IsBusy())
     {
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(600));
     }
 }
 

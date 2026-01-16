@@ -36,9 +36,9 @@
 #define LIDAR_MIN_CLUSTER_DIST 20
 #define LIDAR_DIST_THRESHOLD   300
 #define LIDAR_MERGE_THRESHOLD  50
-#define LIDAR_MAX_RANGE        300
+#define LIDAR_MAX_RANGE        200
 
-#define LIDAR_MAX_CLUSTERS     32
+#define LIDAR_MAX_CLUSTERS     16
 #define LIDAR_MAX_SAMPLES_PKT  200U
 
 // LUTS POUR COS ET SIN
@@ -67,11 +67,12 @@ typedef struct {
 } LIDAR_Frame;
 
 typedef struct {
-	int16_t x;
-	int16_t y;
+//	int16_t x;
+//	int16_t y;
 	int16_t angle_deg; //[-180, +180]
-	uint16_t start_idx;
-	uint16_t end_idx;
+	uint16_t distance_mm;
+//	uint16_t start_idx;
+//	uint16_t end_idx;
 	uint16_t size;
 	bool active;
 } LIDAR_Cluster;

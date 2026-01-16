@@ -53,7 +53,7 @@ void task_motor(void *arg)
         Motor_SetSpeed(&motorR, pwm_right_cmd);
 
         /* 100 Hz */
-        vTaskDelayUntil(&last, pdMS_TO_TICKS(50));
+        vTaskDelayUntil(&last, pdMS_TO_TICKS(10));
     }
 }
 

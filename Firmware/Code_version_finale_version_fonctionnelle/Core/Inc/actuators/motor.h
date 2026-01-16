@@ -14,7 +14,7 @@
 
 /* ================= CONFIG ================= */
 
-#define MOTOR_PWM_MAX     300    // ARR = 1000 -> PWM max
+#define MOTOR_PWM_MAX     250    // ARR = 1000 -> PWM max
 #define MOTOR_STACK_SIZE  64      // mots (≈ 256 octets)
 
 /* ================= DRIVER ================= */

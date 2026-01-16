@@ -20,6 +20,7 @@
 #include "task.h"
 #include "event_groups.h"
 #include <stdbool.h>
+#include "sensors/lidar.h"
 
 /* ================= EVENTS ================= */
 
@@ -45,9 +46,5 @@ void task_CHAT(void *unused);
 void task_SOURIS(void *unused);
 void task_EDGE(void *unused);
 
-void behavior_ROOMBA (void);
-void behavior_SOURIS (void);
-void behavior_CHAT (void);
-void behavior_EDGE (void);
 
 #endif /* INC_BEHAVIOR_H_ */

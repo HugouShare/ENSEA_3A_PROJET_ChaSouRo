@@ -11,6 +11,7 @@
 
 #include "stm32g4xx.h"
 #include "FreeRTOS.h"
+#include "freeRTOS_tasks_priority.h"
 #include "event_groups.h"
 
 #include "task.h"
@@ -19,6 +20,7 @@
 ////////////////////////////////////////////// VARIABLES
 static TaskHandle_t h_task_hc05_tx = NULL;
 static TaskHandle_t h_task_hc05_rx = NULL;
+//extern uint16_t dist1, dist2, dist3, dist4;
 
 ////////////////////////////////////////////// COMMANDES PROPRES HC05
 // Envoie commande
@@ -499,7 +501,8 @@ void task_hc05_rx (void * argument)
 // Permet l'envoi des coordonnées (x,y) du robot sur la table
 void send_coordinates (h_hc05_t * h_hc05)
 {
-	uint16_t size = snprintf ((char*)h_hc05->txData, txData_LENGTH, "\n\r (X : %d, Y : %d) \n\r",58,678); /* cordonnées (x,y) */
+//	uint16_t size = snprintf ((char*)h_hc05->txData, txData_LENGTH, "\n\r distance tof1 : %d, distance tof2 : %d, distance tof3 : %d, distance tof4 : %d \n\r",dist1, dist2, dist3, dist4);
+	uint16_t size = snprintf ((char*)h_hc05->txData, txData_LENGTH, "\n\r ROBOT EN MARCHE !!! \n\r");
 	HAL_UART_Transmit_DMA(h_hc05->huart, h_hc05->txData, size);
 }
 
@@ -535,12 +538,12 @@ void rx_process (h_hc05_t * h_hc05)
 void HC05_Tasks_Create (h_hc05_t * h_hc05)
 {
 	HAL_UART_Receive_IT(h_hc05->huart, h_hc05->rxData, rxData_LENGTH);
-	if (xTaskCreate(task_hc05_tx, "HC05_TX", 256, h_hc05, 1, &h_task_hc05_tx) != pdPASS)
+	if (xTaskCreate(task_hc05_tx, "HC05_TX", 128, h_hc05, task_BLUETOOTH_TX, &h_task_hc05_tx) != pdPASS)
 	{
 		printf("\n\r Error creating TX bluetooth task \n\r");
 		Error_Handler();
 	}
-	if (xTaskCreate(task_hc05_rx, "HC05_RX", 256, h_hc05, 2, &h_task_hc05_rx) != pdPASS)
+	if (xTaskCreate(task_hc05_rx, "HC05_RX", 64, h_hc05, task_BLUETOOTH_RX, &h_task_hc05_rx) != pdPASS)
 	{
 		printf("\n\r Error creating RX bluetooth task \n\r");
 		Error_Handler();

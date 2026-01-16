@@ -14,7 +14,7 @@
 #include "stdio.h"
 
 ////////////////////////////////////////////// DEFINES
-#define txData_LENGTH 50
+#define txData_LENGTH 128
 #define rxData_LENGTH 1
 
 ////////////////////////////////////////////// STRUCTURES

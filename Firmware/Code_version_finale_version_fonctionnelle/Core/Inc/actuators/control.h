@@ -27,21 +27,28 @@
 #define DIST_THRESHOLD_MM     30
 #define ANGLE_THRESHOLD_DEG   5
 
+//#define KP_TURN 6.0
+//#define KI_TURN 0.2
+//#define KD_TURN 0.5
+//
+//#define KP_TURN_SA 2.0
+//#define KI_TURN_SA 0.5
+//#define KD_TURN_SA 0.5
+//
+//#define KP_MOVE 2.0
+//#define KI_MOVE 0.0
+//#define KD_MOVE 0.5
+
 #define KP_TURN 6.0
 #define KI_TURN 0.2
 #define KD_TURN 0.5
-
 
 #define KP_TURN_SA 2.0
 #define KI_TURN_SA 0.5
 #define KD_TURN_SA 0.5
 
-//#define KP_MOVE 1.5
-//#define KI_MOVE 0.0
-//#define KD_MOVE 0.5
-
 #define KP_MOVE 2.0
-#define KI_MOVE 0.0
+#define KI_MOVE 0.5
 #define KD_MOVE 0.5
 
 /* ================= TYPES ================= */
@@ -65,6 +72,7 @@ typedef struct
 {
     ctrl_mode_t mode;
     int32_t target;
+    bool target_reached;
 
     int16_t start_theta;   /* angle initial [-180 ; +180] */
     int32_t start_dist;    /* distance initiale en mm (x_dist) */
