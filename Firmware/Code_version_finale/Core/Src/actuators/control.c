@@ -51,7 +51,7 @@ void Control_Tasks_Create(void)
 {
     if (xTaskCreate(task_Control,
                     "CTRL",
-                    512,
+                    256,
                     NULL,
                     task_Control_PRIORITY,
                     NULL) != pdPASS)
@@ -89,8 +89,8 @@ void Control_Stop(void)
     if (xSemaphoreTake(ctrl_mutex, portMAX_DELAY) == pdTRUE)
     {
         ctrl.mode = CTRL_IDLE;
-//        robot_pose.theta = 0;
-//        robot_pose.x_dist = 0;
+        robot_pose.theta = 0;
+        robot_pose.x_dist = 0;
         xSemaphoreGive(ctrl_mutex);
     }
 

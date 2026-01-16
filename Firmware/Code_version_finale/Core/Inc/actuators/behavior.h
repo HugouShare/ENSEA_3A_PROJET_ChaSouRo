@@ -10,10 +10,10 @@
 
 #include "freeRTOS_tasks_priority.h"
 
-#define ROOMBA_STACK_SIZE 512
-#define CHAT_STACK_SIZE 512
-#define SOURIS_STACK_SIZE 512
-#define EDGE_STACK_SIZE 512
+#define ROOMBA_STACK_SIZE 128
+#define CHAT_STACK_SIZE 128
+#define SOURIS_STACK_SIZE 128
+#define EDGE_STACK_SIZE 128
 
 
 #include "FreeRTOS.h"
@@ -45,7 +45,7 @@ void task_CHAT(void *unused);
 void task_SOURIS(void *unused);
 void task_EDGE(void *unused);
 
-void behavior_ROOMBA (bool first_iteration);
+void behavior_ROOMBA (void);
 void behavior_SOURIS (void);
 void behavior_CHAT (void);
 void behavior_EDGE (void);
