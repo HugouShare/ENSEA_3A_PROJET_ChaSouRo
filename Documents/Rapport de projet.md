@@ -23,6 +23,10 @@ Voici ce que chaque membre du groupe réalise au sein du projet...
 # Rapport individuel des tâches réalisées au sein du projet  
 
 ### Nelven THEBAULT  
+- Faire partie Hardware : PCB, schematic, footprint, soudure
+- Partie écran
+- Bipper 
+- Coordination avec méca et intégration
 
 ### Hugo CARVALHO FONTES  
 
