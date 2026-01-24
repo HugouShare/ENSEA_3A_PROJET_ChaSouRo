@@ -1,4 +1,4 @@
-#Partie Mécanique du Projet Chat et Souris
+**Partie Mécanique du Projet Chat et Souris**
 
 ## Modifications et Améliorations
 
