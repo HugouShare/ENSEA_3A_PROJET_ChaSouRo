@@ -151,6 +151,18 @@ Software/Firmware :
 
 ### Arthur Cesar NKWA NJITCHOU  
 
+Hardware :
+- Conception d'un PCB : Réalisation de la schématique et du routage du circuit imprimé (PCB).
+- Recherche de composants : Participation active à la sélection des composants électroniques.
+- Soudure : Assemblage et soudure des composants sur le PCB final.
+
+Software :
+- Développement en C : Implementation du code pour l'accéléromètre ADXL345, permettant de détecter les chocs brusques lors des collisions du robot.
+
+Mécanique :
+- Conception des supports : Création de supports pour les capteurs TOF et l'écran, ainsi que perçage pour l'interrupteur et le buzzer.
+- Amélioration des pattes : Optimisation des pattes des bases supérieures pour une meilleure stabilité.
+- Impression 3D : Impression des différentes parties du robot à l'aide d'une imprimante 3D.
 
 
 ### Hugo CORDI  
