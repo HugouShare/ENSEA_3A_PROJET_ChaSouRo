@@ -1,1 +1,18 @@
-eee
+# Partie Mécanique du Projet Chat et Souris
+
+## Modifications et Améliorations
+
+### Conception des Supports
+- **Supports TOF** : Création de supports robustes pour les capteurs TOF, optimisant l'alignement pour une détection précise des obstacles.
+- **Support de l'Écran** : Développement d'un support ergonomique pour l'écran, garantissant une visualisation claire tout en préservant la compacité du robot.
+
+### Perçage et Assemblage
+- **Perçage** : Réalisation de trous pour intégrer l'interrupteur et le buzzer, assurant une installation harmonieuse des composants électroniques.
+- **Optimisation des Pattes** : Amélioration des pattes des bases supérieures pour renforcer la stabilité et l'équilibre du robot lors de ses déplacements.
+
+### Impression 3D
+- **Fabrication** : Impression 3D de diverses pièces du robot, permettant un ajustement précis au design global et facilitant la personnalisation des composants.
+
+## Prochaines Étapes
+- Continuer à tester la stabilité et l'efficacité des supports en conditions réelles.
+- Intégrer les retours d'usage pour d'autres améliorations éventuelles.
