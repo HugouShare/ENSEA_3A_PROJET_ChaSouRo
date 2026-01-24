@@ -1,6 +1,8 @@
-**Partie Mécanique du Projet Chat et Souris**
+Partie Mécanique du Projet Chat et Souris
 
-## Modifications et Améliorations
+Nous nous sommes inspiré de la version de base donnée par le prof (https://cad.onshape.com/documents/7eabf90e47e8c8553dc09658/w/3dcd7f2858a0589a4cbae030/e/145e161f6c9d99158433c942). 
+
+Modifications et Améliorations
 
 ### Conception des Supports
 - **Supports TOF** : Création de supports robustes pour les capteurs TOF, optimisant l'alignement pour une détection précise des obstacles.
