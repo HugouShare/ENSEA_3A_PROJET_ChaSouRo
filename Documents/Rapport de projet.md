@@ -371,9 +371,10 @@ Du côté Hardware, les problèmes rencontrés ont été solutionnés dans la V2
 - Inversion sur le PCB des RX3/TX3 sur les pins PB10/PB11 du STM32
 - Problème d'angle droit sur la ligne SDA3 enlevé (peut-être incidence sur l'I2C3)
 ---
-Modification non faite mais à connaître pour de futurs projets 
-- Utilisation du PB4 (BOOT0) pour le xshunt du ToF1 → pose problème car relié en interne à un GPIO relié ici au FWD ou REV d'un driver moteur → réinitialise la carte.
-    - Solution : ne jamais utiliser la broche `BOOT0` pour autre chose même si l'on est censé pouvoir le faire
+> [!IMPORTANT]
+> Modification non faite mais à connaître pour de futurs projets 
+> - Utilisation du PB4 (BOOT0) pour le xshunt du ToF1 → pose problème car relié en interne à un GPIO relié ici au FWD ou REV d'un driver moteur → réinitialise la carte.
+>    - Solution : ne jamais utiliser la broche `BOOT0` pour autre chose même si l'on est censé pouvoir le faire
 
 #### PIN BOOT0
 
@@ -489,12 +490,16 @@ Voici un récapitulatif de ce que chaque membre du groupe aura réalisé au sein
   Votre navigateur ne supporte pas la lecture de vidéos.
 </video>
 
+cf. chemin : <Images et videos pour rapport de projet/Test detection de bord mode ROOMBA>  
+
 `Test plusieurs robots qui sont chats` :  
 
 <video width="720" controls>
   <source src="Images%20et%20videos%20pour%20rapport%20de%20projet/Test%20plusieurs%20chats" type="video/mp4">
   Votre navigateur ne supporte pas la lecture de vidéos.
 </video>  
+
+cf. chemin : <Images et videos pour rapport de projet/Test plusieurs chats>  
 
 # Conclusion du projet   
 
