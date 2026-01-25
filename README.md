@@ -1,4 +1,4 @@
-# 🤖 ENSEA_3AProject_ChaSouRo 🤖
+# 🤖 ENSEA_Projet_3A_ChaSouRo 🤖
 
 ![Version](https://img.shields.io/badge/version-1.0-blue)
 ![Status](https://img.shields.io/badge/status-closed-red)  
