@@ -4,67 +4,11 @@ Comme expliqué précédemment, le but de notre projet est de concevoir un robot
 Pour plus d'informations sur le projet : [cliquez ici](Descriptif%20du%20projet.pdf)  
 
 Pour se faire, seuls les composants utilisés dans le projet nous sont imposés : [liste des composants](Liste%20des%20composants%20disponibles.pdf)  
+
 Charge à nous :  
 - de développer une PCB
 - de programmer les différents modules : capteurs, actionneurs, écran OLED et module de communication bluetooth
 - d'intégrer tous les modules ensemble, de tester et vérifier le bon fonctionnement de l'ensemble
-
-## Table des matières
-
-- [Contexte général du projet](#contexte-général-du-projet)
-
-- [Aspects techniques liés au projet](#aspects-techniques-liés-au-projet)
-  - [Schéma d'architecture fonctionnelle](#schéma-darchitecture-fonctionnelle)
-  - [Diagramme des tâches](#diagramme-des-tâches)
-  - [Organisation du projet sur STM32CubeIDE](#organisation-du-projet-sur-stm32cubeide)
-    - [Description détaillée fichiers sources](#-description-détaillée-fichiers-sources)
-      - [Dossier actuators](#-dossier-actuators--gestion-des-actionneurs)
-      - [Dossier bluetooth](#-dossier-bluetooth--communication-bluetooth)
-      - [Dossier oled_screen](#-dossier-oled_screen--afficheur-oled)
-      - [Dossier sensors](#-dossier-sensors--capteurs-du-robot)
-      - [FreeRTOS](#-freertos)
-      - [Core système](#-core-système)
-      - [Drivers HAL](#-drivers-hardware-abstraction-layer-hal)
-    - [Description détaillée fichiers headers](#-description-détaillée-fichiers-headers)
-
-- [Point HARDWARE](#point-hardware)
-  - [Composants](#composants)
-  - [Schéma électrique](#schéma-électrique)
-  - [Routage](#routage)
-    - [Positionnement face F/B](#positionnement-face-fb)
-    - [Positionnement sur la carte](#positionnement-sur-la-carte)
-
-- [Point FIRMWARE](#point-firmware)
-  - [Choix d’architecture logicielle](#choix-darchitecture-logicielle)
-    - [Organisation du code et séparation des modules](#organisation-du-code-et-séparation-des-modules)
-    - [Convention d’intégration des modules (init, tâches et callbacks)](#convention-dintégration-des-modules-init-tâches-et-callbacks)
-    - [Utilisation de drivers dédiés](#utilisation-de-drivers-dédiés)
-  - [Choix de FreeRTOS](#choix-de-freertos)
-  - [Gestion de la mémoire](#gestion-de-la-mémoire)
-  - [Choix et description des comportements du robot](#choix-et-description-des-comportements-du-robot)
-    - [Mode ROOMBA](#mode-roomba)
-    - [Mode CHAT](#mode-chat)
-    - [Mode SOURIS](#mode-souris)
-    - [Mode EDGE](#mode-edge)
-  - [Coordination des comportements](#coordination-des-comportements)
-
-- [Problèmes rencontrés lors du projet](#problèmes-rencontrés-lors-du-projet)
-  - [Hardware](#hardware)
-    - [Modifications sur la V1](#modifications-sur-la-v1)
-    - [PIN BOOT0](#pin-boot0)
-  - [Firmware](#firmware)
-
-- [Rapport individuel des tâches réalisées au sein du projet](#rapport-individuel-des-tâches-réalisées-au-sein-du-projet)
-  - [Nelven THEBAULT](#nelven-thebault)
-  - [Hugo CARVALHO FONTES](#hugo-carvalho-fontes)
-  - [Arthur Cesar NKWA NJITCHOU](#arthur-cesar-nkwa-njitchou)
-  - [Hugo CORDI](#hugo-cordi)
-
-- [Résultat final le jour J](#résultat-final-le-jour-j)
-
-- [Conclusion du projet](#conclusion-du-projet)
-
-
 
 # Aspects techniques liés au projet
 
@@ -77,7 +21,7 @@ Après une première réunion portant sur l'architecture fonctionnelle de notre 
 
 Voici un diagramme des tâches qui résume le fonctionnement de notre robot :
 
-![Diag Tasks](./Mermaid%20Chart%20Diag%20Tasks.png)
+<img width="8192" height="4144" alt="image" src="https://github.com/user-attachments/assets/e771343c-df46-4132-9097-b0ffe5d8ef82" />  
 
 Les priorités étant définies dans le fichier de configuration `freeRTOS_tasks_prority.h` :
 
@@ -199,7 +143,8 @@ D'un point de vue global, nous avons choisi d'organiser notre projet de la mani�
 
 # Point HARDWARE  
 
-> Remarque : Pour évaluer la partie hardware, merci de vous référer au KiCAD V2, étant donné que les problèmes identifiés ont été corrigés et le schéma refait au propre. La V1 n’a pas été modifiée afin de rester la plus fidèle possible à la version physique reçue et utilisée.
+> Remarque :  
+> Pour évaluer la partie hardware, merci de vous référer au KiCAD V2, étant donné que les problèmes identifiés ont été corrigés et le schéma refait au propre. La V1 n’a pas été modifiée afin de rester la plus fidèle possible à la version physique reçue et utilisée.
 
 ### Composants
 
@@ -257,21 +202,19 @@ Et tout autour de la carte les différents connecteurs pour tout relié à la ca
 
 `Face avant` :
 
-![Front](IMG_6858.jpeg)
+![Face avant PCB](https://github.com/user-attachments/assets/ff2e9c16-28b6-441d-b10f-76ffdbffa0d6)  
 
 `Face arrière` :
 
-![Back](IMG_6859.jpeg)
-
-
+![Face arrière PCB](https://github.com/user-attachments/assets/d8d721bc-6624-4c7f-b3d7-145562818a20)  
 
 # Point FIRMWARE  
 
 La partie firmware du projet a été conçue afin de garantir un fonctionnement **modulaire, robuste et évolutif** du robot, tout en respectant les contraintes d’un système embarqué temps réel (ressources mémoire limitées, concurrence des tâches et réactivité élevée).
 
-## Choix d’architecture logicielle  
+### Choix d’architecture logicielle  
 
-### Organisation du code et séparation des modules  
+#### Organisation du code et séparation des modules  
 
 Le code C a été structuré par **fonctionnalité**, chaque module correspondant à un sous-système clairement identifié du robot (capteurs, actionneurs, communication, affichage, comportements). Cette organisation permet :
 - une **lisibilité accrue** du code,
@@ -280,7 +223,7 @@ Le code C a été structuré par **fonctionnalité**, chaque module correspondan
 
 Chaque dossier (par exemple `sensors/`, `actuators/`, `bluetooth/`, `oled_screen/`) contient les fichiers sources associés à un module donné, incluant les structures de données, les fonctions de configuration et la logique de traitement.
 
-### Convention d’intégration des modules (init, tâches et callbacks)  
+#### Convention d’intégration des modules (init, tâches et callbacks)  
 
 Afin de faciliter l’intégration et d’assurer une architecture cohérente sur l’ensemble du projet, une **convention commune** a été adoptée pour tous les drivers.
 
@@ -300,7 +243,7 @@ Cette approche permet :
 - de conserver une **séparation claire** entre la couche HAL et la logique applicative,
 - d’améliorer la lisibilité et la maintenabilité du code.
 
-### Utilisation de drivers dédiés  
+#### Utilisation de drivers dédiés  
 
 Le choix de développer des **drivers spécifiques** pour chaque périphérique (LIDAR, TOF, ADXL, moteurs, encodeurs, Bluetooth…) permet d’abstraire les accès bas niveau (I2C, UART, GPIO, timers) et de proposer une interface logicielle homogène.
 
@@ -309,7 +252,7 @@ Les drivers s’appuient sur la HAL STM32 pour les accès matériels, tout en en
 - la **robustesse de l’intégration**,
 - la facilité de test et de débogage.
 
-## Choix de FreeRTOS  
+### Choix de FreeRTOS  
 
 L’utilisation de **FreeRTOS** s’est imposée au vu de la complexité du système et du nombre de traitements à effectuer en parallèle : lecture capteurs, contrôle moteur, communication Bluetooth et prise de décision.
 
@@ -325,7 +268,7 @@ Les **priorités des tâches FreeRTOS sont toutes définies dans un header dédi
 
 La synchronisation entre tâches est assurée via les mécanismes FreeRTOS classiques (sémaphores, mutex, notifications), garantissant la cohérence des données partagées.
 
-## Gestion de la mémoire  
+### Gestion de la mémoire  
 
 Les contraintes mémoire, en particulier sur la RAM, ont fortement influencé les choix firmware. L’utilisation de FreeRTOS et de certains modules gourmands (LIDAR, OLED) a conduit à :
 - une gestion stricte des piles de tâches,
@@ -334,11 +277,11 @@ Les contraintes mémoire, en particulier sur la RAM, ont fortement influencé le
 
 Le tas FreeRTOS a été dimensionné à sa valeur maximale acceptable (~25 kB) pour garantir la stabilité du système.
 
-## Choix et description des comportements du robot  
+### Choix et description des comportements du robot  
 
 Le comportement global du robot repose sur une **machine à états finis** comportant quatre modes principaux : ROOMBA, CHAT, SOURIS et EDGE. Chaque mode correspond à un objectif précis et exploite les données issues des capteurs.
 
-### Mode ROOMBA  
+#### Mode ROOMBA  
 
 Le mode ROOMBA correspond à un comportement d’exploration autonome :
 - déplacement continu,
@@ -347,21 +290,21 @@ Le mode ROOMBA correspond à un comportement d’exploration autonome :
 
 Il constitue le **mode par défaut** lorsque aucune cible n’est détectée.
 
-### Mode CHAT  
+#### Mode CHAT  
 
 Le mode CHAT est activé lorsqu’une cible est détectée :
 - traitement des données LIDAR (tri, clustering, sélection de la cible),
 - poursuite active de l’adversaire,
 - ajustement dynamique de la trajectoire par asservissement moteur.
 
-### Mode SOURIS  
+#### Mode SOURIS  
 
 Le mode SOURIS correspond à un comportement de fuite :
 - activation lorsque le robot est détecté ou poursuivi,
 - recherche d’un espace libre,
 - déplacements rapides tout en évitant les bords.
 
-### Mode EDGE  
+#### Mode EDGE  
 
 Le mode EDGE est un mode de sécurité prioritaire :
 - déclenché dès qu’un bord est détecté,
@@ -370,10 +313,9 @@ Le mode EDGE est un mode de sécurité prioritaire :
 
 Ce mode est volontairement prioritaire afin de garantir la sécurité du robot, indépendamment du comportement en cours.
 
-## Coordination des comportements  
+### Coordination des comportements  
 
 Les transitions entre les différents modes sont déclenchées par les données capteurs, le contexte global du robot et les événements temps réel. Cette organisation permet d’obtenir un comportement **autonome, cohérent et réactif**, tout en restant facilement extensible.
-
 
 # Problèmes rencontrés lors du projet    
 
@@ -414,7 +356,7 @@ Deux autres problèmes majeurs ont été rencontrés durant le projet. D’une p
 # Rapport individuel des tâches réalisées au sein du projet  
 
 Suite à cela, après une nouvelle réunion, chaque membre du groupe se voit attribuer diverses missions.  
-Voici ce que chaque membre du groupe réalise au sein du projet...  
+Voici un récapitulatif de ce que chaque membre du groupe aura réalisé au sein du projet...  
 
 ### Nelven THEBAULT  
 
@@ -443,19 +385,23 @@ Voici ce que chaque membre du groupe réalise au sein du projet...
 
 ### Hugo CARVALHO FONTES  
 
-Hardware : 
+`Hardware` : 
 - Conception d'une PCB : schematique & routage
 - Soudure des composants sur la carte finale
+- Analyses oscilloscope & modification du pin XSHUT1 car disfonctionnnement  
 
-Software/Firmware : 
+`Software` : 
 - Module bluetooth HC-05
-  - Création d'une application sous android studio afin de pouvoir lancer le robot ou l'arrêter d'urgence, mais aussi afin de recevoir en temps-réel les coordonnés du robot sur la table
+  - Création d'une application apk sous android studio afin de pouvoir lancer le robot ou l'arrêter d'urgence, mais aussi afin de recevoir et afficher en temps-réel les coordonnés du robot sur la table
+
+`Firmware` : 
+- Module bluetooth HC-05
   - Implémentation du code C en Free-RTOS et avec driver sur STM32G431CBU6
 - Module TOFs VL53L0X
   - Implémentation du code C en Free-RTOS et avec driver sur STM32G431CBU6 afin de faire fonctionner 4 TOFs ensemble
 - Module accéléromètre ADXL345
   - Implémentation du code C en Free-RTOS et avec driver sur STM32G431CBU6
-- Intégration de tous les différents modules afin d'obtenir un robot fonctionnel  
+- Intégration & vérification de tous les différents modules afin d'obtenir un robot fonctionnel  
 
 ### Arthur Cesar NKWA NJITCHOU  
 
@@ -494,24 +440,21 @@ Software/Firmware :
 - Code de comportement du robot
   - Conception et implémentation d’une machine à états à quatre modes (ROOMBA, Chat, Souris, Edge)
   - Gestion des transitions d’états en fonction des données capteurs et du contexte
-  - Implémentation en C embarqué sous FreeRTOS, avec coordination des tâches et synchronisation entre modules pour assurer un comportement autonome et réactif
-
-
+  - Implémentation en C embarqué sous FreeRTOS, avec coordination des tâches et synchronisation entre modules pour assurer un comportement autonome et réactif  
 
 # Résultat final le jour J  
 
 `Robot`:
 
-[Robot](/Documents/Images%20%26%20videos%20pour%20rapport%20de%20projet/IMG_6837.jpeg)
+![Robot](https://github.com/user-attachments/assets/c6296b7f-b229-4b43-bcd8-2e2f8069f0fe)  
 
 `Test détection de bord en mode ROOMBA` :
 
-https://github.com/user-attachments/assets/2f83b9cc-2ac4-4397-be04-daf6af197c20
+[Test détection de bord – mode ROOMBA](Images%20%26%20videos%20pour%20rapport%20de%20projet/Test%20detection%20de%20bord%20mode%20ROOMBA.mp4)
 
 `Test plusieurs robots qui sont chats` :
 
-https://github.com/user-attachments/assets/ea7a5953-f63e-4427-ba46-79ef2eca57df
-
+[Test en condition opérationnelle](Images%20%26%20videos%20pour%20rapport%20de%20projet/Test%20plusieurs%20chats.mp4)  
 
 # Conclusion du projet   
 
@@ -523,10 +466,11 @@ Enfin, nous sommes fiers d’avoir atteint notre objectif : le robot détecte le
 
 <p float="left">
 
-<img src="/Hardware/KiCad V2/ChaSouRo/ChaSouRo 2.png" width="30%" />
+<img src="/Hardware/KiCad V2/ChaSouRo 2.png" width="30%" />
 
 </p>
 
 `Photo de l'équipe ChaSouRo` :
 
-[Photo d equipe](/Documents/Images%20%26%20videos%20pour%20rapport%20de%20projet/IMG_6847.jpeg)
+![Equipe projet](https://github.com/user-attachments/assets/d85a2b12-f229-45a6-86d3-a023657bb60e)  
+
