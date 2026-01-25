@@ -18,7 +18,36 @@ Après une première réunion portant sur l'architecture fonctionnelle de notre 
 
 ## Diagramme des tâches  
 
-Insérer ici un diagramme des tâches  
+Voici un diagramme des tâches qui résume le fonctionnement de notre robot
+
+![Diag Tasks](./Mermaid%20Chart%20Diag%20Tasks.png)
+
+Les priorités étant définies dans le fichier de configuration `freeRTOS_tasks_prority.h` :
+
+```c
+#define ADXL_TaskRead_PRIORITY 2
+#define ADXL_TaskPrint_PRIORITY 1
+
+#define task_ROOMBA_PRIORITY 6
+#define task_CHAT_PRIORITY 2
+#define task_SOURIS_PRIORITY 2
+#define task_EDGE_PRIORITY 6
+
+#define task_Control_PRIORITY 5
+
+#define task_ENC_D_Update_PRIORITY 6
+#define task_ENC_G_Update_PRIORITY 6
+#define task_Odom_Update_PRIORITY 3
+
+#define task_BLUETOOTH_TX 1
+#define task_BLUETOOTH_RX 2
+
+#define task_LIDAR_Update_PRIORITY 3
+
+#define task_motor_PRIORITY 5
+
+#define task_screen_PRIORITY 1
+```
 
 ## Organisation du projet sur STM32CubeIDE  
 
@@ -51,6 +80,8 @@ D'un point de vue global, nous avons choisi d'organiser notre projet de la mani�
 | Fichier | Rôle |
 |--------|------|
 | **oled.c** | Gestion d’un écran OLED : affichage de texte, images, et initialisation. |
+
+> Remarque : Drivers OLED importé depuis internet et modifié se situant dans le dosser `Drivers/OLED/`.
 
 #### 📦 Dossier `sensors/` – Capteurs du robot
 
