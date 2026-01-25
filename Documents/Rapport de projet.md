@@ -7,7 +7,52 @@ Pour se faire, seuls les composants utilisés dans le projet nous sont imposés 
 Charge à nous :  
 - de développer une PCB
 - de programmer les différents modules : capteurs, actionneurs, écran OLED et module de communication bluetooth
-- d'intégrer tous les modules ensemble, de tester et vérifier le bon fonctionnement de l'ensemble  
+- d'intégrer tous les modules ensemble, de tester et vérifier le bon fonctionnement de l'ensemble
+
+## Table des matières
+
+- [Contexte général du projet](#contexte-général-du-projet)
+
+- [Aspects techniques liés au projet](#aspects-techniques-liés-au-projet)
+  - [Schéma d'architecture fonctionnelle](#schéma-darchitecture-fonctionnelle)
+  - [Diagramme des tâches](#diagramme-des-tâches)
+  - [Organisation du projet sur STM32CubeIDE](#organisation-du-projet-sur-stm32cubeide)
+    - [Description détaillée fichiers sources](#-description-détaillée-fichiers-sources)
+      - [Dossier actuators](#-dossier-actuators--gestion-des-actionneurs)
+      - [Dossier bluetooth](#-dossier-bluetooth--communication-bluetooth)
+      - [Dossier oled_screen](#-dossier-oled_screen--afficheur-oled)
+      - [Dossier sensors](#-dossier-sensors--capteurs-du-robot)
+      - [FreeRTOS](#-freertos)
+      - [Core système](#-core-système)
+      - [Drivers HAL](#-drivers-hardware-abstraction-layer-hal)
+    - [Description détaillée fichiers headers](#-description-détaillée-fichiers-headers)
+
+- [Point HARDWARE](#point-hardware)
+  - [Composants](#composants)
+  - [Schéma électrique](#schéma-électrique)
+  - [Routage](#routage)
+    - [Positionnement face F/B](#positionnement-face-fb)
+    - [Positionnement sur la carte](#positionnement-sur-la-carte)
+
+- [Point SOFTWARE & FIRMWARE](#point-software--firmware)
+
+- [Problèmes rencontrés lors du projet](#problèmes-rencontrés-lors-du-projet)
+  - [Hardware](#hardware)
+    - [Modifications sur la V1](#modifications-sur-la-v1)
+    - [PIN BOOT0](#pin-boot0)
+  - [Firmware](#firmware)
+
+- [Rapport individuel des tâches réalisées au sein du projet](#rapport-individuel-des-tâches-réalisées-au-sein-du-projet)
+  - [Nelven THEBAULT](#nelven-thebault)
+  - [Hugo CARVALHO FONTES](#hugo-carvalho-fontes)
+  - [Arthur Cesar NKWA NJITCHOU](#arthur-cesar-nkwa-njitchou)
+  - [Hugo CORDI](#hugo-cordi)
+
+- [Résultat final le jour J](#résultat-final-le-jour-j)
+
+- [Conclusion du projet](#conclusion-du-projet)
+
+
 
 # Aspects techniques liés au projet
 
