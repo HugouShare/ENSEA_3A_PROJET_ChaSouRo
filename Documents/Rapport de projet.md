@@ -321,11 +321,12 @@ Mécanique :
 
 `Test détection de bord en mode ROOMBA` :
 
-<video controls src="IMG_6836.mov" title="detection bordures"></video>
+https://github.com/user-attachments/assets/2f83b9cc-2ac4-4397-be04-daf6af197c20
 
 `Test plusieurs robots qui sont chats` :
 
-<video controls src="video test.mov" title="Chat"></video>
+https://github.com/user-attachments/assets/ea7a5953-f63e-4427-ba46-79ef2eca57df
+
 
 # Conclusion du projet   
 
