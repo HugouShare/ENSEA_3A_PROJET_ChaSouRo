@@ -1,7 +1,7 @@
 # 🤖 ENSEA_3AProject_ChaSouRo 🤖
 
 ![Version](https://img.shields.io/badge/version-1.0-blue)
-![Status](https://img.shields.io/badge/status-en%20développement-yellow)
+![Status](https://img.shields.io/badge/status-closed-red)
 
 ## 📋 Table des matières
 
