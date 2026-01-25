@@ -253,9 +253,115 @@ Et tout autour de la carte les différents connecteurs pour tout relié à la ca
 
 
 
-# Point SOFTWARE & FIRMWARE
+# Point FIRMWARE  
 
-Décrire ici les choix faits lors de l'implémentation du code C : pourquoi avoir organisé notre code comme ça par rapport aux fichiers et à la structure globales, pourquoi avoir choisi de faire des drivers et structure et du FreeRTOS, décrire + explique pourquoi les comportements que nous avons choisi pour le robot : ROOMBA, CHAT, SOURIS, EDGE.  
+La partie firmware du projet a été conçue afin de garantir un fonctionnement **modulaire, robuste et évolutif** du robot, tout en respectant les contraintes d’un système embarqué temps réel (ressources mémoire limitées, concurrence des tâches et réactivité élevée).
+
+## Choix d’architecture logicielle  
+
+### Organisation du code et séparation des modules  
+
+Le code C a été structuré par **fonctionnalité**, chaque module correspondant à un sous-système clairement identifié du robot (capteurs, actionneurs, communication, affichage, comportements). Cette organisation permet :
+- une **lisibilité accrue** du code,
+- une **maintenance facilitée**,
+- une **intégration progressive** et maîtrisée des différents modules.
+
+Chaque dossier (par exemple `sensors/`, `actuators/`, `bluetooth/`, `oled_screen/`) contient les fichiers sources associés à un module donné, incluant les structures de données, les fonctions de configuration et la logique de traitement.
+
+### Convention d’intégration des modules (init, tâches et callbacks)  
+
+Afin de faciliter l’intégration et d’assurer une architecture cohérente sur l’ensemble du projet, une **convention commune** a été adoptée pour tous les drivers.
+
+Pour chaque module :
+- une fonction **`XXX_init()`** est définie afin d’initialiser le périphérique (configuration matérielle, paramètres internes, états initiaux),
+- une fonction **`XXX_task_create()`** est fournie pour créer la ou les tâches FreeRTOS associées au module.
+
+Ces deux fonctions sont **appelées explicitement dans `main.c`**, ce qui permet :
+- de centraliser l’initialisation du système,
+- de maîtriser précisément l’ordre de démarrage des modules,
+- de simplifier l’ajout ou le retrait d’un module sans impacter les autres parties du code.
+
+Lorsque l’utilisation de **callbacks** est nécessaire (interruptions, réception UART, DMA, timers…), ceux-ci sont **redéfinis uniquement dans `main.c`**. Les callbacks HAL appellent ensuite des fonctions dédiées du type **`XXX_callback()`** appartenant au module concerné.
+
+Cette approche permet :
+- d’éviter toute **double redéfinition de callbacks**, source potentielle de conflits,
+- de conserver une **séparation claire** entre la couche HAL et la logique applicative,
+- d’améliorer la lisibilité et la maintenabilité du code.
+
+### Utilisation de drivers dédiés  
+
+Le choix de développer des **drivers spécifiques** pour chaque périphérique (LIDAR, TOF, ADXL, moteurs, encodeurs, Bluetooth…) permet d’abstraire les accès bas niveau (I2C, UART, GPIO, timers) et de proposer une interface logicielle homogène.
+
+Les drivers s’appuient sur la HAL STM32 pour les accès matériels, tout en encapsulant la logique propre à chaque capteur ou actionneur. Cette approche améliore :
+- la **réutilisabilité** du code,
+- la **robustesse de l’intégration**,
+- la facilité de test et de débogage.
+
+## Choix de FreeRTOS  
+
+L’utilisation de **FreeRTOS** s’est imposée au vu de la complexité du système et du nombre de traitements à effectuer en parallèle : lecture capteurs, contrôle moteur, communication Bluetooth et prise de décision.
+
+Chaque fonctionnalité critique du robot est implémentée sous forme de **tâche FreeRTOS dédiée**, permettant :
+- une **exécution concurrente maîtrisée**,
+- une **priorisation fine** des traitements,
+- une meilleure **réactivité temps réel**.
+
+Les **priorités des tâches FreeRTOS sont toutes définies dans un header dédié** (`freeRTOS_tasks_priority.h`), ce qui permet :
+- une vision globale et centralisée de l’ordonnancement,
+- une modification simple des priorités sans impacter le reste du code,
+- une meilleure cohérence entre les différents modules.
+
+La synchronisation entre tâches est assurée via les mécanismes FreeRTOS classiques (sémaphores, mutex, notifications), garantissant la cohérence des données partagées.
+
+## Gestion de la mémoire  
+
+Les contraintes mémoire, en particulier sur la RAM, ont fortement influencé les choix firmware. L’utilisation de FreeRTOS et de certains modules gourmands (LIDAR, OLED) a conduit à :
+- une gestion stricte des piles de tâches,
+- une limitation des buffers statiques,
+- le retrait de l’écran OLED dans la version finale afin d’éviter tout stack overflow.
+
+Le tas FreeRTOS a été dimensionné à sa valeur maximale acceptable (~25 kB) pour garantir la stabilité du système.
+
+## Choix et description des comportements du robot  
+
+Le comportement global du robot repose sur une **machine à états finis** comportant quatre modes principaux : ROOMBA, CHAT, SOURIS et EDGE. Chaque mode correspond à un objectif précis et exploite les données issues des capteurs.
+
+### Mode ROOMBA  
+
+Le mode ROOMBA correspond à un comportement d’exploration autonome :
+- déplacement continu,
+- évitement des bords via les capteurs TOF et le LIDAR,
+- changements de direction pseudo-aléatoires.
+
+Il constitue le **mode par défaut** lorsque aucune cible n’est détectée.
+
+### Mode CHAT  
+
+Le mode CHAT est activé lorsqu’une cible est détectée :
+- traitement des données LIDAR (tri, clustering, sélection de la cible),
+- poursuite active de l’adversaire,
+- ajustement dynamique de la trajectoire par asservissement moteur.
+
+### Mode SOURIS  
+
+Le mode SOURIS correspond à un comportement de fuite :
+- activation lorsque le robot est détecté ou poursuivi,
+- recherche d’un espace libre,
+- déplacements rapides tout en évitant les bords.
+
+### Mode EDGE  
+
+Le mode EDGE est un mode de sécurité prioritaire :
+- déclenché dès qu’un bord est détecté,
+- arrêt ou recul immédiat du robot,
+- réorientation avant reprise d’un autre mode.
+
+Ce mode est volontairement prioritaire afin de garantir la sécurité du robot, indépendamment du comportement en cours.
+
+## Coordination des comportements  
+
+Les transitions entre les différents modes sont déclenchées par les données capteurs, le contexte global du robot et les événements temps réel. Cette organisation permet d’obtenir un comportement **autonome, cohérent et réactif**, tout en restant facilement extensible.
+
 
 # Problèmes rencontrés lors du projet    
 
