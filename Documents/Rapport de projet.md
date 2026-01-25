@@ -330,8 +330,6 @@ https://github.com/user-attachments/assets/ea7a5953-f63e-4427-ba46-79ef2eca57df
 
 # Conclusion du projet   
 
-# Conclusion
-
 Le projet a permis de concevoir un robot autonome capable de jouer au jeu du chat et de la souris, en intégrant de manière cohérente la partie hardware, firmware et mécanique. Nous avons pu appliquer nos connaissances en conception de PCB, programmation C et utilisation de FreeRTOS, tout en respectant les contraintes des composants imposés.
 
 Les différentes étapes, de la conception des schémas et du routage à l’implémentation des modules moteurs, capteurs et communication, ont permis de créer un robot fonctionnel et robuste. Ce projet nous a également confrontés à des problématiques concrètes, telles que la gestion de la mémoire, les choix de routage pour éviter les interférences et la configuration des broches critiques comme BOOT0. Il a renforcé notre capacité à travailler en équipe, à coordonner les tâches entre hardware, firmware et mécanique, et à documenter nos choix pour faciliter la maintenance et l’évolution future du robot.
