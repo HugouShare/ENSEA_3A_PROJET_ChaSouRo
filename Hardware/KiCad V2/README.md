@@ -9,3 +9,7 @@
 - Oublie des capacités pour limiter les rebonds sur USER1 et USER2 -> ajout de 0.1uF
 - Inversion sur le PCB des RX3/TX3 sur les pins PB10/PB11 du STM32
 - Problème d'angle droit sur la ligne SDA3 enlevé (peut-être incidence sur l'I2C3)
+---
+Modification non faite mais à connaître pour de futurs projets 
+- Utilisation du PB4 (BOOT0) pour le xshunt du ToF1 → pose problème car relié en interne à un GPIO relié ici au FWD ou REV d'un driver moteur → réinitialise la carte.
+    - Solution : ne jamais utiliser la broche `BOOT0` pour autre chose même si l'on est censé pouvoir le faire

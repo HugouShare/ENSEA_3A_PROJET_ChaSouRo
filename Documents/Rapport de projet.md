@@ -142,7 +142,16 @@ D'un point de vue global, nous avons choisi d'organiser notre projet de la mani�
 
 # Point HARDWARE   
 
-Décrire ici les choix faits lors de la conception du PCB : choix de placement, d'agencement, de protocole, d'empreintes... + pourquoi avoir choisi les composants que nous avons pris.  
+### Composants
+
+Nous avions pour les missions principales, une liste de composants que nous devions utiliser ce qui a conditionné nos choix mais les a aussi simplifiés.
+Voici les composants ajoutés :
+- Écran OLED → ssd1306 
+  - écran personnel de Nelven pour pouvoir le comprendre et le réutiliser pour de prochains projets.
+- Bipper
+  - Ajout d'un bipper pour avoir un différent moyen des autres groupes de notifier des choses (mode chat par exemple).
+- Connecteurs JST-PH
+  - Un pas de 2.0mm permettant de mettre tous les connecteurs sur une face du PCB ce que ne permettait pas les JST-XH (2.54mm) et en étant plus simple à souder/connecter que des JST-SH(1.0mm).
 
 # Point SOFTWARE & FIRMWARE
 
@@ -150,7 +159,30 @@ Décrire ici les choix faits lors de l'implémentation du code C : pourquoi avoi
 
 # Problèmes rencontrés lors du projet    
 
-Décrire ici les problèmes rencontrés lors du projet 
+### Hardware
+
+Du côté Hardware, les problèmes rencontrés ont été solutionnés dans la V2 que l'on trouve dans `Hardware/KiCad V2/` avec readme associé qui explique les changement :
+
+> Remarque : la carte physique utilisée reste la V1 ; cette V2 constituerait donc sa remplaçante dans le cas où l’on souhaiterait améliorer le projet.
+
+#### Modifications sur la V1
+
+- Problèmes sur la taille des empreintes pour les capacités >= 10uF -> Passage en 0603
+- Changement pad sw wurth vers un connecteur (plus propre) -> JST_PH Batterie +/- (Pin_x2) en JS_PH_ Batterie +/- et +/IN du switch wurth (Pin_x4)
+- Erreur sur un des deux drivers où les silkscreen des OUT1 et OUT2 sont inversé par rapport au pin (Quand on se place dans le sens avec TX4/RX4 du ST-Link -> Driver gauche)
+- Ajout Silkscreen sur ST-Link pour simplifier la connexion
+- Modification schématique/Nom du bon NMOSFET -> SQ2310ES
+- Changement de la capacité de découplage du VDDA : 47uF -> 22uF
+- Oublie des capacités pour limiter les rebonds sur USER1 et USER2 -> ajout de 0.1uF
+- Inversion sur le PCB des RX3/TX3 sur les pins PB10/PB11 du STM32
+- Problème d'angle droit sur la ligne SDA3 enlevé (peut-être incidence sur l'I2C3)
+---
+Modification non faite mais à connaître pour de futurs projets 
+- Utilisation du PB4 (BOOT0) pour le xshunt du ToF1 → pose problème car relié en interne à un GPIO relié ici au FWD ou REV d'un driver moteur → réinitialise la carte.
+    - Solution : ne jamais utiliser la broche `BOOT0` pour autre chose même si l'on est censé pouvoir le faire
+
+
+Décrire ici les problèmes rencontrés lors du projet :
 
 # Rapport individuel des tâches réalisées au sein du projet  
 
@@ -175,6 +207,7 @@ Voici ce que chaque membre du groupe réalise au sein du projet...
   - Conception du **oled.c** et **task_oled** utilisant un driver générique
 - Module Bipper
   - Intégration du **Bipper** dans certaines parties du code (mode chat par exemple)
+- Intégration des différents modules 
 
 `Mécanique` :
 - Participation aux choix pour la conception mécanique avec Arthur
