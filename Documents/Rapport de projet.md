@@ -450,11 +450,14 @@ Voici un récapitulatif de ce que chaque membre du groupe aura réalisé au sein
 
 `Test détection de bord en mode ROOMBA` :
 
-[Test détection de bord – mode ROOMBA](Images%20%26%20videos%20pour%20rapport%20de%20projet/Test%20detection%20de%20bord%20mode%20ROOMBA.mp4)
+<video width="720" controls>
+  <source src="media/Test_plusieurs_chats.mp4" type="video/mp4">
+  Votre navigateur ne supporte pas la lecture de vidéos.
+</video>
 
-`Test plusieurs robots qui sont chats` :
+`Test plusieurs robots qui sont chats` :  
 
-[Test en condition opérationnelle](Images%20%26%20videos%20pour%20rapport%20de%20projet/Test%20plusieurs%20chats.mp4)  
+[Voir la vidéo – Test plusieurs chats](Images%20%26%20videos%20pour%20rapport%20de%20projet/Test%20plusieurs%20chats.mp4)
 
 # Conclusion du projet   
 
