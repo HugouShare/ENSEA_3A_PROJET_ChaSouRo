@@ -18,7 +18,7 @@ Après une première réunion portant sur l'architecture fonctionnelle de notre 
 
 ## Diagramme des tâches  
 
-Voici un diagramme des tâches qui résume le fonctionnement de notre robot
+Voici un diagramme des tâches qui résume le fonctionnement de notre robot :
 
 ![Diag Tasks](./Mermaid%20Chart%20Diag%20Tasks.png)
 
@@ -140,7 +140,9 @@ D'un point de vue global, nous avons choisi d'organiser notre projet de la mani�
 |--------|------|
 | **main.h** | Déclarations globales, includes principaux et prototypes de `main.c`. |
 
-# Point HARDWARE   
+# Point HARDWARE  
+
+> Remarque : Pour évaluer la partie hardware, merci de vous référer au KiCAD V2, étant donné que les problèmes identifiés ont été corrigés et le schéma refait au propre. La V1 n’a pas été modifiée afin de rester la plus fidèle possible à la version physique reçue et utilisée.
 
 ### Composants
 
@@ -152,6 +154,59 @@ Voici les composants ajoutés :
   - Ajout d'un bipper pour avoir un différent moyen des autres groupes de notifier des choses (mode chat par exemple).
 - Connecteurs JST-PH
   - Un pas de 2.0mm permettant de mettre tous les connecteurs sur une face du PCB ce que ne permettait pas les JST-XH (2.54mm) et en étant plus simple à souder/connecter que des JST-SH(1.0mm).
+
+### Schéma électrique
+
+Dans cette partie il n'y a pas grand chose à ajouter, étant donné que les circuits on été réalisé à l'aide des datasheet, de mes propres connaissances sur d'anciens projets.
+
+### Routage
+
+#### Positionnement face F/B
+
+Un choix a été effectué afin de simplifier la soudure :
+
+- Tous les composants passifs, régulateurs et transistors sont placés sur une même face du PCB.
+- Tous les connecteurs, SoC, quartz, condensateurs électrolytiques, LED et boutons sont placés sur l’autre face.
+
+De cette manière, sur la face inférieure, il est possible d’observer les circuits et de souder l’ensemble des petits composants au four en une seule opération.
+Sur la face supérieure (visible) se trouvent les SoC, les connecteurs et les LED, c’est-à-dire les unités et modules nécessaires au fonctionnement du système, ainsi que les composants les plus volumineux à souder.
+
+#### Positionnement sur la carte
+
+J'ai choisi de ne pas mélanger les parties puissance et signal à différents endroits de la carte. En considérant que le bas du PCB se trouve au niveau du branchement de la batterie, j'ai positionné les composants de la manière suivante :
+
+- **Bas du PCB → partie puissance**
+  - Arrivée de la batterie [bas gauche]  
+  - Interrupteur d’alimentation ON/OFF [bas gauche]  
+  - Convertisseurs $V_{BATT}/5V$ et $5V/3.3V$ [bas milieu]  
+  - Condensateur électrolytique [bas milieu]  
+  - Drivers moteurs (alimentés en $V_{BATT}$)  
+    - Carte retournée sur le robot : driver droit à [bas gauche] et driver gauche à [bas droit], pour simplifier les branchements  
+
+- **Milieu/Haut du PCB → partie signal**
+  - MCU [milieu]  
+  - Connecteur ST-Link [haut droit]  
+  - ADXL [haut droit]  
+  - Quartz [milieu] avec ses deux condensateurs de l’ordre de la dizaine de nanofarads  
+  - Boutons [haut gauche]  
+  - 3 LED [haut gauche]  
+    - **ROUGE** : $3.3V$, allumée en permanence lorsque la carte est sous tension  
+    - **BLEU** : LED1 pour programmation/debug  
+    - **VERT** : LED2 pour programmation/debug
+
+À noter que j'ai respecté les consignes de routage pour le `convertisseur buck` fournies dans la datasheet, ce qui occupe une certaine place sur la carte.
+
+Et tout autour de la cartes les différents connecteurs pour tout relié à la carte.
+
+`Face avant` :
+
+![Front](IMG_6858.jpeg)
+
+`Face arrière` :
+
+![Back](IMG_6859.jpeg)
+
+
 
 # Point SOFTWARE & FIRMWARE
 
@@ -181,8 +236,15 @@ Modification non faite mais à connaître pour de futurs projets
 - Utilisation du PB4 (BOOT0) pour le xshunt du ToF1 → pose problème car relié en interne à un GPIO relié ici au FWD ou REV d'un driver moteur → réinitialise la carte.
     - Solution : ne jamais utiliser la broche `BOOT0` pour autre chose même si l'on est censé pouvoir le faire
 
+#### PIN BOOT0
 
-Décrire ici les problèmes rencontrés lors du projet :
+Même si cela constitue une répétition par rapport aux lignes précédentes, nous tenons à insister sur le fait que, sur les STM32, bien qu’il soit parfois possible d’utiliser la broche `BOOT0` selon le microcontrôleur, il est fortement déconseillé de le faire. En effet, cela peut entraîner des problèmes de fonctionnement, comme observé avec les capteurs ToF ci-dessus, mais également compliquer la programmation.
+
+Dans notre cas, nous avons dû utiliser `STM32CubeProgrammer` afin de configurer par logiciel la mémoire de démarrage (boot memory). Ainsi, au redémarrage, la carte démarrait correctement sur le programme flashé, alors qu’auparavant il était nécessaire de laisser la carte constamment sous tension si l’on voulait éviter de devoir reprogrammer le code avec un ST-Link.
+
+### Firmware
+
+Du côté firmware, l’un des premiers problèmes que nous avons dû résoudre est la gestion de la mémoire, et plus particulièrement de la RAM (~91 %), étant donné que notre ROM n’a atteint que ~41 %. Nous avons donc fait le choix de retirer l’écran OLED dans la version finale afin d’éviter tout stack overflow et de monter le tas FreeRTOS à sa valeur maximale avant overflow (25 000 octets, soit environ 25 kB).
 
 # Rapport individuel des tâches réalisées au sein du projet  
 
