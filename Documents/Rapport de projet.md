@@ -1,3 +1,37 @@
+# Sommaire  
+
+<details>
+<summary><strong>📑 Sommaire</strong> (cliquer pour dérouler)</summary>
+
+<br>
+
+- [Contexte général du projet](#contexte-général-du-projet)
+- [Aspects techniques liés au projet](#aspects-techniques-liés-au-projet)
+  - [Schéma d'architecture fonctionnelle](#schéma-darchitecture-fonctionnelle)
+  - [Diagramme des tâches](#diagramme-des-tâches)
+  - [Organisation du projet sur STM32CubeIDE](#organisation-du-projet-sur-stm32cubeide)
+    - [Description détaillée fichiers sources](#-description-détaillée-fichiers-sources)
+    - [Description détaillée fichiers headers](#-description-détaillée-fichiers-headers)
+- [Point HARDWARE](#point-hardware)
+  - [Composants](#composants)
+  - [Schéma électrique](#schéma-électrique)
+  - [Routage](#routage)
+    - [Positionnement face F/B](#positionnement-face-fb)
+    - [Positionnement sur la carte](#positionnement-sur-la-carte)
+- [Point FIRMWARE](#point-firmware)
+  - [Choix d’architecture logicielle](#choix-darchitecture-logicielle)
+  - [Choix de FreeRTOS](#choix-de-freertos)
+  - [Gestion de la mémoire](#gestion-de-la-mémoire)
+  - [Choix et description des comportements du robot](#choix-et-description-des-comportements-du-robot)
+- [Problèmes rencontrés lors du projet](#problèmes-rencontrés-lors-du-projet)
+  - [Hardware](#hardware)
+  - [Firmware](#firmware)
+- [Rapport individuel des tâches réalisées](#rapport-individuel-des-tâches-réalisées-au-sein-du-projet)
+- [Résultat final le jour J](#résultat-final-le-jour-j)
+- [Conclusion du projet](#conclusion-du-projet)
+
+</details>  
+
 # Contexte général du projet  
 
 Comme expliqué précédemment, le but de notre projet est de concevoir un robot capable de jouer au jeu du chat et de la souris de manière complètement autonome sur une table.   
@@ -451,13 +485,16 @@ Voici un récapitulatif de ce que chaque membre du groupe aura réalisé au sein
 `Test détection de bord en mode ROOMBA` :
 
 <video width="720" controls>
-  <source src="media/Test_plusieurs_chats.mp4" type="video/mp4">
+  <source src="Images%20et%20videos%20pour%20rapport%20de%20projet/Test%20detection%20de%20bord%20mode%20ROOMBA" type="video/mp4">
   Votre navigateur ne supporte pas la lecture de vidéos.
 </video>
 
 `Test plusieurs robots qui sont chats` :  
 
-[Voir la vidéo – Test plusieurs chats](Images%20%26%20videos%20pour%20rapport%20de%20projet/Test%20plusieurs%20chats.mp4)
+<video width="720" controls>
+  <source src="Images%20et%20videos%20pour%20rapport%20de%20projet/Test%20plusieurs%20chats" type="video/mp4">
+  Votre navigateur ne supporte pas la lecture de vidéos.
+</video>  
 
 # Conclusion du projet   
 
