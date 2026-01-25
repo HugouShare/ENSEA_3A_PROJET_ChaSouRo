@@ -311,6 +311,26 @@ Mécanique :
 
 ### Hugo CORDI  
 
+Software/Firmware :
+- Module LIDAR
+  - Développement du traitement des données LIDAR pour la détection des ennemis
+  - Implémentation d’algorithmes de clustering, tri et sélection de la cible
+  - Exploitation des données pour alimenter les décisions de poursuite et de fuite du robot
+  - Implémentation en C embarqué sous FreeRTOS sur STM32, avec gestion des tâches, de la mémoire et synchronisation via sémaphores, notifications et mutex
+  - Intégration du module LIDAR avec les autres capteurs et les comportements globaux du robot
+
+- Module encodeurs roues
+  - Gestion des encodeurs incrémentaux pour l’estimation du déplacement du robot
+  - Implémentation d’un asservissement en position à l’aide de correcteurs PID
+  - Réglage et validation des performances de déplacement
+  - Implémentation en C embarqué sous FreeRTOS sur STM32, avec communication et synchronisation avec les autres modules du système
+  - Contribution à l’intégration globale du robot afin d’obtenir un système autonome et fonctionnel
+
+- Code de comportement du robot
+  - Conception et implémentation d’une machine à états à quatre modes (ROOMBA, Chat, Souris, Edge)
+  - Gestion des transitions d’états en fonction des données capteurs et du contexte
+  - Implémentation en C embarqué sous FreeRTOS, avec coordination des tâches et synchronisation entre modules pour assurer un comportement autonome et réactif
+
 
 
 # Résultat final le jour J  
