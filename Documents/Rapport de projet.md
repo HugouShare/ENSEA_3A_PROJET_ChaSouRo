@@ -159,10 +159,27 @@ Voici ce que chaque membre du groupe réalise au sein du projet...
 
 ### Nelven THEBAULT  
 
-- Faire partie Hardware : PCB, schematic, footprint, soudure
-- Partie écran
-- Bipper 
-- Coordination avec méca et intégration
+`Hardware` :
+- PCB
+  - Conception du PCB finalement retenu
+  - Schéma électrique
+  - Routage
+  - Soudure
+  > J’explique mes choix par rapport au cahier des charges et à nos réunions de projet avec l’équipe dans la partie [Point HARDWARE](#point-hardware).
+
+`Firmware` :
+- Module Moteur
+  - Conception du **driver moteur** et **task_motor**
+  - Conception du code **encodeur (ENC)** ensuite repris par Hugo  pour FreeRTOS
+- Module OLED 
+  - Conception du **oled.c** et **task_oled** utilisant un driver générique
+- Module Bipper
+  - Intégration du **Bipper** dans certaines parties du code (mode chat par exemple)
+
+`Mécanique` :
+- Participation aux choix pour la conception mécanique avec Arthur
+- Impressions 3D de certaines parties
+- Assemblage de certaines parties
 
 ### Hugo CARVALHO FONTES  
 
@@ -208,3 +225,4 @@ Mécanique :
 # Conclusion du projet   
 
 Décrire ici une conclusion
+![Photo d equipe](IMG_6847.jpeg)
