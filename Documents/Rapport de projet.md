@@ -34,7 +34,7 @@ Charge à nous :
     - [Positionnement face F/B](#positionnement-face-fb)
     - [Positionnement sur la carte](#positionnement-sur-la-carte)
 
-- [Point SOFTWARE & FIRMWARE](#point-software--firmware)
+- [Point FIRMWARE](#point-firmware)
 
 - [Problèmes rencontrés lors du projet](#problèmes-rencontrés-lors-du-projet)
   - [Hardware](#hardware)
