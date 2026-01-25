@@ -3,6 +3,10 @@
 ![Version](https://img.shields.io/badge/version-1.0-blue)
 ![Status](https://img.shields.io/badge/status-closed-red)  
 
+## 📝 Rapport de projet
+
+Pour consulter notre rapport de projet [cliquez ici](Documents/Rapport%20de%20projet.md)  
+
 ---
 
 ## 👨🏽 Équipe
@@ -73,7 +77,3 @@ timeline
       Séance 1 et 2 : Point réunion + intégration, tests & vérifications
       Séance 3 : DEMONSTRATION FINALE
 ```
-
-## 📝 Rapport de projet
-
-Pour consulter notre rapport de projet [cliquez ici](Documents/Rapport%20de%20projet.md)  
