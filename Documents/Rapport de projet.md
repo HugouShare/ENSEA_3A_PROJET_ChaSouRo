@@ -336,6 +336,12 @@ Les différentes étapes, de la conception des schémas et du routage à l’imp
 
 Enfin, nous sommes fiers d’avoir atteint notre objectif : le robot détecte les bords et peut jouer au chat et à la souris, malgré certaines limitations comme l’écran, la vitesse de déplacement à optimiser et la détection à calibrer plus finement. Ce succès constitue une expérience complète et enrichissante dans le domaine des systèmes embarqués.
 
+<p float="left">
+
+<img src="/Hardware/KiCad V2/ChaSouRo/ChaSouRo 2.png" width="30%" />
+
+</p>
+
 `Photo de l'équipe ChaSouRo` :
 
 ![Photo d equipe](IMG_6847.jpeg)
