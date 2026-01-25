@@ -334,7 +334,7 @@ Le projet a permis de concevoir un robot autonome capable de jouer au jeu du cha
 
 Les différentes étapes, de la conception des schémas et du routage à l’implémentation des modules moteurs, capteurs et communication, ont permis de créer un robot fonctionnel et robuste. Ce projet nous a également confrontés à des problématiques concrètes, telles que la gestion de la mémoire, les choix de routage pour éviter les interférences et la configuration des broches critiques comme BOOT0. Il a renforcé notre capacité à travailler en équipe, à coordonner les tâches entre hardware, firmware et mécanique, et à documenter nos choix pour faciliter la maintenance et l’évolution future du robot.
 
-Enfin, nous sommes fiers d’avoir atteint notre objectif : le robot détecte les bords et peut jouer au chat et à la souris, malgré certaines limitations comme l’écran, la vitesse de déplacement à optimiser et la détection à calibrer plus finement. Ce succès constitue une expérience complète et enrichissante dans le domaine des systèmes embarqués.
+Enfin, nous sommes fiers d’avoir atteint notre objectif : le robot détecte les bords et peut jouer au chat et à la souris, malgré certaines limitations comme l’écran, la vitesse, l'ajout de la tâche qui permet le  changement de rôle lors d'un choc, du déplacement à optimiser et la détection à calibrer plus finement. Ce succès constitue une expérience complète et enrichissante dans le domaine des systèmes embarqués.
 
 <p float="left">
 
