@@ -502,7 +502,7 @@ Software/Firmware :
 
 `Robot`:
 
-![Robot](IMG_6837.jpeg)
+[Robot](/Documents/Images%20%26%20videos%20pour%20rapport%20de%20projet/IMG_6837.jpeg)
 
 `Test détection de bord en mode ROOMBA` :
 
@@ -529,4 +529,4 @@ Enfin, nous sommes fiers d’avoir atteint notre objectif : le robot détecte le
 
 `Photo de l'équipe ChaSouRo` :
 
-![Photo d equipe](IMG_6847.jpeg)
+[Photo d equipe](/Documents/Images%20%26%20videos%20pour%20rapport%20de%20projet/IMG_6847.jpeg)
