@@ -315,9 +315,15 @@ Mécanique :
 
 # Résultat final le jour J  
 
+`Robot`:
 
+![Robot](IMG_6837.jpeg)
+
+`Test détection de bord en mode ROOMBA` :
+
+<video controls src="IMG_6836.mov" title="alt text"></video>
 
 # Conclusion du projet   
 
-Décrire ici une conclusion
+
 ![Photo d equipe](IMG_6847.jpeg)
