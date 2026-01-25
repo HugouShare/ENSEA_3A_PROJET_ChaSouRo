@@ -246,6 +246,8 @@ Dans notre cas, nous avons dû utiliser `STM32CubeProgrammer` afin de configurer
 
 Du côté firmware, l’un des premiers problèmes que nous avons dû résoudre est la gestion de la mémoire, et plus particulièrement de la RAM (~91 %), étant donné que notre ROM n’a atteint que ~41 %. Nous avons donc fait le choix de retirer l’écran OLED dans la version finale afin d’éviter tout stack overflow et de monter le tas FreeRTOS à sa valeur maximale avant overflow (25 000 octets, soit environ 25 kB).
 
+Deux autres problèmes majeurs ont été rencontrés durant le projet. D’une part, le LIDAR présentait des angles morts, ce qui a nécessité une adaptation de la stratégie de gestion des trames envoyées par le capteur, ainsi qu’un ajustement de la fréquence de traitement du buffer stockant les données issues de ces trames, afin d’améliorer la couverture et la fiabilité de la détection. D’autre part, le réglage des correcteurs PID s’est avéré particulièrement délicat, demandant de nombreuses itérations et de longues phases de tests expérimentaux pour obtenir un comportement stable et satisfaisant du robot.
+
 # Rapport individuel des tâches réalisées au sein du projet  
 
 Suite à cela, après une nouvelle réunion, chaque membre du groupe se voit attribuer diverses missions.  
