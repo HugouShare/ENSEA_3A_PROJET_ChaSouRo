@@ -35,6 +35,18 @@ Charge à nous :
     - [Positionnement sur la carte](#positionnement-sur-la-carte)
 
 - [Point FIRMWARE](#point-firmware)
+  - [Choix d’architecture logicielle](#choix-darchitecture-logicielle)
+    - [Organisation du code et séparation des modules](#organisation-du-code-et-séparation-des-modules)
+    - [Convention d’intégration des modules (init, tâches et callbacks)](#convention-dintégration-des-modules-init-tâches-et-callbacks)
+    - [Utilisation de drivers dédiés](#utilisation-de-drivers-dédiés)
+  - [Choix de FreeRTOS](#choix-de-freertos)
+  - [Gestion de la mémoire](#gestion-de-la-mémoire)
+  - [Choix et description des comportements du robot](#choix-et-description-des-comportements-du-robot)
+    - [Mode ROOMBA](#mode-roomba)
+    - [Mode CHAT](#mode-chat)
+    - [Mode SOURIS](#mode-souris)
+    - [Mode EDGE](#mode-edge)
+  - [Coordination des comportements](#coordination-des-comportements)
 
 - [Problèmes rencontrés lors du projet](#problèmes-rencontrés-lors-du-projet)
   - [Hardware](#hardware)
