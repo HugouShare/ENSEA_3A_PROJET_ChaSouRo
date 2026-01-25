@@ -490,7 +490,7 @@ Voici un récapitulatif de ce que chaque membre du groupe aura réalisé au sein
   Votre navigateur ne supporte pas la lecture de vidéos.
 </video>
 
-cf. chemin : <Images et videos pour rapport de projet/Test detection de bord mode ROOMBA>  
+cf. chemin : <Images et videos pour rapport de projet/Test detection de bord mode ROOMBA.mp4>  
 
 `Test plusieurs robots qui sont chats` :  
 
@@ -499,7 +499,7 @@ cf. chemin : <Images et videos pour rapport de projet/Test detection de bord mod
   Votre navigateur ne supporte pas la lecture de vidéos.
 </video>  
 
-cf. chemin : <Images et videos pour rapport de projet/Test plusieurs chats>  
+cf. chemin : <Images et videos pour rapport de projet/Test plusieurs chats.mp4>  
 
 # Conclusion du projet   
 
