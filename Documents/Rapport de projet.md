@@ -196,7 +196,7 @@ J'ai choisi de ne pas mélanger les parties puissance et signal à différents e
 
 À noter que j'ai respecté les consignes de routage pour le `convertisseur buck` fournies dans la datasheet, ce qui occupe une certaine place sur la carte.
 
-Et tout autour de la cartes les différents connecteurs pour tout relié à la carte.
+Et tout autour de la carte les différents connecteurs pour tout relié à la carte.
 
 `Face avant` :
 
